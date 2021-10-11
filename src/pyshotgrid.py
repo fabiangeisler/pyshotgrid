@@ -4,6 +4,7 @@ __version__ = '0.1.0'
 
 import collections
 import copy
+import webbrowser
 
 
 class CachedShotgridEntity(collections.Mapping):
@@ -57,6 +58,9 @@ class CachedShotgridEntity(collections.Mapping):
 class ShotGridEntity(collections.Mapping):
     """
 
+    :ivar shotgun_api3.Shotgun sg:
+    :ivar str entity_type:
+    :ivar int entity_id:
     """
 
     @classmethod
@@ -101,7 +105,7 @@ class ShotGridEntity(collections.Mapping):
         elif 'sg_' + field in sg_entity:
             value = sg_entity['sg_' + field]
         else:
-            raise RuntimeError('{} has no field {}'.format(self._type, field))
+            raise KeyError('{} has no field {}'.format(self._type, field))
 
         if isinstance(value, list):
             return [ShotGridEntity.from_sg_dict(self.sg, entity) for entity in value]
@@ -116,16 +120,14 @@ class ShotGridEntity(collections.Mapping):
                               data={key: value})
 
     def __iter__(self):
-        sg_entity_fields = self.shotgun.schema_field_read(self._type,
-                                                          project_entity=self.project)
-        all_fields = self.shotgun.find_one(self._type,
-                                           [['id', 'is', self._id]],
-                                           sg_entity_fields.keys())
+        sg_entity_fields = self.sg.schema_field_read(self._type)  # , project_entity=self.project)
+        all_fields = self.sg.find_one(self._type,
+                                      [['id', 'is', self._id]],
+                                      sg_entity_fields.keys())
         return iter(all_fields)
 
     def __len__(self):
-        sg_entity_fields = self.shotgun.schema_field_read(self._type,
-                                                          project_entity=self.project)
+        sg_entity_fields = self.sg.schema_field_read(self._type)  # ,project_entity=self.project)
         return len(sg_entity_fields)
 
     def schema_field_read(self, field):
@@ -133,6 +135,12 @@ class ShotGridEntity(collections.Mapping):
         :return: The schema for the given field.
         """
         return self.sg.schema_field_read(self._type, field)[field]
+
+    def schema(self):
+        """
+        :return: The schema for the current entity.
+        """
+        return self.sg.schema_entity_read(self._type)
 
     def upload(self):
         """
@@ -148,12 +156,51 @@ class ShotGridEntity(collections.Mapping):
 
     def shotgrid_url(self):
         """
-        Get the ShotGrid URL for this entity.
+        :return: The ShotGrid URL for this entity.
+        :rtype: str
         """
-        # TODO
+        return '{}/detail/{}/{}'.format(self.sg.base_url, self._type, self._id)
 
     def open_shotgrid_url(self):
         """
         Open the ShotGrid details page in a new browser tab.
         """
-        # TODO
+        webbrowser.open_new_tab(self.shotgrid_url())
+
+
+def find(sg, entity_type, filters, fields=None, order=None, filter_operator=None, limit=0,
+         retired_only=False, page=0, include_archived_projects=True,
+         additional_filter_presets=None):
+    """
+    :param shotgun_api3.Shotgun sg:
+    """
+    return [ShotGridEntity.from_sg_dict(sg, sg_entity)
+            for sg_entity in sg.find(entity_type=entity_type,
+                                     filters=filters,
+                                     fields=fields,
+                                     order=order,
+                                     filter_operator=filter_operator,
+                                     limit=limit,
+                                     retired_only=retired_only,
+                                     page=page,
+                                     include_archived_projects=include_archived_projects,
+                                     additional_filter_presets=additional_filter_presets)]
+
+
+def find_one(sg, entity_type, filters, fields=None, order=None, filter_operator=None, limit=0,
+             retired_only=False, page=0, include_archived_projects=True,
+             additional_filter_presets=None):
+    """
+
+    """
+    return find(sg=sg,
+                entity_type=entity_type,
+                filters=filters,
+                fields=fields,
+                order=order,
+                filter_operator=filter_operator,
+                limit=limit,
+                retired_only=retired_only,
+                page=page,
+                include_archived_projects=include_archived_projects,
+                additional_filter_presets=additional_filter_presets)[0]
