@@ -14,14 +14,17 @@ pyshotgrid
         :alt: Documentation Status
 
 
+An object oriented python library for Autodesk ShotGrid.
 
-
-OOP for Autodesk ShotGrid
-
+For the Autodesk Maya guys: This aims to be what `pymel` is to `maya.cmds`.
 
 * Free software: MIT license
 * Documentation: https://pyshotgrid.readthedocs.io.
 
+Is it faster than `shotgun_api3`?
+---------------------------------
+No, and since it is build on top of shotgun_api3, it never will be.
+The goal is to make the syntactic sugar faster to develop. :)
 
 Features
 --------
