@@ -54,10 +54,19 @@ class TestPyshotgrid(BaseTestShotgunLib):
                 'path_cache_storage': local_storage
             })
 
-    def test_ShotGridEntity_query_field(self):
+    def test_ShotGridEntity_string_representation(self):
+        sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
+
+        self.assertEqual('ShotGridEntity  Type: Project  ID: 1', str(sg_entity))
+
+    def test_ShotGridEntity_query_field_dot_notation(self):
         sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
 
         self.assertEqual('tp', sg_entity.tank_name)
+
+    def test_ShotGridEntity_query_field_dict_notation(self):
+        sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
+
         self.assertEqual('tp', sg_entity['tank_name'])
 
     def test_ShotGridEntity_update_field_dot_notation(self):
@@ -73,9 +82,9 @@ class TestPyshotgrid(BaseTestShotgunLib):
     def test_ShotGridEntity_update_field_dict_notation(self):
         sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
 
-        sg_entity['code'] = 'barbaz'
+        sg_entity['code'] = 'bar-baz'
 
-        self.assertEqual('barbaz', sg_entity.code)
+        self.assertEqual('bar-baz', sg_entity.code)
 
         # cleanup
         sg_entity['code'] = 'Test project'
@@ -120,3 +129,9 @@ class TestPyshotgrid(BaseTestShotgunLib):
                           ('code', 'primary'),
                           ('updated_at', None)},
                          set(sg_entity.items()))
+
+    def test_ShotGridEntity_shotgun_url(self):
+        sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
+
+        self.assertEqual('https://test.shotgunstudio.com/detail/Project/1',
+                         sg_entity.shotgrid_url)

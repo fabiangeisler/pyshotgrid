@@ -57,6 +57,7 @@ class CachedShotgridEntity(collections.Mapping):
 
 class ShotGridEntity(collections.Mapping):
     """
+    This class represents a single entity in ShotGrid.
 
     :ivar shotgun_api3.Shotgun sg:
     :ivar str entity_type:
@@ -72,9 +73,8 @@ class ShotGridEntity(collections.Mapping):
         self._type = entity_type
         self._id = entity_id
 
-    def __repr__(self):
-        # FIXME
-        return '{}()'.format(self.__class__.__name__)
+    def __str__(self):
+        return '{}  Type: {}  ID: {}'.format(self.__class__.__name__, self._type, self._id)
 
     @property
     def id(self):
@@ -142,18 +142,24 @@ class ShotGridEntity(collections.Mapping):
         """
         return self.sg.schema_entity_read(self._type)
 
-    def upload(self):
+    def upload(self, field_name, file_path, display_name=None, tag_list=None):
         """
         Upload a file to a field
         """
-        # TODO
+        return self.sg.upload(entity_type=self._type,
+                              entity_id=self._id,
+                              path=file_path,
+                              field_name=field_name,
+                              display_name=display_name,
+                              tag_list=tag_list)
 
-    def download(self):
+    def download(self, field_name, file_path=None):
         """
         Download a file from a field
         """
-        # TODO
+        return self.sg.download_attachment(attachment=self[field_name], file_path=file_path)
 
+    @property
     def shotgrid_url(self):
         """
         :return: The ShotGrid URL for this entity.
@@ -165,7 +171,7 @@ class ShotGridEntity(collections.Mapping):
         """
         Open the ShotGrid details page in a new browser tab.
         """
-        webbrowser.open_new_tab(self.shotgrid_url())
+        webbrowser.open_new_tab(self.shotgrid_url)
 
 
 def find(sg, entity_type, filters, fields=None, order=None, filter_operator=None, limit=0,
