@@ -29,7 +29,42 @@ The goal is to make the syntactic sugar faster to develop. :)
 Features
 --------
 
-* TODO
+* An entity in Shotgun is represented by an instance of the `ShotGridEntity` class.
+  If you want to query a field from that instance you can do so via dictionary style 
+  Or dot notation:
+
+  ```
+  >>> import pyshotgrid as pysg
+  >>> sg_project = pysg.ShotGridEntity("Project", 1)
+  >>> sg_project.code
+  "Test Project"
+  >>> sg_project["code"]
+  "Test Project"
+  ```
+
+* You can think of a ShotgridEntity as a dictionary on steroids.
+  It has all the functionality of a regular dict plus a few extra functions.
+  So for example you can : 
+  * iterate over all fields
+    ```
+    for field, value in sg_project.items():
+         print(field, value)
+    ```
+  * Use regular dict functionality
+    ```
+    sg_project.keys()
+    sg_project.values()
+    sg_project.get("code")
+    len(sg_project)
+    ```
+  * Update fields in ShotGrid
+    ```
+    sg_project["code"] = "foobar"
+    ```
+  * Convert it to a regular dict
+    ```
+    dict(sg_project)
+    ```
 
 Credits
 -------
