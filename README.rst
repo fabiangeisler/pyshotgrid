@@ -6,9 +6,6 @@ pyshotgrid
 .. image:: https://img.shields.io/pypi/v/pyshotgrid.svg
         :target: https://pypi.python.org/pypi/pyshotgrid
 
-.. image:: https://img.shields.io/travis/fabiangeisler/pyshotgrid.svg
-        :target: https://travis-ci.com/fabiangeisler/pyshotgrid
-
 .. image:: https://readthedocs.org/projects/pyshotgrid/badge/?version=latest
         :target: https://pyshotgrid.readthedocs.io/en/latest/?version=latest
         :alt: Documentation Status
@@ -30,41 +27,39 @@ Features
 --------
 
 * An entity in Shotgun is represented by an instance of the `ShotGridEntity` class.
-  If you want to query a field from that instance you can do so via dictionary style 
-  Or dot notation:
+  If you want to query a field from that instance you can do so via dictionary style
+  Or dot notation::
 
-  ```
-  >>> import pyshotgrid as pysg
-  >>> sg_project = pysg.ShotGridEntity("Project", 1)
-  >>> sg_project.code
-  "Test Project"
-  >>> sg_project["code"]
-  "Test Project"
-  ```
+      >>> import pyshotgrid as pysg
+      >>> sg_project = pysg.ShotGridEntity("Project", 1)
+      >>> sg_project.code
+      "Test Project"
+      >>> sg_project["code"]
+      "Test Project"
 
 * You can think of a ShotgridEntity as a dictionary on steroids.
   It has all the functionality of a regular dict plus a few extra functions.
-  So for example you can : 
-  * iterate over all fields
-    ```
-    for field, value in sg_project.items():
-         print(field, value)
-    ```
-  * Use regular dict functionality
-    ```
-    sg_project.keys()
-    sg_project.values()
-    sg_project.get("code")
-    len(sg_project)
-    ```
-  * Update fields in ShotGrid
-    ```
-    sg_project["code"] = "foobar"
-    ```
-  * Convert it to a regular dict
-    ```
-    dict(sg_project)
-    ```
+  So for example you can :
+  * iterate over all fields::
+
+        for field, value in sg_project.items():
+             print(field, value)
+
+  * Use regular dict functionality::
+
+        sg_project.keys()
+        sg_project.values()
+        sg_project.get("code")
+        len(sg_project)
+
+  * Update fields in ShotGrid::
+
+        sg_project["code"] = "foobar"
+
+  * Convert it to a regular dict::
+
+        dict(sg_project)
+
 
 Credits
 -------

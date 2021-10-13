@@ -84,7 +84,7 @@ class TestPyshotgrid(BaseTestShotgunLib):
 
         sg_entity['code'] = 'bar-baz'
 
-        self.assertEqual('bar-baz', sg_entity.code)
+        self.assertEqual('bar-baz', sg_entity['code'])
 
         # cleanup
         sg_entity['code'] = 'Test project'
