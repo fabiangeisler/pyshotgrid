@@ -1,6 +1,6 @@
 """Main module."""
 
-__version__ = '0.1.0'
+VERSION = '0.1.0'
 
 import collections
 import webbrowser
@@ -203,16 +203,19 @@ class PyShotGrid(shotgun_api3.Shotgun):
     Thin wrapper around shotgun_api3.Shotgun
     to extend the CRUD functions to accept and return ShotGridEntity instances.
     """
+
     def find(self, entity_type, filters, fields=None, order=None, filter_operator=None, limit=0,
-             retired_only=False, page=0, include_archived_projects=True, additional_filter_presets=None):
+             retired_only=False, page=0, include_archived_projects=True,
+             additional_filter_presets=None):
         return [ShotGridEntity.from_sg_dict(self, sg_entity)
-                for sg_entity in super(PyShotGrid, self).find(entity_type=entity_type,
-                                         filters=filters,
-                                         fields=fields,
-                                         order=order,
-                                         filter_operator=filter_operator,
-                                         limit=limit,
-                                         retired_only=retired_only,
-                                         page=page,
-                                         include_archived_projects=include_archived_projects,
-                                         additional_filter_presets=additional_filter_presets)]
+                for sg_entity in super(PyShotGrid, self).find(
+                entity_type=entity_type,
+                filters=filters,
+                fields=fields,
+                order=order,
+                filter_operator=filter_operator,
+                limit=limit,
+                retired_only=retired_only,
+                page=page,
+                include_archived_projects=include_archived_projects,
+                additional_filter_presets=additional_filter_presets)]
