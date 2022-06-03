@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-"""Tests for `pyshotgrid` package."""
+"""Tests for `pysg` package."""
 import os
 import sys
 import unittest
 
 from shotgun_api3.lib import mockgun
 
-import pyshotgrid as pysg
+import pysg
 
 
 class BaseTestShotgunLib(unittest.TestCase):
@@ -29,12 +29,12 @@ class BaseTestShotgunLib(unittest.TestCase):
                                  api_key='$ome_password')
 
 
-class TestPyshotgrid(BaseTestShotgunLib):
-    """Tests for `pyshotgrid` package."""
+class TestPySG(BaseTestShotgunLib):
+    """Tests for `pysg` package."""
 
     @classmethod
     def setUpClass(cls):
-        super(TestPyshotgrid, cls).setUpClass()
+        super(TestPySG, cls).setUpClass()
 
         # Shotgun test project
         cls.sg_project = cls.sg.create('Project', {'code': 'Test Project',
@@ -58,11 +58,6 @@ class TestPyshotgrid(BaseTestShotgunLib):
         sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
 
         self.assertEqual('ShotGridEntity  Type: Project  ID: 1', str(sg_entity))
-
-    def test_ShotGridEntity_query_field_dot_notation(self):
-        sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
-
-        self.assertEqual('tp', sg_entity.tank_name)
 
     def test_ShotGridEntity_query_field_dict_notation(self):
         sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
@@ -134,4 +129,4 @@ class TestPyshotgrid(BaseTestShotgunLib):
         sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
 
         self.assertEqual('https://test.shotgunstudio.com/detail/Project/1',
-                         sg_entity.shotgrid_url)
+                         sg_entity.url)

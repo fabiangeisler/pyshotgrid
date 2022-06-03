@@ -48,7 +48,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint/flake8: ## check style with flake8
-	flake8 pyshotgrid tests
+	flake8 pysg tests
 
 lint: lint/flake8 ## check style
 
@@ -65,7 +65,7 @@ coverage: ## check code coverage quickly with the default Python
 	$(BROWSER) htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/pyshotgrid.rst
+	rm -f docs/pysg.rst
 	rm -f docs/modules.rst
 	sphinx-apidoc -o docs/ src
 	$(MAKE) -C docs clean

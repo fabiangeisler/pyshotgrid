@@ -15,7 +15,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/fabiangeisler/pyshotgrid/issues.
+Report bugs at https://github.com/fabiangeisler/pysg/issues.
 
 If you are reporting a bug, please include:
 
@@ -38,14 +38,14 @@ and "help wanted" is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-pyshotgrid could always use more documentation, whether as part of the
-official pyshotgrid docs, in docstrings, or even on the web in blog posts,
+pysg could always use more documentation, whether as part of the
+official pysg docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/fabiangeisler/pyshotgrid/issues.
+The best way to send feedback is to file an issue at https://github.com/fabiangeisler/pysg/issues.
 
 If you are proposing a feature:
 
@@ -57,17 +57,17 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `pyshotgrid` for local development.
+Ready to contribute? Here's how to set up `pysg` for local development.
 
-1. Fork the `pyshotgrid` repo on GitHub.
+1. Fork the `pysg` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/pyshotgrid.git
+    $ git clone git@github.com:your_name_here/pysg.git
 
 3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
 
-    $ mkvirtualenv pyshotgrid
-    $ cd pyshotgrid/
+    $ mkvirtualenv pysg
+    $ cd pysg/
     $ python setup.py develop
 
 4. Create a branch for local development::
@@ -79,7 +79,7 @@ Ready to contribute? Here's how to set up `pyshotgrid` for local development.
 5. When you're done making changes, check that your changes pass flake8 and the
    tests, including testing other Python versions with tox::
 
-    $ flake8 pyshotgrid tests
+    $ flake8 pysg tests
     $ python setup.py test or pytest
     $ tox
 
@@ -103,7 +103,7 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
 3. The pull request should work for Python 3.5, 3.6, 3.7 and 3.8, and for PyPy. Check
-   https://travis-ci.com/fabiangeisler/pyshotgrid/pull_requests
+   https://travis-ci.com/fabiangeisler/pysg/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
 Tips
@@ -112,7 +112,7 @@ Tips
 To run a subset of tests::
 
 
-    $ python -m unittest tests.test_pyshotgrid
+    $ python -m unittest tests.test_pysg
 
 Deploying
 ---------

@@ -1,30 +1,25 @@
-# `pyshotgrid`
-[![pypi](https://img.shields.io/pypi/v/pyshotgrid.svg)](https://pypi.python.org/pypi/pyshotgrid)
-[![docs](https://readthedocs.org/projects/pyshotgrid/badge/?version=latest)](https://pyshotgrid.readthedocs.io/en/latest/?version=latest)
+# `pysg`
+[![pypi](https://img.shields.io/pypi/v/pysg.svg)](https://pypi.python.org/pypi/pysg)
+[![docs](https://readthedocs.org/projects/pysg/badge/?version=latest)](https://pysg.readthedocs.io/en/latest/?version=latest)
 
-An object oriented python library for Autodesk ShotGrid.
-
-For the Autodesk Maya guys: This aims to be what `pymel` is to `maya.cmds`.
+A pythonic way to talk to Autodesk ShotGrid.
 
 * Free software: MIT license
-* Documentation: https://pyshotgrid.readthedocs.io.
+* Documentation: https://pysg.readthedocs.io.
 
 ## Features
 
-An entity in Shotgun is represented by an instance of the `ShotGridEntity` class.
-If you want to query a field from that instance you can do so via dictionary style
-Or dot notation:
+An entity in ShotGrid is represented by an instance of the `ShotGridEntity` class.
+If you want to query a field from that instance you can do so via dictionary style:
 
 ```python
 >>> import shotgun_api3
->>> import pyshotgrid as pysg
+>>> import pysg
 >>> sg = shotgun_api3.Shotgun(
-... base_url='https://test.shotgunstudio.com',
-... script_name='Unittest User',
-... api_key='$ome_password')
+... base_url = 'https://test.shotgunstudio.com',
+... script_name = 'Some User',
+... api_key = '$ome_password')
 >>> sg_project = pysg.ShotGridEntity(sg, "Project", 1)
->>> sg_project.code
-"Test Project"
 >>> sg_project["code"]
 "Test Project"
 ```
@@ -52,10 +47,24 @@ So for example you can :
   ```python
   dict(sg_project)
   ```
+* Upload/Download to/from a field
+  ```python
+  sg_version.upload('sg_uploaded_movie', '/path/to/movie.mov')
+  sg_version.download('sg_uploaded_movie', '/path/to/download/to/')
+  ```
+* Get the URL of the entity
+  ```python
+  # Get the URL directly
+  sg_project.url
+  ```
+
+The rules is: All fields of an entity need to be accessed via dict notation (eg. `sg_project['code']`)
+              and all "special" functionality is accessed via instance methods (eg. `sg_version.download('sg_movie', '/path/to/somewhere')`).
+
 
 ## Is it faster than `shotgun_api3`?
-No, and since it is build on top of shotgun_api3, it never will be.
-`pyshotgrid` is syntactic sugar that hopefully enables you to develop better and faster. :)
+No, and since it is build on top of `shotgun_api3`, it never will be.
+`pysg` is syntactic sugar that hopefully enables you to develop better and faster. :)
 
 ## Credits
 

@@ -1,13 +1,13 @@
 ==========
-pyshotgrid
+pysg
 ==========
 
 
-.. image:: https://img.shields.io/pypi/v/pyshotgrid.svg
-        :target: https://pypi.python.org/pypi/pyshotgrid
+.. image:: https://img.shields.io/pypi/v/pysg.svg
+        :target: https://pypi.python.org/pypi/pysg
 
-.. image:: https://readthedocs.org/projects/pyshotgrid/badge/?version=latest
-        :target: https://pyshotgrid.readthedocs.io/en/latest/?version=latest
+.. image:: https://readthedocs.org/projects/pysg/badge/?version=latest
+        :target: https://pysg.readthedocs.io/en/latest/?version=latest
         :alt: Documentation Status
 
 
@@ -16,7 +16,7 @@ An object oriented python library for Autodesk ShotGrid.
 For the Autodesk Maya guys: This aims to be what `pymel` is to `maya.cmds`.
 
 * Free software: MIT license
-* Documentation: https://pyshotgrid.readthedocs.io.
+* Documentation: https://pysg.readthedocs.io.
 
 Is it faster than `shotgun_api3`?
 ---------------------------------
@@ -30,10 +30,8 @@ Features
   If you want to query a field from that instance you can do so via dictionary style
   Or dot notation::
 
-      >>> import pyshotgrid as pysg
+      >>> import pysg
       >>> sg_project = pysg.ShotGridEntity("Project", 1)
-      >>> sg_project.code
-      "Test Project"
       >>> sg_project["code"]
       "Test Project"
 

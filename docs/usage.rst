@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use pyshotgrid in a project::
+To use pysg in a project::
 
-    import pyshotgrid
+    import pysg

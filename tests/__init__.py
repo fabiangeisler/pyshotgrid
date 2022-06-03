@@ -1,1 +1,1 @@
-"""Unit test package for pyshotgrid."""
+"""Unit test package for pysg."""
