@@ -81,7 +81,7 @@ class ShotGridEntity(collections.Mapping):
         all_fields = self.sg.find_one(self._type,
                                       [['id', 'is', self._id]],
                                       sg_entity_fields.keys())
-        # TODO convert entities to pysg
+        # TODO convert entities to pyshotgrid
         return iter(all_fields)
 
     def __len__(self):
@@ -109,7 +109,7 @@ class ShotGridEntity(collections.Mapping):
                   Useful when you want to collect field changes and set them in one go.
         :rtype: dict
         """
-        # TODO convert pysg values to dicts
+        # TODO convert pyshotgrid values to dicts
         return {"request_type": "update",
                 "entity_type": self._type,
                 "entity_id": self._id,
@@ -131,8 +131,8 @@ class ShotGridEntity(collections.Mapping):
         Set many fields at once on this entity.
 
         :param list[str] fields: A list of fields to query from this entity.
-        :param bool raw_values: Any entities will be converted to pysg instances. If you set this
-                                parameter to True you can turn this behaviour off.
+        :param bool raw_values: Any entities will be converted to pyshotgrid instances.
+                                If you set this parameter to True you can turn this behaviour off.
         :return: A dict with the fields and their corresponding values.
         :rtype: dict[str,Any]
         """

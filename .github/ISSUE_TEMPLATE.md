@@ -1,4 +1,4 @@
-* pysg version:
+* pyshotgrid version:
 * Python version:
 * Operating System:
 

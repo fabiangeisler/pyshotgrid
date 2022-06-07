@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-"""Tests for `pysg` package."""
+"""Tests for `pyshotgrid` package."""
 import os
 import sys
 import unittest
 
 from shotgun_api3.lib import mockgun
 
-import pysg
+import pyshotgrid
 
 
 class BaseTestShotgunLib(unittest.TestCase):
@@ -30,7 +30,7 @@ class BaseTestShotgunLib(unittest.TestCase):
 
 
 class TestPySG(BaseTestShotgunLib):
-    """Tests for `pysg` package."""
+    """Tests for `pyshotgrid` package."""
 
     @classmethod
     def setUpClass(cls):
@@ -55,17 +55,17 @@ class TestPySG(BaseTestShotgunLib):
             })
 
     def test_ShotGridEntity_string_representation(self):
-        sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
+        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
 
         self.assertEqual('ShotGridEntity  Type: Project  ID: 1', str(sg_entity))
 
     def test_ShotGridEntity_query_field_dict_notation(self):
-        sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
+        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
 
         self.assertEqual('tp', sg_entity['tank_name'])
 
     def test_ShotGridEntity_update_field_dot_notation(self):
-        sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
+        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
 
         sg_entity.code = 'foobar'
 
@@ -75,7 +75,7 @@ class TestPySG(BaseTestShotgunLib):
         sg_entity.code = 'Test project'
 
     def test_ShotGridEntity_update_field_dict_notation(self):
-        sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
+        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
 
         sg_entity['code'] = 'bar-baz'
 
@@ -85,12 +85,12 @@ class TestPySG(BaseTestShotgunLib):
         sg_entity['code'] = 'Test project'
 
     def test_ShotGridEntity_len_of_fields(self):
-        sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
+        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
 
         self.assertEqual(67, len(sg_entity))
 
     def test_ShotGridEntity_convert_to_dict(self):
-        sg_entity = pysg.ShotGridEntity(self.sg, 'LocalStorage', 1)
+        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'LocalStorage', 1)
 
         self.assertEqual({'cached_display_name': None,
                           'code': 'primary',
@@ -108,7 +108,7 @@ class TestPySG(BaseTestShotgunLib):
                          dict(sg_entity))
 
     def test_ShotGridEntity_iter_fields(self):
-        sg_entity = pysg.ShotGridEntity(self.sg, 'LocalStorage', 1)
+        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'LocalStorage', 1)
 
         self.assertEqual({('linux_path', '/mnt/projects'),
                           ('type', 'LocalStorage'),
@@ -126,7 +126,7 @@ class TestPySG(BaseTestShotgunLib):
                          set(sg_entity.items()))
 
     def test_ShotGridEntity_shotgun_url(self):
-        sg_entity = pysg.ShotGridEntity(self.sg, 'Project', 1)
+        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
 
         self.assertEqual('https://test.shotgunstudio.com/detail/Project/1',
                          sg_entity.url)

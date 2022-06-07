@@ -1,4 +1,4 @@
-Welcome to pysg's documentation!
+Welcome to pyshotgrid's documentation!
 ======================================
 
 .. toctree::

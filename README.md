@@ -1,11 +1,11 @@
-# `pysg`
-[![pypi](https://img.shields.io/pypi/v/pysg.svg)](https://pypi.python.org/pypi/pysg)
-[![docs](https://readthedocs.org/projects/pysg/badge/?version=latest)](https://pysg.readthedocs.io/en/latest/?version=latest)
+# `pyshotgrid`
+[![pypi](https://img.shields.io/pypi/v/pyshotgrid.svg)](https://pypi.python.org/pypi/pyshotgrid)
+[![docs](https://readthedocs.org/projects/pyshotgrid/badge/?version=latest)](https://pyshotgrid.readthedocs.io/en/latest/?version=latest)
 
 A pythonic way to talk to Autodesk ShotGrid.
 
 * Free software: MIT license
-* Documentation: https://pysg.readthedocs.io.
+* Documentation: https://pyshotgrid.readthedocs.io.
 
 ## Features
 
@@ -14,12 +14,12 @@ If you want to query a field from that instance you can do so via dictionary sty
 
 ```python
 >>> import shotgun_api3
->>> import pysg
+>>> import pyshotgrid
 >>> sg = shotgun_api3.Shotgun(
 ... base_url = 'https://test.shotgunstudio.com',
 ... script_name = 'Some User',
 ... api_key = '$ome_password')
->>> sg_project = pysg.ShotGridEntity(sg, "Project", 1)
+>>> sg_project = pyshotgrid.ShotGridEntity(sg, "Project", 1)
 >>> sg_project["code"]
 "Test Project"
 ```
@@ -64,7 +64,7 @@ The rules is: All fields of an entity need to be accessed via dict notation (eg.
 
 ## Is it faster than `shotgun_api3`?
 No, and since it is build on top of `shotgun_api3`, it never will be.
-`pysg` is syntactic sugar that hopefully enables you to develop better and faster. :)
+`pyshotgrid` is syntactic sugar that hopefully enables you to develop better and faster. :)
 
 ## Credits
 

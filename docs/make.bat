@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=pysg
+set SPHINXPROJ=pyshotgrid
 
 if "%1" == "" goto help
 

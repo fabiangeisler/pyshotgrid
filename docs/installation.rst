@@ -8,13 +8,13 @@ Installation
 Stable release
 --------------
 
-To install pysg, run this command in your terminal:
+To install pyshotgrid, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install pysg
+    $ pip install pyshotgrid
 
-This is the preferred method to install pysg, as it will always install the most recent stable release.
+This is the preferred method to install pyshotgrid, as it will always install the most recent stable release.
 
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide
 you through the process.
@@ -26,19 +26,19 @@ you through the process.
 From sources
 ------------
 
-The sources for pysg can be downloaded from the `Github repo`_.
+The sources for pyshotgrid can be downloaded from the `Github repo`_.
 
 You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/fabiangeisler/pysg
+    $ git clone git://github.com/fabiangeisler/pyshotgrid
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl -OJL https://github.com/fabiangeisler/pysg/tarball/master
+    $ curl -OJL https://github.com/fabiangeisler/pyshotgrid/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/fabiangeisler/pysg
-.. _tarball: https://github.com/fabiangeisler/pysg/tarball/master
+.. _Github repo: https://github.com/fabiangeisler/pyshotgrid
+.. _tarball: https://github.com/fabiangeisler/pyshotgrid/tarball/master
