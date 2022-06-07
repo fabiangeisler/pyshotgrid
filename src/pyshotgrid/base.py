@@ -1,5 +1,3 @@
-import collections
-
 import shotgun_api3
 
 
@@ -29,7 +27,7 @@ def convert(sg, *args, **kwargs):
             return ShotGridEntity(sg, entity_type, entity_id)
 
 
-class ShotGridEntity(collections.Mapping):
+class ShotGridEntity(object):
     """
     This class represents a single entity in ShotGrid.
 
@@ -44,7 +42,7 @@ class ShotGridEntity(collections.Mapping):
         self._id = entity_id
 
     def __str__(self):
-        return '{}  Type: {}  ID: {} URL: {}'.format(
+        return '{} - Type: {} - ID: {} - URL: {}'.format(
             self.__class__.__name__, self._type, self._id, self.url)
 
     @property
@@ -58,6 +56,17 @@ class ShotGridEntity(collections.Mapping):
     @property
     def sg(self):
         return self._sg
+
+    @property
+    def url(self):
+        """
+        :return: The ShotGrid URL for this entity.
+                 .. Note::
+                     This will only work on entities that have a detail view enabled
+                     in the system settings.
+        :rtype: str
+        """
+        return '{}/detail/{}/{}'.format(self.sg.base_url, self._type, self._id)
 
     def __getitem__(self, field):
         value = self.sg.find_one(self._type,
@@ -76,26 +85,28 @@ class ShotGridEntity(collections.Mapping):
                        self._id,
                        data={key: value})
 
-    def __iter__(self):
-        sg_entity_fields = self.sg.schema_field_read(self._type)  # ,project_entity=self['project'])
+    def all_fields(self, project_entity=None):
+        """
+
+        :param dict[str|Any] project_entity:
+        :return:
+        """
+        # TODO convert project_entity
+        sg_entity_fields = self.sg.schema_field_read(self._type, project_entity=project_entity)
+        fields = [field
+                  for field, schema in sg_entity_fields.items()
+                  if schema['visible']['value']]
         all_fields = self.sg.find_one(self._type,
                                       [['id', 'is', self._id]],
-                                      sg_entity_fields.keys())
+                                      fields)
         # TODO convert entities to pyshotgrid
-        return iter(all_fields)
-
-    def __len__(self):
-        sg_entity_fields = self.sg.schema_field_read(self._type)  # ,project_entity=self['project'])
-        return len(sg_entity_fields)
+        return all_fields
 
     def to_dict(self):
         # noinspection PyUnresolvedReferences
         """
         :returns: The entity as a dict which is ready to consume by the shotgun_api3 methods.
                   .. Note::
-                        There are 2 ways to convert the entity to a dict:
-                        >>> dict(sg_entity)
-                        Creates a dict with all the fields (and calls SG for it)
                         >>> sg_entity.to_dict()
                         Creates a dict with just "type" and "id" (and does not call SG).
         :rtype: dict[str,Any]
@@ -115,7 +126,7 @@ class ShotGridEntity(collections.Mapping):
                 "entity_id": self._id,
                 "data": data}
 
-    def batch_set(self, data):
+    def set(self, data):
         """
         Set many fields at once on this entity.
 
@@ -126,7 +137,7 @@ class ShotGridEntity(collections.Mapping):
                               self._id,
                               data=data)
 
-    def batch_get(self, fields, raw_values=False):
+    def get(self, fields, raw_values=False):
         """
         Set many fields at once on this entity.
 
@@ -180,33 +191,23 @@ class ShotGridEntity(collections.Mapping):
         """
         return self.sg.schema_field_read(self._type, field)[field]
 
-    def upload(self, field_name, file_path, display_name=None, tag_list=None):
+    def upload(self, field, path, display_name=None, tag_list=None):
         """
         Upload a file to a field
         """
+        # TODO convert tag list pysg objects
         return self.sg.upload(entity_type=self._type,
                               entity_id=self._id,
-                              path=file_path,
-                              field_name=field_name,
+                              path=path,
+                              field_name=field,
                               display_name=display_name,
                               tag_list=tag_list)
 
-    def download(self, field_name, file_path=None):
+    def download(self, field, path):
         """
         Download a file from a field.
         """
-        return self.sg.download_attachment(attachment=self[field_name], file_path=file_path)
-
-    @property
-    def url(self):
-        """
-        :return: The ShotGrid URL for this entity.
-                 .. Note::
-                     This will only work on entities that have a detail view enabled
-                     in the system settings.
-        :rtype: str
-        """
-        return '{}/detail/{}/{}'.format(self.sg.base_url, self._type, self._id)
+        return self.sg.download_attachment(attachment=self[field], file_path=path)
 
 
 class SGSite(object):

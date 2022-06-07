@@ -16,7 +16,7 @@ If you want to query a field from that instance you can do so via dictionary sty
 >>> import shotgun_api3
 >>> import pyshotgrid
 >>> sg = shotgun_api3.Shotgun(
-... base_url = 'https://test.shotgunstudio.com',
+... base_url = 'https://example.shotgunstudio.com',
 ... script_name = 'Some User',
 ... api_key = '$ome_password')
 >>> sg_project = pyshotgrid.ShotGridEntity(sg, "Project", 1)
@@ -24,28 +24,19 @@ If you want to query a field from that instance you can do so via dictionary sty
 "Test Project"
 ```
 
-You can think of a ShotgridEntity as a dictionary on steroids.
-It has all the functionality of a regular dict plus a few extra functions.
+A ShotGridEntity instance represents exactly one entity and
+any operation on it is reflected to ShotGrid.
 So for example you can :
-* iterate over all fields
+
+* Get fields from ShotGrid
   ```python
-  for field, value in sg_project.items():
-       print(field, value)
-  ```
-* Use regular dict functionality
-  ```python
-  sg_project.keys()
-  sg_project.values()
-  sg_project.get("code")
-  len(sg_project)
+  print(sg_project["code"])  # "foobar"
+  print(sg_project.get(["code", "tank_name"]))  # {"code":"foobar", "tank_name": "fb"}
   ```
 * Update fields in ShotGrid
   ```python
   sg_project["code"] = "foobar"
-  ```
-* Convert it to a regular dict
-  ```python
-  dict(sg_project)
+  sg_project.set({"code":"foobar", "tank_name": "fb"})
   ```
 * Upload/Download to/from a field
   ```python
@@ -54,10 +45,17 @@ So for example you can :
   ```
 * Get the URL of the entity
   ```python
-  # Get the URL directly
-  sg_project.url
+  print(sg_project.url)  # https://example.shotgunstudio.com/detail/Project/1
   ```
-
+* Convert it to a regular dict which can be used in the regular shotgun_api3
+  ```python
+  sg_project.to_dict()  # {"type": "Project", "id": 1}
+  ```
+* iterate over all fields
+  ```python
+  for field, value in sg_project.all_fields().items():
+       print(field, value)
+  ```
 The rules is: All fields of an entity need to be accessed via dict notation (eg. `sg_project['code']`)
               and all "special" functionality is accessed via instance methods (eg. `sg_version.download('sg_movie', '/path/to/somewhere')`).
 
