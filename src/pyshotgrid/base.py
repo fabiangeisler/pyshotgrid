@@ -2,6 +2,9 @@ import os.path
 
 import shotgun_api3
 
+#: Entity plugins that are registered to pyshotgrid.
+__ENTITY_PLUGINS = {}
+
 
 def convert(sg, *args, **kwargs):
     """
@@ -33,14 +36,42 @@ def convert(sg, *args, **kwargs):
             entity_id = kwargs['entity_id']
 
     if entity_type is not None and entity_id is not None:
-        mapping = {'Project': SGProject,
-                   'Shot': SGShot,
-                   'PublishedFile': SGPublishedFile}
 
-        if entity_type in mapping:
-            return mapping[entity_type](sg, entity_id)
+        if entity_type in __ENTITY_PLUGINS:
+            return __ENTITY_PLUGINS[entity_type](sg, entity_id)
         else:
             return ShotGridEntity(sg, entity_type, entity_id)
+
+
+def register_plugin(shotgrid_type, pysg_class):
+    """
+    Register a class for a ShotGrid type to pyshotgrid.
+    This is best illustrated as by an example: Suppose you have a custom entity setup where you
+    have an Episode in each project that collects some sequences of shots. It would be nice to have
+    some additional functionality on the ShotGridEntity for episode objects (like a "sequences"
+    function that returns all the sequences belonging to that episode). What you would do is to
+    create a class SGEpisode that inherits from ShotGridEntity and add all the functionality you
+    like to it. After that you call:
+
+    ```python
+    register_plugin(shotgrid_type="Episode", pysg_class=SGEpisode)
+    ```
+
+    This will register the class to pyshotgrid and the `convert` function will automatically
+    convert to the "SGEpisode" instance as soon as it encounters an Episode entity. This is also
+    true for all queries that happen from a ShotGridEntity. So `sg_project['sg_episodes']` would
+    return "SGEpisode" instances as well.
+
+    .. Note::
+
+        Registering a class for an existing entity will overwrite the existing entity class.
+        This way you can add/overwrite functionality for the classes that are shipped by default.
+
+    :param str shotgrid_type: The ShotGrid entity type to register for.
+    :param class pysg_class: The class to use for this entity type.
+    """
+    global __ENTITY_PLUGINS
+    __ENTITY_PLUGINS[shotgrid_type] = pysg_class
 
 
 class ShotGridEntity(object):
@@ -325,6 +356,65 @@ class ShotGridEntity(object):
 
         return result
 
+    def _publishes(self, base_filter=None, pub_types=None, latest=False, additional_sg_filter=None):
+        """
+        This function is meant as a base for a "publishes" function on a sub class. Publishes
+        are stored in different fields for each entity and not every entity has a published file.
+        This is why this function is hidden by default.
+
+        :param base_filter: The basic sg filter to get the publishes that are associated with
+                            this entity.
+        :param str|list[str]|None pub_types: The names of the Publish File Types to return.
+        :param bool latest: Whether to get the "latest" publishes or not. This uses the
+                            same logic as the tk-multi-loader2 app which is as follows:
+                             - group all publishes with the same "name" field together
+                             - from these get the publishes with the highest "version_number" field
+                             - if there are publishes with the same "name" and "version_number" the
+                               newest one wins.
+        :param additional_sg_filter:
+        :return: All published files from this shot.
+        :rtype: list[SGPublishedFile]
+        """
+        base_filter = base_filter or []
+        if pub_types is not None:
+            if isinstance(pub_types, list):
+                pub_types_filter = {"filter_operator": "any", "filters": []}
+                for pub_type in pub_types:
+                    pub_types_filter['filters'].append(
+                        ['published_file_type.PublishedFileType.code', 'is', pub_type])
+            else:
+                pub_types_filter = ['published_file_type.PublishedFileType.code', 'is', pub_types]
+            base_filter.append(pub_types_filter)
+
+        additional_sg_filter = additional_sg_filter or []
+        result_filter = base_filter + additional_sg_filter
+
+        sg_publishes = self.sg.find('PublishedFile',
+                                    result_filter,
+                                    ['name', 'version_number', 'created_at'])
+        if latest:
+            # group publishes by "name"
+            tmp = {}
+            for sg_publish in sg_publishes:
+                if sg_publish['name'] in tmp:
+                    tmp[sg_publish['name']].append(sg_publish)
+                else:
+                    tmp[sg_publish['name']] = [sg_publish]
+
+            # sort them by date and than by version_number which sorts the latest publish to the
+            # last position.
+            result = []
+            for publishes in tmp.values():
+                publishes.sort(key=lambda pub: (pub['created_at'], pub['version_number']))
+                result.append(publishes[-1])
+
+            # Sort one more time by name.
+            result.sort(key=lambda pub: pub['name'])
+
+            sg_publishes = result
+
+        return [convert(self._sg, sg_publish) for sg_publish in sg_publishes]
+
 
 class SGSite(object):
     """
@@ -396,9 +486,26 @@ class SGProject(ShotGridEntity):
         :return: All the shots from this project.
         :rtype: list[SGShot]
         """
-        sg_shots = self.sg.find('Shot', [['project', 'is', {'type': 'Project',
-                                                            'id': self.id}]])
+        sg_shots = self.sg.find('Shot', [['project', 'is', self.to_dict()]])
         return [convert(self._sg, sg_shot) for sg_shot in sg_shots]
+
+    def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
+        """
+        :param str|list[str]|None pub_types: The names of the Publish File Types to return.
+        :param bool latest: Whether to get the "latest" publishes or not. This uses the
+                            same logic as the tk-multi-loader2 app which is as follows:
+                             - group all publishes with the same "name" field together
+                             - from these get the publishes with the highest "version_number" field
+                             - if there are publishes with the same "name" and "version_number" the
+                               newest one wins.
+        :param additional_sg_filter:
+        :return: All published files from this shot.
+        :rtype: list[SGPublishedFile]
+        """
+        return self._publishes(base_filter=[['project', 'is', self.to_dict()]],
+                               pub_types=pub_types,
+                               latest=latest,
+                               additional_sg_filter=additional_sg_filter)
 
 
 class SGShot(ShotGridEntity):
@@ -425,45 +532,10 @@ class SGShot(ShotGridEntity):
         :return: All published files from this shot.
         :rtype: list[SGPublishedFile]
         """
-        base_filter = [['entity', 'is', self.to_dict()]]
-        if pub_types is not None:
-            if isinstance(pub_types, list):
-                pub_types_filter = {"filter_operator": "any", "filters": []}
-                for pub_type in pub_types:
-                    pub_types_filter['filters'].append(
-                        ['published_file_type.PublishedFileType.code', 'is', pub_type])
-            else:
-                pub_types_filter = ['published_file_type.PublishedFileType.code', 'is', pub_types]
-            base_filter.append(pub_types_filter)
-
-        additional_sg_filter = additional_sg_filter or []
-        result_filter = base_filter + additional_sg_filter
-
-        sg_publishes = self.sg.find('PublishedFile',
-                                    result_filter,
-                                    ['name', 'version_number', 'created_at'])
-        if latest:
-            # group publishes by "name"
-            tmp = {}
-            for sg_publish in sg_publishes:
-                if sg_publish['name'] in tmp:
-                    tmp[sg_publish['name']].append(sg_publish)
-                else:
-                    tmp[sg_publish['name']] = [sg_publish]
-
-            # sort them by date and than by version_number which sorts the latest publish to the
-            # last position.
-            result = []
-            for publishes in tmp.values():
-                publishes.sort(key=lambda pub: (pub['created_at'], pub['version_number']))
-                result.append(publishes[-1])
-
-            # Sort one more time by name.
-            result.sort(key=lambda pub: pub['name'])
-
-            sg_publishes = result
-
-        return [convert(self._sg, sg_publish) for sg_publish in sg_publishes]
+        return self._publishes(base_filter=[['entity', 'is', self.to_dict()]],
+                               pub_types=pub_types,
+                               latest=latest,
+                               additional_sg_filter=additional_sg_filter)
 
 
 class SGPublishedFile(ShotGridEntity):
