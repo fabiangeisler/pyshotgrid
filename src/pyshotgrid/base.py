@@ -1,3 +1,4 @@
+import fnmatch
 import os.path
 
 import shotgun_api3
@@ -186,12 +187,12 @@ class ShotGridEntity(object):
         """
         return {'id': self._id, 'type': self._type}
 
-    def batch_set_dict(self, data):
+    def batch_update_dict(self, data):
         """
         :param dict[str,Any] data: A dict with the fields and values to set.
         :returns: A dict that can be used in a shotgun.batch() call to update some fields.
                   Useful when you want to collect field changes and set them in one go.
-        :rtype: dict
+        :rtype: dict[str,Any]
         """
         data = self._convert_fields_to_dicts(data)
         return {"request_type": "update",
@@ -481,13 +482,20 @@ class SGProject(ShotGridEntity):
     def __init__(self, sg, project_id):
         super(SGProject, self).__init__(sg, entity_type='Project', entity_id=project_id)
 
-    def shots(self):
+    def shots(self, glob_name=None):
         """
+        :param str|None glob_name: A glob string to match the shots to return. For example
+                                   "TEST_01_*" would return all shots that start with "TEST_01_".
         :return: All the shots from this project.
         :rtype: list[SGShot]
         """
-        sg_shots = self.sg.find('Shot', [['project', 'is', self.to_dict()]])
-        return [convert(self._sg, sg_shot) for sg_shot in sg_shots]
+        sg_shots = self.sg.find('Shot', [['project', 'is', self.to_dict()]], ['code'])
+        if glob_name is not None:
+            return [convert(self._sg, sg_shot)
+                    for sg_shot in sg_shots
+                    if fnmatch.fnmatchcase(sg_shot['code'], glob_name)]
+        else:
+            return [convert(self._sg, sg_shot) for sg_shot in sg_shots]
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """

@@ -64,16 +64,6 @@ class TestPySG(BaseTestShotgunLib):
 
         self.assertEqual('tp', sg_entity['tank_name'])
 
-    def test_ShotGridEntity_update_field_dot_notation(self):
-        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
-
-        sg_entity.code = 'foobar'
-
-        self.assertEqual('foobar', sg_entity.code)
-
-        # cleanup
-        sg_entity.code = 'Test project'
-
     def test_ShotGridEntity_update_field_dict_notation(self):
         sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
 
