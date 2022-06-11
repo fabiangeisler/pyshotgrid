@@ -9,19 +9,17 @@ A pythonic way to talk to Autodesk ShotGrid.
 
 ## Features
 
-An entity in ShotGrid is represented by an instance of the `ShotGridEntity` class.
-If you want to query a field from that instance you can do so via dictionary style:
+Each entity in ShotGrid is represented as an instance of the `ShotGridEntity` class (or a sub class of that).
 
 ```python
->>> import shotgun_api3
 >>> import pyshotgrid as pysg
->>> sg = shotgun_api3.Shotgun(
-... base_url = 'https://example.shotgunstudio.com',
-... script_name = 'Some User',
-... api_key = '$ome_password')
->>> sg_project = pysg.convert(sg, "Project", 1)
->>> sg_project["code"]
-"Test Project"
+>>> site = pysg.SGSite.from_credentials(
+...     base_url = 'https://example.shotgunstudio.com',
+...     script_name = 'Some User',
+...     api_key = '$ome_password')
+>>> for project in site.projects():
+...     print(project)
+...     print(project["tank_name"])
 ```
 
 A ShotGridEntity instance represents exactly one entity and any operation on it is reflected to ShotGrid.
