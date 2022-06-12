@@ -88,6 +88,14 @@ No, quite the opposite. It is meant to be used in conjunction with `shotgun_api3
 improve handling and writing code with it. Its main goal is to make it easier to write
 code for common scenarios and leave the special cases for the `shotgun_api3`.
 
+### I have some custom entity setup in Shotgrid. Can this be reflected in pyshotgrid?
+By default pyshotgrid returns any entity as SGShotGridEntity to provide
+A minimum of functionality in all cases. But you can write your own class
+That inherits from SGShotGridEntity and register that to pyshotgrid. After that
+Whenever pyshotgrid encounters your custom entity it will 
+Return your custom implementation. You can even overwrite
+Default classes that ship with pyshotgrid.
+
 ## Credits
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
