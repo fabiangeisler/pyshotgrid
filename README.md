@@ -2,25 +2,30 @@
 [![pypi](https://img.shields.io/pypi/v/pyshotgrid.svg)](https://pypi.python.org/pypi/pyshotgrid)
 [![docs](https://readthedocs.org/projects/pyshotgrid/badge/?version=latest)](https://pyshotgrid.readthedocs.io/en/latest/?version=latest)
 
-A pythonic way to talk to Autodesk ShotGrid.
+A pythonic and more object oriented way to talk to Autodesk ShotGrid.
 
 * Free software: MIT license
 * Documentation: https://pyshotgrid.readthedocs.io.
 
-## Features
+## Usage
 
-Each entity in ShotGrid is represented as an instance of the `ShotGridEntity` class (or a sub class of that).
+The `pyshotgrid.SGSite` class provides a common entry point
+to talk to your ShotGrid site. For example to list all shots 
+From all projects you can do this:
 
 ```python
->>> import pyshotgrid as pysg
->>> site = pysg.SGSite.from_credentials(
-...     base_url = 'https://example.shotgunstudio.com',
-...     script_name = 'Some User',
-...     api_key = '$ome_password')
->>> for project in site.projects():
-...     print(project)
-...     print(project["tank_name"])
+import pyshotgrid as pysg
+site = pysg.SGSite.from_credentials(
+    base_url = 'https://example.shotgunstudio.com',
+    script_name = 'Some User',
+    api_key = '$ome_password')
+for project in site.projects():
+    print(project)
+    for shot in project.shots():
+        print(shot)
 ```
+
+## Features
 
 A ShotGridEntity instance represents exactly one entity and any operation on it is reflected to ShotGrid.
 So for example you can :
@@ -49,7 +54,7 @@ So for example you can :
   ```python
   print(sg_project.url)  # https://example.shotgunstudio.com/detail/Project/1
   ```
-* Convert it to a regular dict which can be used in the regular `shotgun_api3`.
+* Convert it to a regular dict, to use it in the regular `shotgun_api3`.
   ```python
   sg_project.to_dict()  # {"type": "Project", "id": 1}
   ```
@@ -86,7 +91,8 @@ No, and since it is build on top of `shotgun_api3`, it never will be.
 ### Is `pyshotgrid` replacing `shotgun_api3`?
 No, quite the opposite. It is meant to be used in conjunction with `shotgun_api3` and
 improve handling and writing code with it. Its main goal is to make it easier to write
-code for common scenarios and leave the special cases for the `shotgun_api3`.
+code for common scenarios and leave the special cases for the `shotgun_api3`. That said
+It is possible totally possible to write pyshotgrid code without using `shotgun_api3`.
 
 ### I have some custom entity setup in Shotgrid. Can this be reflected in pyshotgrid?
 By default pyshotgrid returns any entity as SGShotGridEntity to provide
