@@ -10,7 +10,7 @@ A pythonic and more object oriented way to talk to Autodesk ShotGrid.
 ## Usage
 
 The `pyshotgrid.SGSite` class provides a common entry point
-to talk to your ShotGrid site. For example to list all shots 
+to talk to your ShotGrid site. For example to list all shots
 From all projects you can do this:
 
 ```python
@@ -98,9 +98,14 @@ It is possible totally possible to write pyshotgrid code without using `shotgun_
 By default pyshotgrid returns any entity as SGShotGridEntity to provide
 A minimum of functionality in all cases. But you can write your own class
 That inherits from SGShotGridEntity and register that to pyshotgrid. After that
-Whenever pyshotgrid encounters your custom entity it will 
+Whenever pyshotgrid encounters your custom entity it will
 Return your custom implementation. You can even overwrite
 Default classes that ship with pyshotgrid.
+
+### Is this an official project from Autodesk?
+No, just a weekend brainchild from me, @fabiangeisler.
+I am a Pipeline Developer based in Berlin.
+Feel free to follow me on GitHub. :)
 
 ## Credits
 
