@@ -59,10 +59,10 @@ class ShotGridEntity(object):
     def __getitem__(self, field):
         """
         Enabling dict notation to query fields of the entity from ShotGrid.
-        Values will be automatically converted to pyshotgrid objects.
 
-        :param field:
-        :return:
+        :param str field: The field to query.
+        :return: The value of the field. Any entities will be automatically converted to
+                 pyshotgrid objects.
         """
         value = self.sg.find_one(self._type,
                                  [['id', 'is', self._id]],
@@ -75,10 +75,17 @@ class ShotGridEntity(object):
         else:
             return value
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, field, value):
+        """
+        Set any field to the given value in ShotGrid via pythons dict notation.
+
+        :param str field: The field to set.
+        :param Any value: The value to set the field to.
+        """
+        # TODO Convert value entities to dicts
         self.sg.update(self._type,
                        self._id,
-                       data={key: value})
+                       data={field: value})
 
     def all_fields(self, project_entity=None, raw_values=False):
         """
@@ -88,7 +95,7 @@ class ShotGridEntity(object):
                  only fields that are visible to the project are returned.
         :rtype: dict[str,Any]
         """
-        if isinstance(project_entity, ShotGridEntity):
+        if isinstance(project_entity, self.__class__):
             project_entity = project_entity.to_dict()
 
         sg_entity_fields = self.sg.schema_field_read(self._type, project_entity=project_entity)
@@ -256,8 +263,7 @@ class ShotGridEntity(object):
 
         return result
 
-    @staticmethod
-    def _convert_fields_to_dicts(fields):
+    def _convert_fields_to_dicts(self, fields):
         """
         Convert all the values from a fields dict to simple dictionaries. The counterpart function
         to `func:_convert_fields_to_pysg`.
@@ -273,12 +279,12 @@ class ShotGridEntity(object):
             if isinstance(value, list):
                 tmp = []
                 for entity in value:
-                    if isinstance(entity, ShotGridEntity):
+                    if isinstance(entity, self.__class__):
                         tmp.append(entity.to_dict())
                     else:
                         tmp.append(entity)
                 result[field] = tmp
-            elif isinstance(value, ShotGridEntity):
+            elif isinstance(value, self.__class__):
                 result[field] = value.to_dict()
             else:
                 result[field] = value

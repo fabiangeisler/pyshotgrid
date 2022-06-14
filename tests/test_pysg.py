@@ -4,6 +4,11 @@
 import os
 import sys
 import unittest
+if sys.version_info.major == 2:
+    # noinspection PyPackageRequirements,PyUnresolvedReferences
+    import mock
+else:
+    from unittest import mock
 
 from shotgun_api3.lib import mockgun
 
@@ -57,7 +62,9 @@ class TestPySG(BaseTestShotgunLib):
     def test_ShotGridEntity_string_representation(self):
         sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
 
-        self.assertEqual('ShotGridEntity  Type: Project  ID: 1', str(sg_entity))
+        self.assertEqual('ShotGridEntity - Type: Project - ID: 1 - '
+                         'URL: https://test.shotgunstudio.com/detail/Project/1',
+                         str(sg_entity))
 
     def test_ShotGridEntity_query_field_dict_notation(self):
         sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
@@ -74,31 +81,33 @@ class TestPySG(BaseTestShotgunLib):
         # cleanup
         sg_entity['code'] = 'Test project'
 
-    def test_ShotGridEntity_len_of_fields(self):
-        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
-
-        self.assertEqual(67, len(sg_entity))
-
     def test_ShotGridEntity_convert_to_dict(self):
         sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'LocalStorage', 1)
 
-        self.assertEqual({'cached_display_name': None,
-                          'code': 'primary',
-                          'created_at': None,
-                          'created_by': None,
-                          'description': None,
-                          'id': 1,
-                          'linux_path': '/mnt/projects',
-                          'mac_path': '/Volumes/projects',
-                          'type': 'LocalStorage',
-                          'updated_at': None,
-                          'updated_by': None,
-                          'uuid': None,
-                          'windows_path': 'P:\\'},
-                         dict(sg_entity))
+        self.assertEqual({'id': 1, 'type': 'LocalStorage'},
+                         sg_entity.to_dict())
 
     def test_ShotGridEntity_iter_fields(self):
         sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'LocalStorage', 1)
+
+        # Mock Mockgun.schema_field_read - the "project_entity" arg is missing in Mockgun.
+        with mock.patch.object(mockgun.Shotgun, "schema_field_read",
+                               return_value={
+                'linux_path': {'visible': {'value': True}},
+                'type': {'visible': {'value': True}},
+                'id': {'visible': {'value': True}},
+                'description': {'visible': {'value': True}},
+                'cached_display_name': {'visible': {'value': True}},
+                'mac_path': {'visible': {'value': True}},
+                'created_at': {'visible': {'value': True}},
+                'created_by': {'visible': {'value': True}},
+                'windows_path': {'visible': {'value': True}},
+                'uuid': {'visible': {'value': True}},
+                'code': {'visible': {'value': True}},
+                'updated_at': {'visible': {'value': True}},
+                'updated_by': {'visible': {'value': True}},
+                                        }):
+            result = set(sg_entity.all_fields().items())
 
         self.assertEqual({('linux_path', '/mnt/projects'),
                           ('type', 'LocalStorage'),
@@ -113,7 +122,7 @@ class TestPySG(BaseTestShotgunLib):
                           ('uuid', None),
                           ('code', 'primary'),
                           ('updated_at', None)},
-                         set(sg_entity.items()))
+                         result)
 
     def test_ShotGridEntity_shotgun_url(self):
         sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)

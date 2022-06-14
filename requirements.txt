@@ -10,3 +10,4 @@ Sphinx==1.8.5
 twine==1.14.0
 build
 python-dotenv==0.20.0
+mock==3.0.5;python_version < "3.6"
