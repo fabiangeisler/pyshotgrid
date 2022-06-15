@@ -4,6 +4,10 @@
 
 A pythonic and more object oriented way to talk to Autodesk ShotGrid.
 
+> **Warning**
+> This python library is still in early development and the API is not yet stable.
+> Please be cautious in a production environment.
+
 * Free software: MIT license
 * Documentation: https://pyshotgrid.readthedocs.io.
 
