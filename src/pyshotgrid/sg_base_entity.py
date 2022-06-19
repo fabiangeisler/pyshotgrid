@@ -135,16 +135,25 @@ class ShotGridEntity(object):
                 "entity_id": self._id,
                 "data": data}
 
-    def set(self, data):
+    def set(self, data, multi_entity_update_modes=None):
         """
         Set many fields at once on this entity.
 
         :param dict[str,Any] data: A dict with the fields and values to set.
+        :param dict multi_entity_update_modes: Optional dict indicating what update mode to use
+            when updating a multi-entity link field. The keys in the dict are the fields to set
+            the mode for, and the values from the dict are one of ``set``, ``add``, or ``remove``.
+            Defaults to ``set``.
+            ::
+
+                multi_entity_update_modes={"shots": "add", "assets": "remove"}
         :return:
         """
+        # TODO convert pysg objs in data
         return self.sg.update(self._type,
                               self._id,
-                              data=data)
+                              data=data,
+                              multi_entity_update_modes=multi_entity_update_modes)
 
     def get(self, fields, raw_values=False):
         """

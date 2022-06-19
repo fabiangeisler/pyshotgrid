@@ -6,6 +6,76 @@ from .core import convert
 from .sg_base_entity import ShotGridEntity
 
 
+class PySG(shotgun_api3.Shotgun):
+    """
+    Thin wrapper around shotgun_api3.Shotgun
+    to extend the CRUD functions to accept and return ShotGridEntity instances.
+    """
+
+    def find(self, entity_type, filters, fields=None, order=None, filter_operator=None, limit=0,
+             retired_only=False, page=0, include_archived_projects=True,
+             additional_filter_presets=None):
+        """
+        The same function as shotgun_api3.Shotgun.find,
+        but it accepts and returns pyshotgrid objects.
+
+        :param entity_type:
+        :param filters:
+        :param fields:
+        :param order:
+        :param filter_operator:
+        :param limit:
+        :param retired_only:
+        :param page:
+        :param include_archived_projects:
+        :param additional_filter_presets:
+        :return:
+        """
+        # TODO convert filter entities
+        return [convert(self, sg_entity)
+                for sg_entity in super(PySG, self).find(
+                entity_type=entity_type,
+                filters=filters,
+                fields=fields,
+                order=order,
+                filter_operator=filter_operator,
+                limit=limit,
+                retired_only=retired_only,
+                page=page,
+                include_archived_projects=include_archived_projects,
+                additional_filter_presets=additional_filter_presets)]
+
+    def find_one(self, entity_type, filters, fields=None, order=None, filter_operator=None, limit=0,
+                 retired_only=False, page=0, include_archived_projects=True,
+                 additional_filter_presets=None):
+        """
+        The same function as shotgun_api3.Shotgun.find_one,
+        but it accepts and returns pyshotgrid objects.
+
+        """
+        result = self.find(entity_type=entity_type,
+                           filters=filters,
+                           fields=fields,
+                           order=order,
+                           filter_operator=filter_operator,
+                           limit=limit,
+                           retired_only=retired_only,
+                           page=page,
+                           include_archived_projects=include_archived_projects,
+                           additional_filter_presets=additional_filter_presets)[0]
+        if result:
+            return result[0]
+
+    def update(self):
+        """
+        The same function as shotgun_api3.Shotgun.update,
+        but it accepts and returns pyshotgrid objects.
+
+        :return:
+        """
+        # TODO implement logic
+
+
 class SGSite(object):
     """
     An instance of this class represents the ShotGrid site as a whole.
