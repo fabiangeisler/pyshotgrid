@@ -1,9 +1,10 @@
 import os
 
 from .core import convert
+from .sg_site import SGSite
 
 
-class ShotGridEntity(object):
+class SGEntity(object):
     """
     An instance of this class represents a single entity in ShotGrid.
 
@@ -44,6 +45,14 @@ class ShotGridEntity(object):
         :rtype: shotgun_api3.Shotgun
         """
         return self._sg
+
+    @property
+    def site(self):
+        """
+        :return: The pyshotgrid site for this entity.
+        :rtype: pyshotgrid.SGSite
+        """
+        return SGSite(sg=self._sg)
 
     @property
     def url(self):
@@ -89,7 +98,7 @@ class ShotGridEntity(object):
 
     def all_fields(self, project_entity=None, raw_values=False):
         """
-        :param dict[str,Any]|ShotGridEntity project_entity: A project entity to filter by.
+        :param dict[str,Any]|SGEntity project_entity: A project entity to filter by.
         :param bool raw_values: Whether to convert entities to pysg objects or not.
         :return: All fields and values from this entity in a dict. If a project entity is given
                  only fields that are visible to the project are returned.
@@ -217,7 +226,7 @@ class ShotGridEntity(object):
         :param str path: The path to the file to upload.
         :param str display_name: The display name of the file in ShotGrid.
         :return: The Attachment entity that was created for the uploaded file.
-        :rtype: ShotGridEntity
+        :rtype: SGEntity
         """
         sg_attachment_id = self.sg.upload(entity_type=self._type,
                                           entity_id=self._id,

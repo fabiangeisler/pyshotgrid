@@ -12,10 +12,10 @@ else:
 
 from shotgun_api3.lib import mockgun
 
-import pyshotgrid
+import pyshotgrid as pysg
 
 
-class BaseTestShotgunLib(unittest.TestCase):
+class BaseShotGridTest(unittest.TestCase):
     """
     Base Test Class to setup Mockgun.
     """
@@ -34,7 +34,7 @@ class BaseTestShotgunLib(unittest.TestCase):
                                  api_key='$ome_password')
 
 
-class TestPySG(BaseTestShotgunLib):
+class TestPySG(BaseShotGridTest):
     """Tests for `pyshotgrid` package."""
 
     @classmethod
@@ -60,19 +60,19 @@ class TestPySG(BaseTestShotgunLib):
             })
 
     def test_ShotGridEntity_string_representation(self):
-        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
+        sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
-        self.assertEqual('ShotGridEntity - Type: Project - ID: 1 - '
+        self.assertEqual('SGEntity - Type: Project - ID: 1 - '
                          'URL: https://test.shotgunstudio.com/detail/Project/1',
                          str(sg_entity))
 
     def test_ShotGridEntity_query_field_dict_notation(self):
-        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
+        sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
         self.assertEqual('tp', sg_entity['tank_name'])
 
     def test_ShotGridEntity_update_field_dict_notation(self):
-        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
+        sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
         sg_entity['code'] = 'bar-baz'
 
@@ -82,13 +82,13 @@ class TestPySG(BaseTestShotgunLib):
         sg_entity['code'] = 'Test project'
 
     def test_ShotGridEntity_convert_to_dict(self):
-        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'LocalStorage', 1)
+        sg_entity = pysg.SGEntity(self.sg, 'LocalStorage', 1)
 
         self.assertEqual({'id': 1, 'type': 'LocalStorage'},
                          sg_entity.to_dict())
 
     def test_ShotGridEntity_iter_fields(self):
-        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'LocalStorage', 1)
+        sg_entity = pysg.SGEntity(self.sg, 'LocalStorage', 1)
 
         # Mock Mockgun.schema_field_read - the "project_entity" arg is missing in Mockgun.
         with mock.patch.object(mockgun.Shotgun, "schema_field_read",
@@ -125,7 +125,7 @@ class TestPySG(BaseTestShotgunLib):
                          result)
 
     def test_ShotGridEntity_shotgun_url(self):
-        sg_entity = pyshotgrid.ShotGridEntity(self.sg, 'Project', 1)
+        sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
         self.assertEqual('https://test.shotgunstudio.com/detail/Project/1',
                          sg_entity.url)

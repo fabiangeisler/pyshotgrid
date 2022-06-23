@@ -1,7 +1,7 @@
 
 
 #: Entity plugins that are registered to pyshotgrid.
-__ENTITY_PLUGINS = {}
+__ENTITY_PLUGINS = []
 #: Fallback entity class that is used when no match in the __ENTITY_PLUGINS is found.
 __ENTITY_FALLBACK_CLASS = None  # type: callable
 
@@ -37,14 +37,14 @@ def convert(sg, *args, **kwargs):
 
     if entity_type is not None and entity_id is not None:
 
-        if entity_type in __ENTITY_PLUGINS:
-            return __ENTITY_PLUGINS[entity_type](sg, entity_id)
-        else:
-            # noinspection PyCallingNonCallable
-            return __ENTITY_FALLBACK_CLASS(sg, entity_type, entity_id)
+        for entity_plugin in __ENTITY_PLUGINS:
+            if entity_type in [entity_plugin['shotgrid_type'], entity_plugin['display_name']]:
+                return entity_plugin['pysg_class'](sg, entity_id)
+        # noinspection PyCallingNonCallable
+        return __ENTITY_FALLBACK_CLASS(sg, entity_type, entity_id)
 
 
-def register_plugin(shotgrid_type, pysg_class):
+def register_plugin(shotgrid_type, pysg_class, display_name=None):
     """
     Register a class for a ShotGrid type to pyshotgrid.
     This is best illustrated as by an example: Suppose you have a custom entity setup where you
@@ -55,7 +55,9 @@ def register_plugin(shotgrid_type, pysg_class):
     like to it. After that you call:
 
     ```python
-    register_plugin(shotgrid_type="Episode", pysg_class=SGEpisode)
+    register_plugin(shotgrid_type="CustomProjectEntity01",
+                    pysg_class=SGEpisode,
+                    display_name='Episode')
     ```
 
     This will register the class to pyshotgrid and the `convert` function will automatically
@@ -70,9 +72,16 @@ def register_plugin(shotgrid_type, pysg_class):
 
     :param str shotgrid_type: The ShotGrid entity type to register for.
     :param class pysg_class: The class to use for this entity type.
+    :param str|None display_name: The display name of the entity type. If this is None, the display
+                                  name will be the same as the shotgrid_type parameter.
     """
     global __ENTITY_PLUGINS
-    __ENTITY_PLUGINS[shotgrid_type] = pysg_class
+
+    __ENTITY_PLUGINS.append({
+        'shotgrid_type': shotgrid_type,
+        'pysg_class': pysg_class,
+        'display_name': display_name or shotgrid_type,
+    })
 
 
 def register_fallback_pysg_class(pysg_class):
