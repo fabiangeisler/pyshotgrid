@@ -31,7 +31,7 @@ for project in site.projects():
 
 ## Features
 
-A ShotGridEntity instance represents exactly one entity and any operation on it is reflected to ShotGrid.
+A SGEntity instance represents exactly one entity and any operation on it is reflected to ShotGrid.
 So for example you can :
 
 * Get fields from ShotGrid
@@ -72,15 +72,15 @@ The rules is: All fields of an entity are accessed via dict notation (eg. `sg_pr
 
 ## How it works
 
-Behind the scenes we have one `ShotGridEntity` class which is the base class for all
+Behind the scenes we have one `SGEntity` class which is the base class for all
 other classes. It represents a single entity of a ShotGrid site and only
 stores 3 values:
  - The shotgun_api3.Shotgun instance that is used to get and set all the information from.
  - The ShotGrid entity type
  - The ShotGrid entity ID
 
-All functionality of the `ShotGridEntity` class is based on these three values.
-There are some "special" classes that inherit from `ShotGridEntity` to add some
+All functionality of the `SGEntity` class is based on these three values.
+There are some "special" classes that inherit from `SGEntity` to add some
 common functionality to common entities in ShotGrid. For example the `SGProject`
 class adds a `shots()` function which gives you a list of shots from that project.
 To ensure that you are always using the right class you should use the `pyshotgrid.convert()`
@@ -98,16 +98,16 @@ improve handling and writing code with it. Its main goal is to make it easier to
 code for common scenarios and leave the special cases for the `shotgun_api3`. That said
 It is possible totally possible to write pyshotgrid code without using `shotgun_api3`.
 
-### I have some custom entity setup in Shotgrid. Can this be reflected in pyshotgrid?
-By default pyshotgrid returns any entity as SGShotGridEntity to provide
+### I have some custom entity setup in Shotgrid. Can this be reflected in `pyshotgrid`?
+By default pyshotgrid returns any entity as SGEntity to provide
 A minimum of functionality in all cases. But you can write your own class
-That inherits from SGShotGridEntity and register that to pyshotgrid. After that
-Whenever pyshotgrid encounters your custom entity it will
-Return your custom implementation. You can even overwrite
-Default classes that ship with pyshotgrid.
+that inherits from `SGEntity` and register that to `pyshotgrid`. After that
+whenever pyshotgrid encounters your custom entity it will
+return your custom implementation. You can even overwrite
+default classes that ship with `pyshotgrid`.
 
 ### Is this an official project from Autodesk?
-No, just a weekend brainchild from me, @fabiangeisler.
+No, just a brainchild from me, https://github.com/fabiangeisler.
 I am a Pipeline Developer based in Berlin.
 Feel free to follow me on GitHub. :)
 
