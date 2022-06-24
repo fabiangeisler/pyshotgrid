@@ -12,4 +12,5 @@ register_fallback_pysg_class(SGEntity)
 # Register default pysg plugins
 register_plugin('Project', SGProject)
 register_plugin('Shot', SGShot)
+register_plugin('Task', SGTask)
 register_plugin('PublishedFile', SGPublishedFile)
