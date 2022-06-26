@@ -1,3 +1,14 @@
+"""
+This module collects all default pyshotgrid custom entities.
+
+TODO
+- Playlist entity
+- version entity
+- humanuser entity
+- task entity 
+- sequence entity
+- asset entity 
+"""
 import fnmatch
 
 from .core import convert
