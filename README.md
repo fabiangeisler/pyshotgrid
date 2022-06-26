@@ -13,9 +13,16 @@ A pythonic and more object oriented way to talk to Autodesk ShotGrid.
 
 ## Usage
 
-The `pyshotgrid.SGSite` class provides a common entry point
-to talk to your ShotGrid site. For example to list all shots
-From all projects you can do this:
+There are two important classes to understand in pyshotgrid:
+  - `SGSite` - this represents your ShotGrid site and is usually
+    Your entry point for coding with pyshotgrid. 
+  - `SGEntity` - this represents a single entity in Shotgrid. 
+    It provides a lot of convenience methods to update or query information
+    About it from ShotGrid. There are further subclasses of it that
+    Add even more functionality, but this is the common base to them all.
+
+Here is a quick example of both of them in action. 
+list the "Cut In" of all shots from all projects:
 
 ```python
 import pyshotgrid as pysg
@@ -27,6 +34,7 @@ for project in site.projects():
     print(project)
     for shot in project.shots():
         print(shot)
+        print(shot["sg_cut_in"])
 ```
 
 ## Features
