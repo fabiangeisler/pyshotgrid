@@ -4,10 +4,8 @@ This module collects all default pyshotgrid custom entities.
 TODO
 - Playlist entity
 - version entity
-- humanuser entity
-- task entity 
 - sequence entity
-- asset entity 
+- asset entity
 """
 import fnmatch
 
@@ -59,6 +57,19 @@ class SGProject(SGEntity):
                                latest=latest,
                                additional_sg_filter=additional_sg_filter)
 
+    def people(self, additional_sg_filter=None):
+        """
+        :param list|None additional_sg_filter:
+        :return: All HumanUsers assigned to this project.
+        :rtype: list[SGHumanUser]
+        """
+        sg_filter = [['projects', 'contains', self.to_dict()]]
+        if additional_sg_filter is not None:
+            sg_filter += additional_sg_filter
+
+        return [convert(self._sg, sg_user)
+                for sg_user in self._sg.find('HumanUser', sg_filter)]
+
 
 class SGShot(SGEntity):
     """
@@ -89,15 +100,25 @@ class SGShot(SGEntity):
                                latest=latest,
                                additional_sg_filter=additional_sg_filter)
 
-    def tasks(self, names=None, pipeline_step=None, statuses=None, exclude_statuses=None):
+    def tasks(self, names=None, pipeline_step=None):
         """
         :param list[str]|None names: The names of Tasks to return.
-        :param str|dict|SGEntity|None pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
-        :param list[str]|None statuses: A list of statuses to filter the tasks by.
-        :param list[str]|None exclude_statuses: Exclude tasks with these statuses.
+        :param str|dict|SGEntity|None pipeline_step: Name, short name or entity object
+                                                     or the Pipeline Step to filter by.
         :returns: A list of Tasks
+        :rtype: list[SGTask]
         """
         sg_filter = [['entity', 'is', self.to_dict()]]
+
+        if names is not None:
+            if len(names) == 1:
+                names_filter = ['code', 'is', names[0]]
+            else:
+                names_filter = {"filter_operator": "any", "filters": []}
+                for name in names:
+                    names_filter['filters'].append(
+                        ['code', 'is', name])
+            sg_filter.append(names_filter)
 
         if pipeline_step is not None:
             if isinstance(pipeline_step, dict):
@@ -108,8 +129,8 @@ class SGShot(SGEntity):
                 sg_filter.append(['step.Step.code', 'is', pipeline_step])
                 sg_filter.append(['step.Step.short_name', 'is', pipeline_step])
 
-        tasks = self.sg.find('Task',
-                             sg_filter)
+        return [convert(self._sg, sg_task)
+                for sg_task in self._sg.find('Task', sg_filter)]
 
 
 class SGTask(SGEntity):
@@ -153,3 +174,22 @@ class SGPublishedFile(SGEntity):
     def __init__(self, sg, published_file_id):
         super(SGPublishedFile, self).__init__(sg, entity_type='PublishedFile',
                                               entity_id=published_file_id)
+
+
+class SGHumanUser(SGEntity):
+    """
+    An instance of this class represents a single HumanUser entity in ShotGrid.
+
+    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
+    :ivar int human_user_id: The ID of the PublishedFile entity.
+    """
+
+    def __init__(self, sg, human_user_id):
+        super(SGHumanUser, self).__init__(sg,
+                                          entity_type='HumanUser',
+                                          entity_id=human_user_id)
+    # TODO tasks
+    # TODO publishes
+    # TODO projects
+    # TODO versions
+    # TODO time logs ?

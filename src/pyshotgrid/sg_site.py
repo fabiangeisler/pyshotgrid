@@ -167,3 +167,12 @@ class SGSite(object):
 
         if sg_pipe_config:
             return convert(self._sg, sg_pipe_config)
+
+    def people(self, additional_sg_filter=None):
+        """
+        :param list|None additional_sg_filter:
+        :return: All HumanUsers of this ShotGrid site.
+        :rtype: list[SGHumanUser]
+        """
+        return [convert(self._sg, sg_user)
+                for sg_user in self._sg.find('HumanUser', additional_sg_filter or [])]

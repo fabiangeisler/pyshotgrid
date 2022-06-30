@@ -59,19 +59,19 @@ class TestPySG(BaseShotGridTest):
                 'path_cache_storage': local_storage
             })
 
-    def test_ShotGridEntity_string_representation(self):
+    def test_SGEntity_string_representation(self):
         sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
         self.assertEqual('SGEntity - Type: Project - ID: 1 - '
                          'URL: https://test.shotgunstudio.com/detail/Project/1',
                          str(sg_entity))
 
-    def test_ShotGridEntity_query_field_dict_notation(self):
+    def test_SGEntity_query_field_dict_notation(self):
         sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
         self.assertEqual('tp', sg_entity['tank_name'])
 
-    def test_ShotGridEntity_update_field_dict_notation(self):
+    def test_SGEntity_update_field_dict_notation(self):
         sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
         sg_entity['code'] = 'bar-baz'
@@ -81,13 +81,13 @@ class TestPySG(BaseShotGridTest):
         # cleanup
         sg_entity['code'] = 'Test project'
 
-    def test_ShotGridEntity_convert_to_dict(self):
+    def test_SGEntity_convert_to_dict(self):
         sg_entity = pysg.SGEntity(self.sg, 'LocalStorage', 1)
 
         self.assertEqual({'id': 1, 'type': 'LocalStorage'},
                          sg_entity.to_dict())
 
-    def test_ShotGridEntity_iter_fields(self):
+    def test_SGEntity_iter_fields(self):
         sg_entity = pysg.SGEntity(self.sg, 'LocalStorage', 1)
 
         # Mock Mockgun.schema_field_read - the "project_entity" arg is missing in Mockgun.
@@ -124,7 +124,7 @@ class TestPySG(BaseShotGridTest):
                           ('updated_at', None)},
                          result)
 
-    def test_ShotGridEntity_shotgun_url(self):
+    def test_SGEntity_shotgun_url(self):
         sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
         self.assertEqual('https://test.shotgunstudio.com/detail/Project/1',
