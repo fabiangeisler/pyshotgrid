@@ -10,4 +10,4 @@ pyshotgrid
    :maxdepth: 2
    :caption: Modules:
 
-   base
+   core
