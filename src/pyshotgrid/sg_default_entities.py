@@ -126,8 +126,9 @@ class SGShot(SGEntity):
             elif isinstance(pipeline_step, SGEntity):
                 sg_filter.append(['step', 'is', pipeline_step.to_dict()])
             else:
-                sg_filter.append(['step.Step.code', 'is', pipeline_step])
-                sg_filter.append(['step.Step.short_name', 'is', pipeline_step])
+                sg_filter.append({"filter_operator": "any",
+                                  "filters": [['step.Step.code', 'is', pipeline_step],
+                                              ['step.Step.short_name', 'is', pipeline_step]]})
 
         return [convert(self._sg, sg_task)
                 for sg_task in self._sg.find('Task', sg_filter)]
@@ -174,6 +175,13 @@ class SGPublishedFile(SGEntity):
     def __init__(self, sg, published_file_id):
         super(SGPublishedFile, self).__init__(sg, entity_type='PublishedFile',
                                               entity_id=published_file_id)
+
+    # TODO is_latest
+    # TODO get_first_publish
+    # TODO get_previous_publishes
+    # TODO get_next_publishes
+    # TODO get_latest_publish
+    # TODO get_all_publish_versions
 
 
 class SGHumanUser(SGEntity):

@@ -9,11 +9,11 @@ __ENTITY_FALLBACK_CLASS = None  # type: callable
 def convert(sg, *args, **kwargs):
     """
     Convert a given ShotGrid entity to an instance of a pyshotgrid class.
-    The function can be used in 3 ways which all do the same thing:
+    The function can be used in 3 ways which all do the same thing::
 
-            convert(sg, {'type': 'Project', 'id': 1})
-            convert(sg, 'Project', 1)
-            convert(sg, entity_type='Project', entity_id=1)
+        convert(sg, {'type': 'Project', 'id': 1})
+        convert(sg, 'Project', 1)
+        convert(sg, entity_type='Project', entity_id=1)
 
     :param shotgun_api3.Shotgun sg: A fully initialized Shotgun instance.
     :return: The pyshotgrid object or None if it could not be converted.
@@ -52,13 +52,11 @@ def register_plugin(shotgrid_type, pysg_class, display_name=None):
     some additional functionality on the ShotGridEntity for episode objects (like a "sequences"
     function that returns all the sequences belonging to that episode). What you would do is to
     create a class SGEpisode that inherits from ShotGridEntity and add all the functionality you
-    like to it. After that you call:
+    like to it. After that you call::
 
-    ```python
-    register_plugin(shotgrid_type="CustomProjectEntity01",
-                    pysg_class=SGEpisode,
-                    display_name='Episode')
-    ```
+        register_plugin(shotgrid_type="CustomProjectEntity01",
+                        pysg_class=SGEpisode,
+                        display_name='Episode')
 
     This will register the class to pyshotgrid and the `convert` function will automatically
     convert to the "SGEpisode" instance as soon as it encounters an Episode entity. This is also

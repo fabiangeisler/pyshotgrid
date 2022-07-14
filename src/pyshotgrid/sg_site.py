@@ -46,7 +46,7 @@ class SGSite(object):
                                                  data=data,
                                                  return_fields=None))
 
-    def find(self, entity_type, filters, fields=None, order=None, filter_operator=None, limit=0,
+    def find(self, entity_type, filters, order=None, filter_operator=None, limit=0,
              retired_only=False, page=0, include_archived_projects=True,
              additional_filter_presets=None):
         """
@@ -55,7 +55,6 @@ class SGSite(object):
 
         :param entity_type:
         :param filters:
-        :param fields:
         :param order:
         :param filter_operator:
         :param limit:
@@ -70,7 +69,7 @@ class SGSite(object):
                 for sg_entity in self._sg.find(
                 entity_type=entity_type,
                 filters=filters,
-                fields=fields,
+                fields=None,
                 order=order,
                 filter_operator=filter_operator,
                 limit=limit,
@@ -79,7 +78,7 @@ class SGSite(object):
                 include_archived_projects=include_archived_projects,
                 additional_filter_presets=additional_filter_presets)]
 
-    def find_one(self, entity_type, filters, fields=None, order=None, filter_operator=None, limit=0,
+    def find_one(self, entity_type, filters, order=None, filter_operator=None, limit=0,
                  retired_only=False, page=0, include_archived_projects=True,
                  additional_filter_presets=None):
         """
@@ -90,7 +89,6 @@ class SGSite(object):
         # TODO allow entering the display name for the entity_type
         result = self.find(entity_type=entity_type,
                            filters=filters,
-                           fields=fields,
                            order=order,
                            filter_operator=filter_operator,
                            limit=limit,

@@ -73,30 +73,37 @@ class SGEntity(object):
         :return: The value of the field. Any entities will be automatically converted to
                  pyshotgrid objects.
         """
-        value = self.sg.find_one(self._type,
-                                 [['id', 'is', self._id]],
-                                 [field]).get(field)
+        return Field(name=field, entity=self)
 
-        if isinstance(value, list):
-            return [convert(self._sg, entity) for entity in value]
-        elif isinstance(value, dict) and 'type' in value and 'id' in value:
-            return convert(self._sg, value)
-        else:
-            return value
-
-    def __setitem__(self, field, value):
+    def __setitem__old(self, field, value):
         """
         Set any field to the given value in ShotGrid via pythons dict notation.
 
         :param str field: The field to set.
         :param Any value: The value to set the field to.
         """
-        # TODO Convert value entities to dicts
         self.sg.update(self._type,
                        self._id,
-                       data={field: value})
+                       data={field: self.convert_value_to_dict(value)})
 
-    def all_fields(self, project_entity=None, raw_values=False):
+    def fields(self, project_entity=None):
+        """
+        :param dict[str,Any]|SGEntity|None project_entity: A project entity to filter by.
+        :return: All fields from this entity. If a project entity is given
+                 only fields that are visible to the project are returned.
+        :rtype: list[Field]
+        """
+        if isinstance(project_entity, self.__class__):
+            project_entity = project_entity.to_dict()
+
+        sg_entity_fields = self.sg.schema_field_read(self._type, project_entity=project_entity)
+        fields = [field
+                  for field, schema in sg_entity_fields.items()
+                  if schema['visible']['value']]
+
+        return [Field(name=field, entity=self) for field in fields]
+
+    def all_field_values(self, project_entity=None, raw_values=False):
         """
         :param dict[str,Any]|SGEntity project_entity: A project entity to filter by.
         :param bool raw_values: Whether to convert entities to pysg objects or not.
@@ -118,7 +125,7 @@ class SGEntity(object):
         if raw_values:
             return all_fields
         else:
-            return self._convert_fields_to_pysg(all_fields)
+            return self.convert_fields_to_pysg(all_fields)
 
     def to_dict(self):
         # noinspection PyUnresolvedReferences
@@ -138,11 +145,10 @@ class SGEntity(object):
                   Useful when you want to collect field changes and set them in one go.
         :rtype: dict[str,Any]
         """
-        data = self._convert_fields_to_dicts(data)
         return {"request_type": "update",
                 "entity_type": self._type,
                 "entity_id": self._id,
-                "data": data}
+                "data": self.convert_fields_to_dicts(data)}
 
     def set(self, data, multi_entity_update_modes=None):
         """
@@ -158,10 +164,9 @@ class SGEntity(object):
                 multi_entity_update_modes={"shots": "add", "assets": "remove"}
         :return:
         """
-        # TODO convert pysg objs in data
         return self.sg.update(self._type,
                               self._id,
-                              data=data,
+                              data=self.convert_fields_to_dicts(data),
                               multi_entity_update_modes=multi_entity_update_modes)
 
     def get(self, fields, raw_values=False):
@@ -210,57 +215,15 @@ class SGEntity(object):
         """
         :return: The schema for the current entity.
         """
-        return self.sg.schema_entity_read(self._type)
+        return self.sg.schema_entity_read()[self._type]
 
-    def field_schema(self, field):
+    def field_schemas(self):
         """
-        :return: The schema for the given field.
+        :return: The schemas of all the entity fields.
         """
-        return self.sg.schema_field_read(self._type, field)[field]
+        return self.sg.schema_field_read(self._type)
 
-    def upload(self, field, path, display_name=None):
-        """
-        Upload a file to a field.
-
-        :param str field: The field to upload to.
-        :param str path: The path to the file to upload.
-        :param str display_name: The display name of the file in ShotGrid.
-        :return: The Attachment entity that was created for the uploaded file.
-        :rtype: SGEntity
-        """
-        sg_attachment_id = self.sg.upload(entity_type=self._type,
-                                          entity_id=self._id,
-                                          path=path,
-                                          field_name=field,
-                                          display_name=display_name)
-        return convert(self._sg, "Attachment", sg_attachment_id)
-
-    def download(self, field, path):
-        """
-        Download a file from a field.
-
-        :param str field: The field to download from.
-        :param str path: The path to download to.
-        :return:
-        """
-        # TODO What if the field is empty?
-        sg_attachment = self._sg.find_one(self._type,
-                                          [["id", "is", self._id]],
-                                          [field])[field]
-        # if we can split of a file extension from the given path we assume that the path is the
-        # full path with file name to download to. In the other case we assume that the path is
-        # the directory to download to and attach the attachment name as the file name to the
-        # directory path.
-        _, ext = os.path.splitext(path)
-        if ext:
-            local_file_path = os.path.join(path, sg_attachment["name"])
-        else:
-            local_file_path = path
-
-        return self.sg.download_attachment(attachment=sg_attachment,
-                                           file_path=local_file_path)
-
-    def _convert_fields_to_pysg(self, fields):
+    def convert_fields_to_pysg(self, fields):
         """
         Convert all the values from a fields dict to pysg objects where possible.
 
@@ -269,19 +232,10 @@ class SGEntity(object):
         :return: The same dict with all values converted to pysg objects where possible.
         :rtype: dict[str,Any]
         """
-        result = {}
-        for field, value in fields.items():
+        return {field: self.convert_value_to_pysg(value)
+                for field, value in fields.items()}
 
-            if isinstance(value, list):
-                result[field] = [convert(self._sg, entity) for entity in value]
-            elif isinstance(value, dict) and 'type' in value and 'id' in value:
-                result[field] = convert(self._sg, value)
-            else:
-                result[field] = value
-
-        return result
-
-    def _convert_fields_to_dicts(self, fields):
+    def convert_fields_to_dicts(self, fields):
         """
         Convert all the values from a fields dict to simple dictionaries. The counterpart function
         to `func:_convert_fields_to_pysg`.
@@ -291,23 +245,44 @@ class SGEntity(object):
         :return: The same dict with all pysg objects converted to dictionaries.
         :rtype: dict[str,Any]
         """
-        result = {}
-        for field, value in fields.items():
+        return {field: self.convert_value_to_dict(value)
+                for field, value in fields.items()}
 
-            if isinstance(value, list):
-                tmp = []
-                for entity in value:
-                    if isinstance(entity, self.__class__):
-                        tmp.append(entity.to_dict())
-                    else:
-                        tmp.append(entity)
-                result[field] = tmp
-            elif isinstance(value, self.__class__):
-                result[field] = value.to_dict()
-            else:
-                result[field] = value
+    def convert_value_to_dict(self, value):
+        """
+        Convert any pysg objects form the given value to simple dictionaries.
 
-        return result
+        :param Any value: A field value
+        :return: The value with all pysg objects converted to dictionaries.
+        :rtype: dict[str,Any]
+        """
+        if isinstance(value, list):
+            tmp = []
+            for entity in value:
+                if isinstance(entity, self.__class__):
+                    tmp.append(entity.to_dict())
+                else:
+                    tmp.append(entity)
+            return tmp
+        elif isinstance(value, self.__class__):
+            return value.to_dict()
+        else:
+            return value
+
+    def convert_value_to_pysg(self, value):
+        """
+        Convert the value from a field to pysg object(s) where possible.
+
+        :param Any value: A field value
+        :return: The value converted to pysg object(s) where possible.
+        :rtype: Any
+        """
+        if isinstance(value, list):
+            return [convert(self._sg, entity) for entity in value]
+        elif isinstance(value, dict) and 'type' in value and 'id' in value:
+            return convert(self._sg, value)
+        else:
+            return value
 
     def _publishes(self, base_filter=None, pub_types=None, latest=False, additional_sg_filter=None):
         """
@@ -367,3 +342,197 @@ class SGEntity(object):
             sg_publishes = result
 
         return [convert(self._sg, sg_publish) for sg_publish in sg_publishes]
+
+
+class Field(object):
+    """
+    This class represents a field on a ShotGrid entity.
+    It provides an interface to manage various aspects of a field.
+
+    :ivar str name: The name of the field.
+    :ivar SGEntity entity: The entity that this field is attached to.
+    """
+    def __init__(self, name, entity):
+        self._name = name
+        self._entity = entity
+
+    @property
+    def name(self):
+        """
+        :return: The name of the field.
+        :rtype: str
+        """
+        return self._name
+
+    @property
+    def entity(self):
+        """
+        :return: The entity that this field is attached to.
+        :rtype: SGEntity
+        """
+        return self._entity
+
+    def get(self):
+        """
+        :return: The value of the field. Any entities will be automatically converted to
+                 pyshotgrid objects.
+        :rtype: Any
+        """
+        value = self._entity.sg.find_one(self._entity.type,
+                                         [['id', 'is', self._entity.id]],
+                                         [self._name]).get(self._name)
+        return self._entity.convert_value_to_pysg(value)
+
+    def set(self, value):
+        """
+        Set the field to the given value in ShotGrid.
+
+        :param Any value: The value to set the field to.
+        """
+        self._entity.sg.update(self._entity.type,
+                               self._entity.id,
+                               data={self._name: self._entity.convert_value_to_dict(value)})
+
+    def add(self, values):
+        """
+        Add some values to this field
+
+        :param list[Any] values: The value to add to this field.
+        """
+        self._entity.sg.update(self._entity.type,
+                               self._entity.id,
+                               data={self._name: self._entity.convert_value_to_dict(values)},
+                               multi_entity_update_modes='add')
+
+    def remove(self, values):
+        """
+        Remove some values from this field.
+
+        :param list[Any] values: The values to remove from this field.
+        """
+        self._entity.sg.update(self._entity.type,
+                               self._entity.id,
+                               data={self._name: self._entity.convert_value_to_dict(values)},
+                               multi_entity_update_modes='remove')
+
+    def upload(self, path, display_name=None):
+        """
+        Upload a file to this field.
+
+        :param str path: The path to the file to upload.
+        :param str display_name: The display name of the file in ShotGrid.
+        :return: The Attachment entity that was created for the uploaded file.
+        :rtype: SGEntity
+        """
+        sg_attachment_id = self._entity.sg.upload(
+            entity_type=self._entity.type,
+            entity_id=self._entity.id,
+            path=path,
+            field_name=self._name,
+            display_name=display_name)
+        return convert(self._entity.sg, "Attachment", sg_attachment_id)
+
+    def download(self, path):
+        """
+        Download a file from a field.
+
+        :param str path: The path to download to.
+        :return:
+        """
+        # TODO What if the field is empty?
+        sg_attachment = self._entity.sg.find_one(
+            self._entity.type,
+            [["id", "is", self._entity.id]],
+            [self._name])[self._name]
+        # if we can split of a file extension from the given path we assume that the path is the
+        # full path with file name to download to. In the other case we assume that the path is
+        # the directory to download to and attach the attachment name as the file name to the
+        # directory path.
+        _, ext = os.path.splitext(path)
+        if ext:
+            local_file_path = os.path.join(path, sg_attachment["name"])
+        else:
+            local_file_path = path
+
+        return self._entity.sg.download_attachment(
+            attachment=sg_attachment,
+            file_path=local_file_path)
+
+    def schema(self):
+        """
+        :return: The schema of this field.
+                 For example:
+
+                      {'custom_metadata': {'editable': True, 'value': ''},
+                       'data_type': {'editable': False, 'value': 'status_list'},
+                       'description': {'editable': True, 'value': ''},
+                       'editable': {'editable': False, 'value': True},
+                       'entity_type': {'editable': False, 'value': 'Shot'},
+                       'mandatory': {'editable': False, 'value': False},
+                       'name': {'editable': True, 'value': 'Sound delivery'},
+                       'properties': {'default_value': {'editable': True,
+                                                        'value': ''},
+                                      'display_values': {'editable': False,
+                                                         'value': {'dlvr': 'Delivered',
+                                                                   'wtg': 'Waiting '
+                                                                          'to '
+                                                                          'Start'}},
+                                      'hidden_values': {'editable': False,
+                                                        'value': []},
+                                      'summary_default': {'editable': True,
+                                                          'value': 'none'},
+                                      'valid_values': {'editable': True,
+                                                       'value': ['dlvr',
+                                                                 'wtg']}},
+                       'ui_value_displayable': {'editable': False,
+                                                'value': True},
+                       'unique': {'editable': False, 'value': False},
+                       'visible': {'editable': True, 'value': True}},
+        """
+        return self._entity.sg.schema_field_read(self._entity.type, self._name)[self._name]
+
+    @property
+    def data_type(self):
+        """
+        :return: The data type of the field.
+        :rtype: str
+        """
+        return self.schema()['data_type']['value']
+
+    @property
+    def description(self):
+        """
+        :return: The description of the field.
+        :rtype: str
+        """
+        return self.schema()['description']['value']
+
+    @property
+    def display_name(self):
+        """
+        :return: The display name of the field.
+        :rtype: str
+        """
+        return self.schema()['name']['value']
+
+    @property
+    def properties(self):
+        """
+        :return: The properties of the field. This strongly depends on the data type of the field.
+                 This can for example give you all the possible values of a status field.
+        :rtype: dict[str,dict[str,Any]]
+        """
+        return self.schema()['properties']
+
+    def batch_update_dict(self, value):
+        """
+        :param Any value: The value to set.
+        :returns: A dict that can be used in a shotgun.batch() call to update this field.
+                  Useful when you want to collect field changes and set them in one go.
+        :rtype: dict[str,Any]
+        """
+        value = self._entity.convert_value_to_dict(value)
+        return {"request_type": "update",
+                "entity_type": self._entity.type,
+                "entity_id": self._entity.id,
+                "data": {self._name: value}}

@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 """Tests for `pyshotgrid` package."""
-import os
 import sys
-import unittest
 if sys.version_info.major == 2:
     # noinspection PyPackageRequirements,PyUnresolvedReferences
     import mock
@@ -12,34 +10,17 @@ else:
 
 from shotgun_api3.lib import mockgun
 
+from .testbase import BaseShotGridTest
+
 import pyshotgrid as pysg
 
 
-class BaseShotGridTest(unittest.TestCase):
-    """
-    Base Test Class to setup Mockgun.
-    """
-    sg = None
-
-    @classmethod
-    def setUpClass(cls):
-        resources_dir = os.path.join(os.path.dirname(__file__), 'resources')
-
-        mockgun_schema_dir = os.path.join(resources_dir, 'mockgun_schemas',
-                                          'py{}'.format(sys.version_info.major))
-        mockgun.Shotgun.set_schema_paths(os.path.join(mockgun_schema_dir, 'schema.db'),
-                                         os.path.join(mockgun_schema_dir, 'entity_schema.db'))
-        cls.sg = mockgun.Shotgun(base_url='https://test.shotgunstudio.com',
-                                 script_name='Unittest User',
-                                 api_key='$ome_password')
-
-
-class TestPySG(BaseShotGridTest):
+class TestSGEntity(BaseShotGridTest):
     """Tests for `pyshotgrid` package."""
 
     @classmethod
     def setUpClass(cls):
-        super(TestPySG, cls).setUpClass()
+        super(TestSGEntity, cls).setUpClass()
 
         # Shotgun test project
         cls.sg_project = cls.sg.create('Project', {'code': 'Test Project',
@@ -59,35 +40,45 @@ class TestPySG(BaseShotGridTest):
                 'path_cache_storage': local_storage
             })
 
-    def test_SGEntity_string_representation(self):
+    def test_string_representation(self):
         sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
         self.assertEqual('SGEntity - Type: Project - ID: 1 - '
                          'URL: https://test.shotgunstudio.com/detail/Project/1',
                          str(sg_entity))
 
-    def test_SGEntity_query_field_dict_notation(self):
+    def test_query_field_dict_notation(self):
         sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
-        self.assertEqual('tp', sg_entity['tank_name'])
+        self.assertEqual('tp', sg_entity['tank_name'].get())
 
-    def test_SGEntity_update_field_dict_notation(self):
+    def test_update_field_dict_notation(self):
         sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
-        sg_entity['code'] = 'bar-baz'
+        sg_entity['code'].set('bar-baz')
 
-        self.assertEqual('bar-baz', sg_entity['code'])
+        self.assertEqual('bar-baz', sg_entity['code'].get())
 
         # cleanup
-        sg_entity['code'] = 'Test project'
+        sg_entity['code'].set('Test project')
 
-    def test_SGEntity_convert_to_dict(self):
+    def test_convert_to_dict(self):
+        # published files to query publish form paths.
+        sg_publish = self.sg.create('PublishedFile', {'code': 'delete_me'})
+        sg_entity = pysg.SGEntity(self.sg, sg_publish['type'], sg_publish['id'])
+
+        sg_entity.delete()
+
+        self.assertEqual([],
+                         self.sg.find(sg_publish['type'], [['id', 'is', sg_publish['id']]]))
+
+    def test_delete(self):
         sg_entity = pysg.SGEntity(self.sg, 'LocalStorage', 1)
 
         self.assertEqual({'id': 1, 'type': 'LocalStorage'},
                          sg_entity.to_dict())
 
-    def test_SGEntity_iter_fields(self):
+    def test_iter_fields(self):
         sg_entity = pysg.SGEntity(self.sg, 'LocalStorage', 1)
 
         # Mock Mockgun.schema_field_read - the "project_entity" arg is missing in Mockgun.
@@ -107,7 +98,7 @@ class TestPySG(BaseShotGridTest):
                 'updated_at': {'visible': {'value': True}},
                 'updated_by': {'visible': {'value': True}},
                                         }):
-            result = set(sg_entity.all_fields().items())
+            result = set(sg_entity.all_field_values().items())
 
         self.assertEqual({('linux_path', '/mnt/projects'),
                           ('type', 'LocalStorage'),
@@ -124,7 +115,7 @@ class TestPySG(BaseShotGridTest):
                           ('updated_at', None)},
                          result)
 
-    def test_SGEntity_shotgun_url(self):
+    def test_shotgun_url(self):
         sg_entity = pysg.SGEntity(self.sg, 'Project', 1)
 
         self.assertEqual('https://test.shotgunstudio.com/detail/Project/1',

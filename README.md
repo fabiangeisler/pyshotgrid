@@ -15,13 +15,13 @@ A pythonic and more object oriented way to talk to Autodesk ShotGrid.
 
 There are two important classes to understand in pyshotgrid:
   - `SGSite` - this represents your ShotGrid site and is usually
-    Your entry point for coding with pyshotgrid. 
-  - `SGEntity` - this represents a single entity in Shotgrid. 
+    Your entry point for coding with pyshotgrid.
+  - `SGEntity` - this represents a single entity in Shotgrid.
     It provides a lot of convenience methods to update or query information
     About it from ShotGrid. There are further subclasses of it that
     Add even more functionality, but this is the common base to them all.
 
-Here is a quick example of both of them in action. 
+Here is a quick example of both of them in action.
 list the "Cut In" of all shots from all projects:
 
 ```python
@@ -44,23 +44,33 @@ So for example you can :
 
 * Get fields from ShotGrid
   ```python
-  print(sg_project["code"])  # "foobar"
+  # Get the value of a field ...
+  print(sg_project["code"].get())  # "foobar"
+  # ... or get multiple fields at once.
   print(sg_project.get(["code", "tank_name"]))  # {"code": "foobar", "tank_name": "fb"}
+  ```
+* Update fields in ShotGrid
+  ```python
+  # Set the value of a field ...
+  sg_project["code"].set("foobar")
+  # ... or set multiple fields at once.
+  sg_project.set({"code": "foobar", "tank_name": "fb"})
   ```
 * Values are automatically converted to `pyshotgrid` objects which makes it
   possible to chain queries together.
   ```python
-  print(sg_playlist["versions"][0]["code"])  # Name of the first Version in the Playlist.
+  print(sg_playlist["versions"].get()[0]["code"].get())  # Name of the first Version in the Playlist.
   ```
-* Update fields in ShotGrid
+* Get information about a field
   ```python
-  sg_project["code"] = "foobar"
-  sg_project.set({"code": "foobar", "tank_name": "fb"})
+  print(sg_project["code"].data_type)
+  print(sg_project["code"].description)
+  print(sg_project["code"].display_name)
   ```
 * Upload/Download to/from a field
   ```python
-  sg_version.upload('sg_uploaded_movie', '/path/to/movie.mov')
-  sg_version.download('sg_uploaded_movie', '/path/to/download/to/')
+  sg_version['sg_uploaded_movie'].upload('/path/to/movie.mov')
+  sg_version['sg_uploaded_movie'].download('/path/to/download/to/')
   ```
 * Get the URL of the entity
   ```python
@@ -72,11 +82,24 @@ So for example you can :
   ```
 * iterate over all fields
   ```python
-  for field, value in sg_project.all_fields().items():
-       print(field, value)
+  # Iterate over the fields directly to get some information about them...
+  for field, value in sg_project.fields().items():
+       print(field.display_name)
+  # ... or iterate over the fields and values at the same time.
+  for field_name, value in sg_project.all_field_values().items():
+       print(field_name, value)
   ```
 The rules is: All fields of an entity are accessed via dict notation (eg. `sg_project['code']`)
               and all "special" functionality is accessed via instance methods (eg. `sg_version.download('sg_movie', '/path/to/somewhere')`).
+
+Each Shotgun Entity can have special functionality assigned to it. For example the
+default implementation for the Project entity give you functions to easily query shots, assets
+or publishes.
+  ```python
+  sg_project.shots()
+  sg_project.assets()
+  sg_project.publishes()
+  ```
 
 ## How it works
 
@@ -118,6 +141,30 @@ default classes that ship with `pyshotgrid`.
 No, just a brainchild from me, https://github.com/fabiangeisler.
 I am a Pipeline Developer based in Berlin.
 Feel free to follow me on GitHub. :)
+
+## Development
+
+### Initial setup
+For developing `pyshotgrid` create a virtual environment and install the dependencies.
+```shell
+python -m venv venv
+source venv/bin/activate
+python -m pip install -U pip
+python -m pip install -r requirements.txt
+```
+
+### Testing
+Run tests for all supported python environments:
+```shell
+tox
+```
+or run the tests for a specific python environment:
+```shell
+# Run for python 2.7
+tox -e py27
+# Run for python 3.6
+tox -e py36
+```
 
 ## Credits
 
