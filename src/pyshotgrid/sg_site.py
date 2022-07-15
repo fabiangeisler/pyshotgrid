@@ -1,6 +1,6 @@
 import shotgun_api3
 
-from .core import convert
+from .core import convert, convert_fields_to_dicts
 
 
 class SGSite(object):
@@ -41,9 +41,8 @@ class SGSite(object):
         The same function as shotgun_api3.Shotgun.create,
         but it accepts and returns a pyshotgrid object.
         """
-        # TODO convert data input pysg objects
         return convert(self._sg, self._sg.create(entity_type=entity_type,
-                                                 data=data,
+                                                 data=convert_fields_to_dicts(data),
                                                  return_fields=None))
 
     def find(self, entity_type, filters, order=None, filter_operator=None, limit=0,

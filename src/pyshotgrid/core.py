@@ -3,7 +3,7 @@
 #: Entity plugins that are registered to pyshotgrid.
 __ENTITY_PLUGINS = []
 #: Fallback entity class that is used when no match in the __ENTITY_PLUGINS is found.
-__ENTITY_FALLBACK_CLASS = None  # type: callable
+__ENTITY_FALLBACK_CLASS = None
 
 
 def convert(sg, *args, **kwargs):
@@ -96,3 +96,70 @@ def register_fallback_pysg_class(pysg_class):
     """
     global __ENTITY_FALLBACK_CLASS
     __ENTITY_FALLBACK_CLASS = pysg_class
+
+
+def convert_fields_to_pysg(sg, fields):
+    """
+    Convert all the values from a fields dict to pysg objects where possible.
+
+    :param shotgun_api3.Shotgun sg: A fully initialized Shotgun instance.
+    :param dict[str,Any] fields: A fields dict as returned from a shotgun_api3.Shotgun.find()
+                                 call for example.
+    :return: The same dict with all values converted to pysg objects where possible.
+    :rtype: dict[str,Any]
+    """
+    return {field: convert_value_to_pysg(sg, value)
+            for field, value in fields.items()}
+
+
+def convert_fields_to_dicts(fields):
+    """
+    Convert all the values from a fields dict to simple dictionaries. The counterpart function
+    to `func:_convert_fields_to_pysg`.
+
+    :param dict[str,Any] fields: A fields dict as returned from a shotgun_api3.Shotgun.find()
+                                 call for example.
+    :return: The same dict with all pysg objects converted to dictionaries.
+    :rtype: dict[str,Any]
+    """
+    return {field: convert_value_to_dict(value)
+            for field, value in fields.items()}
+
+
+def convert_value_to_dict(value):
+    """
+    Convert any pysg objects form the given value to simple dictionaries.
+
+    :param Any value: A field value
+    :return: The value with all pysg objects converted to dictionaries.
+    :rtype: dict[str,Any]
+    """
+    if isinstance(value, list):
+        tmp = []
+        for entity in value:
+            if isinstance(entity, __ENTITY_FALLBACK_CLASS):
+                tmp.append(entity.to_dict())
+            else:
+                tmp.append(entity)
+        return tmp
+    elif isinstance(value, __ENTITY_FALLBACK_CLASS):
+        return value.to_dict()
+    else:
+        return value
+
+
+def convert_value_to_pysg(sg, value):
+    """
+    Convert the value from a field to pysg object(s) where possible.
+
+    :param shotgun_api3.Shotgun sg: A fully initialized Shotgun instance.
+    :param Any value: A field value
+    :return: The value converted to pysg object(s) where possible.
+    :rtype: Any
+    """
+    if isinstance(value, list):
+        return [convert(sg, entity) for entity in value]
+    elif isinstance(value, dict) and 'type' in value and 'id' in value:
+        return convert(sg, value)
+    else:
+        return value

@@ -1,6 +1,6 @@
 import os
 
-from .core import convert
+from .core import convert, convert_fields_to_pysg, convert_fields_to_dicts, convert_value_to_dict, convert_value_to_pysg
 from .sg_site import SGSite
 
 
@@ -75,17 +75,6 @@ class SGEntity(object):
         """
         return Field(name=field, entity=self)
 
-    def __setitem__old(self, field, value):
-        """
-        Set any field to the given value in ShotGrid via pythons dict notation.
-
-        :param str field: The field to set.
-        :param Any value: The value to set the field to.
-        """
-        self.sg.update(self._type,
-                       self._id,
-                       data={field: self.convert_value_to_dict(value)})
-
     def fields(self, project_entity=None):
         """
         :param dict[str,Any]|SGEntity|None project_entity: A project entity to filter by.
@@ -125,7 +114,7 @@ class SGEntity(object):
         if raw_values:
             return all_fields
         else:
-            return self.convert_fields_to_pysg(all_fields)
+            return convert_fields_to_pysg(self._sg, all_fields)
 
     def to_dict(self):
         # noinspection PyUnresolvedReferences
@@ -148,7 +137,7 @@ class SGEntity(object):
         return {"request_type": "update",
                 "entity_type": self._type,
                 "entity_id": self._id,
-                "data": self.convert_fields_to_dicts(data)}
+                "data": convert_fields_to_dicts(data)}
 
     def set(self, data, multi_entity_update_modes=None):
         """
@@ -166,7 +155,7 @@ class SGEntity(object):
         """
         return self.sg.update(self._type,
                               self._id,
-                              data=self.convert_fields_to_dicts(data),
+                              data=convert_fields_to_dicts(data),
                               multi_entity_update_modes=multi_entity_update_modes)
 
     def get(self, fields, raw_values=False):
@@ -188,16 +177,8 @@ class SGEntity(object):
 
         if raw_values:
             return sg_fields
-
-        result = {}
-        for field, value in sg_fields.items():
-            if isinstance(value, list):
-                result[field] = [convert(self._sg, entity) for entity in value]
-            elif isinstance(value, dict) and 'type' in value and 'id' in value:
-                result[field] = convert(self._sg, value)
-            else:
-                result[field] = value
-        return result
+        else:
+            return convert_fields_to_pysg(self._sg, sg_fields)
 
     def delete(self):
         """
@@ -222,67 +203,6 @@ class SGEntity(object):
         :return: The schemas of all the entity fields.
         """
         return self.sg.schema_field_read(self._type)
-
-    def convert_fields_to_pysg(self, fields):
-        """
-        Convert all the values from a fields dict to pysg objects where possible.
-
-        :param dict[str,Any] fields: A fields dict as returned from a shotgun_api3.Shotgun.find()
-                                     call for example.
-        :return: The same dict with all values converted to pysg objects where possible.
-        :rtype: dict[str,Any]
-        """
-        return {field: self.convert_value_to_pysg(value)
-                for field, value in fields.items()}
-
-    def convert_fields_to_dicts(self, fields):
-        """
-        Convert all the values from a fields dict to simple dictionaries. The counterpart function
-        to `func:_convert_fields_to_pysg`.
-
-        :param dict[str,Any] fields: A fields dict as returned from a shotgun_api3.Shotgun.find()
-                                     call for example.
-        :return: The same dict with all pysg objects converted to dictionaries.
-        :rtype: dict[str,Any]
-        """
-        return {field: self.convert_value_to_dict(value)
-                for field, value in fields.items()}
-
-    def convert_value_to_dict(self, value):
-        """
-        Convert any pysg objects form the given value to simple dictionaries.
-
-        :param Any value: A field value
-        :return: The value with all pysg objects converted to dictionaries.
-        :rtype: dict[str,Any]
-        """
-        if isinstance(value, list):
-            tmp = []
-            for entity in value:
-                if isinstance(entity, self.__class__):
-                    tmp.append(entity.to_dict())
-                else:
-                    tmp.append(entity)
-            return tmp
-        elif isinstance(value, self.__class__):
-            return value.to_dict()
-        else:
-            return value
-
-    def convert_value_to_pysg(self, value):
-        """
-        Convert the value from a field to pysg object(s) where possible.
-
-        :param Any value: A field value
-        :return: The value converted to pysg object(s) where possible.
-        :rtype: Any
-        """
-        if isinstance(value, list):
-            return [convert(self._sg, entity) for entity in value]
-        elif isinstance(value, dict) and 'type' in value and 'id' in value:
-            return convert(self._sg, value)
-        else:
-            return value
 
     def _publishes(self, base_filter=None, pub_types=None, latest=False, additional_sg_filter=None):
         """
@@ -381,7 +301,7 @@ class Field(object):
         value = self._entity.sg.find_one(self._entity.type,
                                          [['id', 'is', self._entity.id]],
                                          [self._name]).get(self._name)
-        return self._entity.convert_value_to_pysg(value)
+        return convert_value_to_pysg(self._entity.sg, value)
 
     def set(self, value):
         """
@@ -391,7 +311,7 @@ class Field(object):
         """
         self._entity.sg.update(self._entity.type,
                                self._entity.id,
-                               data={self._name: self._entity.convert_value_to_dict(value)})
+                               data={self._name: convert_value_to_dict(value)})
 
     def add(self, values):
         """
@@ -401,7 +321,7 @@ class Field(object):
         """
         self._entity.sg.update(self._entity.type,
                                self._entity.id,
-                               data={self._name: self._entity.convert_value_to_dict(values)},
+                               data={self._name: convert_value_to_dict(values)},
                                multi_entity_update_modes='add')
 
     def remove(self, values):
@@ -412,7 +332,7 @@ class Field(object):
         """
         self._entity.sg.update(self._entity.type,
                                self._entity.id,
-                               data={self._name: self._entity.convert_value_to_dict(values)},
+                               data={self._name: convert_value_to_dict(values)},
                                multi_entity_update_modes='remove')
 
     def upload(self, path, display_name=None):
@@ -531,7 +451,7 @@ class Field(object):
                   Useful when you want to collect field changes and set them in one go.
         :rtype: dict[str,Any]
         """
-        value = self._entity.convert_value_to_dict(value)
+        value = convert_value_to_dict(value)
         return {"request_type": "update",
                 "entity_type": self._entity.type,
                 "entity_id": self._entity.id,
