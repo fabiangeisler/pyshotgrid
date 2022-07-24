@@ -1,6 +1,10 @@
 import os
 
-from .core import convert, convert_fields_to_pysg, convert_fields_to_dicts, convert_value_to_dict, convert_value_to_pysg
+from .core import (convert,
+                   convert_fields_to_pysg,
+                   convert_fields_to_dicts,
+                   convert_value_to_dict,
+                   convert_value_to_pysg)
 from .sg_site import SGSite
 
 
@@ -303,7 +307,7 @@ class Field(object):
         value = self._entity.sg.find_one(self._entity.type,
                                          [['id', 'is', self._entity.id]],
                                          [self._name]).get(self._name)
-        return value if raw_values else convert_value_to_pysg(value)
+        return value if raw_values else convert_value_to_pysg(self._entity.sg, value)
 
     def set(self, value):
         """
