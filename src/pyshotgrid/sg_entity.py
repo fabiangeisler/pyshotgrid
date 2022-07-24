@@ -292,8 +292,10 @@ class Field(object):
         """
         return self._entity
 
-    def get(self):
+    def get(self, raw_values=False):
         """
+        :param bool raw_values: Whether to return the raw dict values or the values converted to
+                                pyshotgrid objects.
         :return: The value of the field. Any entities will be automatically converted to
                  pyshotgrid objects.
         :rtype: Any
@@ -301,7 +303,7 @@ class Field(object):
         value = self._entity.sg.find_one(self._entity.type,
                                          [['id', 'is', self._entity.id]],
                                          [self._name]).get(self._name)
-        return convert_value_to_pysg(self._entity.sg, value)
+        return value if raw_values else convert_value_to_pysg(value)
 
     def set(self, value):
         """
@@ -411,6 +413,18 @@ class Field(object):
         """
         return self._entity.sg.schema_field_read(self._entity.type, self._name)[self._name]
 
+    def _update_schema(self, prop, value, project_entity=None):
+        """
+        Update a property of the field.
+
+        :return: True when the update succeeded.
+        :rtype: bool
+        """
+        return self._entity.sg.schema_field_update(self._entity.type,
+                                                   self._name,
+                                                   {prop: value},
+                                                   project_entity=project_entity)
+
     @property
     def data_type(self):
         """
@@ -418,6 +432,10 @@ class Field(object):
         :rtype: str
         """
         return self.schema()['data_type']['value']
+
+    @data_type.setter
+    def data_type(self, value):
+        self._update_schema('data_type', value)
 
     @property
     def description(self):
@@ -435,6 +453,22 @@ class Field(object):
         """
         return self.schema()['name']['value']
 
+    @display_name.setter
+    def display_name(self, value):
+        self._update_schema('name', value)
+
+    @property
+    def custom_metadata(self):
+        """
+        :return: Custom metadata attached to this field.
+        :rtype: str
+        """
+        return self.schema()['custom_metadata']['value']
+
+    @custom_metadata.setter
+    def custom_metadata(self, value):
+        self._update_schema('custom_metadata', value)
+
     @property
     def properties(self):
         """
@@ -443,6 +477,10 @@ class Field(object):
         :rtype: dict[str,dict[str,Any]]
         """
         return self.schema()['properties']
+
+    @properties.setter
+    def properties(self, value):
+        self._update_schema('properties', value)
 
     def batch_update_dict(self, value):
         """
