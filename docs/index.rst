@@ -10,7 +10,6 @@ Welcome to pyshotgrid's documentation!
    usage
    modules
    contributing
-   history
 
 Indices and tables
 ==================

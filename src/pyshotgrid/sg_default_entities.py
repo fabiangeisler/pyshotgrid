@@ -27,7 +27,7 @@ class SGProject(SGEntity):
     def shots(self, glob_pattern=None):
         """
         :param str|None glob_pattern: A glob to match the shots to return. For example
-                                      "TEST_01_*" would return all shots that start with "TEST_01_".
+                                      `TEST_01_*` would return all shots that start with `TEST_01_`.
         :return: All the shots from this project.
         :rtype: list[SGShot]
         """
@@ -43,11 +43,11 @@ class SGProject(SGEntity):
         """
         :param str|list[str]|None pub_types: The names of the Publish File Types to return.
         :param bool latest: Whether to get the "latest" publishes or not. This uses the
-                            same logic as the tk-multi-loader2 app which is as follows:
-                             - group all publishes with the same "name" field together
-                             - from these get the publishes with the highest "version_number" field
-                             - if there are publishes with the same "name" and "version_number" the
-                               newest one wins.
+          same logic as the tk-multi-loader2 app which is as follows:
+            - group all publishes with the same "name" field together
+            - from these get the publishes with the highest "version_number" field
+            - if there are publishes with the same "name" and "version_number" the
+              newest one wins.
         :param additional_sg_filter:
         :return: All published files from this shot.
         :rtype: list[SGPublishedFile]

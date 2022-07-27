@@ -11,3 +11,7 @@ pyshotgrid
    :caption: Modules:
 
    core
+   field
+   sg_default_entities
+   sg_entity
+   sg_site
