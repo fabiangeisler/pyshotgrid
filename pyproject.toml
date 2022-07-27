@@ -1,0 +1,41 @@
+[project]
+name = "pyshotgrid"
+authors = [
+  { name="Fabian Geisler", email="info@fasbue.com" },
+]
+description = "A pythonic and object oriented way to talk to Autodesk ShotGrid."
+readme.file = "README.md"
+readme.content-type = "text/markdown"
+license.file="LICENSE"
+requires-python = ">=2.7"
+keywords = ['shotgrid']
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dynamic = ["version"]
+
+[project.urls]
+"Homepage" = "https://github.com/fabiangeisler/pyshotgrid"
+"Bug Tracker" = "https://github.com/fabiangeisler/pyshotgrid/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "pyshotgrid.VERSION"}
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"

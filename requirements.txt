@@ -8,5 +8,5 @@ Sphinx
 coverage
 nose2
 tox
-python-dotenv;python_version > "2.7"
+python-dotenv[cli];python_version > "2.7"
 mock==3.0.5;python_version < "3.6"
