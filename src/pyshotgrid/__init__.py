@@ -6,7 +6,7 @@ from .sg_site import SGSite  # noqa: F401
 from . import sg_default_entities as sde
 
 #: The pyshotgrid version number as string
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 
 register_fallback_pysg_class(SGEntity)
 # Register default pysg plugins

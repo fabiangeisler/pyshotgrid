@@ -1,14 +1,15 @@
-# `pyshotgrid`
 [![pypi](https://img.shields.io/pypi/v/pyshotgrid.svg)](https://pypi.python.org/pypi/pyshotgrid)
 [![docs](https://readthedocs.org/projects/pyshotgrid/badge/?version=latest)](https://pyshotgrid.readthedocs.io/en/latest/?version=latest)
 
-A pythonic and object oriented way to talk to [Autodesk ShotGrid](https://www.autodesk.com/products/shotgrid/overview).
+# Overview
+
+`pyshotgrid` is a python package that gives you a pythonic and
+object oriented way to talk to [Autodesk ShotGrid](https://www.autodesk.com/products/shotgrid/overview).
 
 > **Warning**
 > This python library is still in early development and the API is not yet stable.
 > Please be cautious in a production environment.
 
-* Free software: MIT license
 * Documentation: https://pyshotgrid.readthedocs.io.
 
 ## Usage

@@ -32,7 +32,11 @@ import pyshotgrid
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc',  # Auto generate code documentation
+              'sphinx.ext.viewcode',  # View the code inside the documentation
+              'myst_parser',  # Read markdown files
+              'sphinx.ext.intersphinx',  # Link to external documentation
+              ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -40,15 +44,14 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
 
 # General information about the project.
 project = 'pyshotgrid'
-copyright = "2021, Fabian Geisler"
+copyright = "2022, Fabian Geisler"
 author = "Fabian Geisler"
 
 # The version info for the project you're documenting, acts as replacement
@@ -65,7 +68,7 @@ release = pyshotgrid.VERSION
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -84,7 +87,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
@@ -159,5 +162,9 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
+# -- Options for links to external documentation ------------------------
 
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
+                       'shotgun_api3': ('https://developer.shotgridsoftware.com/python-api/', None),
+                       }
 

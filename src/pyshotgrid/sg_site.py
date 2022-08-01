@@ -7,7 +7,7 @@ class SGSite(object):
     """
     An instance of this class represents the ShotGrid site as a whole.
 
-    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
+    :ivar shotgun_api3.shotgun.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
     """
 
     @classmethod
@@ -32,13 +32,13 @@ class SGSite(object):
     def sg(self):
         """
         :return: The Shotgun instance that the entity belongs to.
-        :rtype: shotgun_api3.Shotgun
+        :rtype: shotgun_api3.shotgun.Shotgun
         """
         return self._sg
 
     def create(self, entity_type, data):
         """
-        The same function as shotgun_api3.Shotgun.create,
+        The same function as :py:meth:`Shotgun.create <shotgun_api3:shotgun_api3.shotgun.Shotgun.create>` ,
         but it accepts and returns a pyshotgrid object.
         """
         return convert(self._sg, self._sg.create(entity_type=entity_type,
@@ -49,7 +49,7 @@ class SGSite(object):
              retired_only=False, page=0, include_archived_projects=True,
              additional_filter_presets=None):
         """
-        The same function as shotgun_api3.Shotgun.find,
+        The same function as :py:meth:`Shotgun.find <shotgun_api3:shotgun_api3.shotgun.Shotgun.find>` ,
         but it accepts and returns pyshotgrid objects.
 
         :param entity_type:
@@ -81,7 +81,7 @@ class SGSite(object):
                  retired_only=False, page=0, include_archived_projects=True,
                  additional_filter_presets=None):
         """
-        The same function as shotgun_api3.Shotgun.find_one,
+        The same function as :py:meth:`Shotgun.find_one <shotgun_api3:shotgun_api3.shotgun.Shotgun.find_one>` ,
         but it accepts and returns pyshotgrid objects.
 
         """
@@ -141,10 +141,10 @@ class SGSite(object):
     def pipeline_configuration(self, name_or_id=None, project=None):
         """
         :param int|str|None name_or_id: Name or ID of the PipelineConfiguration.
-        :param dict|ShotGridEntity|None project: The project that the PipelineConfiguration
+        :param dict|SGEntity|None project: The project that the PipelineConfiguration
                                                  is attached to.
         :return: The PipelineConfiguration.
-        :rtype: ShotGridEntity|None
+        :rtype: SGEntity|None
         """
         base_filter = []
         if name_or_id is not None:

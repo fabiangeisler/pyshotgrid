@@ -9,7 +9,7 @@ class SGEntity(object):
     """
     An instance of this class represents a single entity in ShotGrid.
 
-    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
+    :ivar shotgun_api3.shotgun.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
     :ivar str entity_type: The ShotGrid type of the entity.
     :ivar int entity_id: The ID of the ShotGrid entity.
     """
@@ -43,7 +43,7 @@ class SGEntity(object):
     def sg(self):
         """
         :return: The Shotgun instance that the entity belongs to.
-        :rtype: shotgun_api3.Shotgun
+        :rtype: shotgun_api3.shotgun.Shotgun
         """
         return self._sg
 
@@ -51,7 +51,7 @@ class SGEntity(object):
     def site(self):
         """
         :return: The pyshotgrid site for this entity.
-        :rtype: pyshotgrid.SGSite
+        :rtype: SGSite
         """
         return SGSite(sg=self._sg)
 

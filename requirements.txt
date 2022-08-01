@@ -5,6 +5,8 @@ build
 twine
 flake8
 Sphinx
+sphinx-rtd-theme
+myst-parser
 coverage
 nose2
 tox

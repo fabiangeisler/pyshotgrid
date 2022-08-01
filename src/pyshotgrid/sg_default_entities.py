@@ -44,6 +44,7 @@ class SGProject(SGEntity):
         :param str|list[str]|None pub_types: The names of the Publish File Types to return.
         :param bool latest: Whether to get the "latest" publishes or not. This uses the
           same logic as the tk-multi-loader2 app which is as follows:
+
             - group all publishes with the same "name" field together
             - from these get the publishes with the highest "version_number" field
             - if there are publishes with the same "name" and "version_number" the
@@ -87,10 +88,11 @@ class SGShot(SGEntity):
         :param str|list[str]|None pub_types: The names of the Publish File Types to return.
         :param bool latest: Whether to get the "latest" publishes or not. This uses the
                             same logic as the tk-multi-loader2 app which is as follows:
-                             - group all publishes with the same "name" field together
-                             - from these get the publishes with the highest "version_number" field
-                             - if there are publishes with the same "name" and "version_number" the
-                               newest one wins.
+
+                              - group all publishes with the same "name" field together
+                              - from these get the publishes with the highest "version_number" field
+                              - if there are publishes with the same "name" and "version_number" the
+                                newest one wins.
         :param additional_sg_filter:
         :return: All published files from this shot.
         :rtype: list[SGPublishedFile]
@@ -150,6 +152,7 @@ class SGTask(SGEntity):
         :param str|list[str]|None pub_types: The names of the Publish File Types to return.
         :param bool latest: Whether to get the "latest" publishes or not. This uses the
                             same logic as the tk-multi-loader2 app which is as follows:
+
                              - group all publishes with the same "name" field together
                              - from these get the publishes with the highest "version_number" field
                              - if there are publishes with the same "name" and "version_number" the
