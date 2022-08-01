@@ -1,7 +1,7 @@
 :github_url: https://github.com/fabiangeisler/pyshotgrid/blob/master/src/pyshotgrid/__init__.py
 
-pyshotgrid
-==========
+pyshotgrid API Reference
+========================
 
 .. automodule:: pyshotgrid
     :members:

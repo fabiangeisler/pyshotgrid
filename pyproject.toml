@@ -44,7 +44,7 @@ version = {attr = "pyshotgrid.VERSION"}
 legacy_tox_ini = """
 [tox]
 skip_missing_interpreters = true
-envlist = py27, py36, py37, py38, py39, flake8, docs
+envlist = py27, py36, py37, py38, py39, flake8
 
 [testenv:flake8]
 basepython = python

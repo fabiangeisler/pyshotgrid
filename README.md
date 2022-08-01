@@ -127,11 +127,11 @@ No, and since it is build on top of `shotgun_api3`, it never will be.
 ### Is `pyshotgrid` replacing `shotgun_api3`?
 No, quite the opposite. It is meant to be used in conjunction with `shotgun_api3` and
 improve handling and writing code with it. Its main goal is to make it easier to write
-code for common scenarios and leave the special cases for the `shotgun_api3`. That said
+code for common scenarios and leave the special cases for the `shotgun_api3`. That said,
 It is possible totally possible to write pyshotgrid code without using `shotgun_api3`.
 
 ### I have some custom entity setup in Shotgrid. Can this be reflected in `pyshotgrid`?
-By default pyshotgrid returns any entity as SGEntity to provide
+By default `pyshotgrid` returns any entity as `SGEntity` to provide
 A minimum of functionality in all cases. But you can write your own class
 that inherits from `SGEntity` and register that to `pyshotgrid`. After that
 whenever pyshotgrid encounters your custom entity it will
@@ -139,33 +139,9 @@ return your custom implementation. You can even overwrite
 default classes that ship with `pyshotgrid`.
 
 ### Is this an official project from Autodesk?
-No, just a brainchild from me, https://github.com/fabiangeisler.
+No, just a brainchild from me, [Fabian Geisler](https://github.com/fabiangeisler).
 I am a Pipeline Developer based in Berlin.
 Feel free to follow me on GitHub. :)
-
-## Development
-
-### Initial setup
-For developing `pyshotgrid` create a virtual environment and install the dependencies.
-```shell
-python -m venv venv
-source venv/bin/activate
-python -m pip install -U pip
-python -m pip install -r requirements.txt
-```
-
-### Testing
-Run tests for all supported python environments:
-```shell
-tox
-```
-or run the tests for a specific python environment:
-```shell
-# Run for python 2.7
-tox -e py27
-# Run for python 3.6
-tox -e py36
-```
 
 ## Credits
 
