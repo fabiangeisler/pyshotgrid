@@ -27,10 +27,11 @@ list the "Cut In" of all shots from all projects:
 
 ```python
 import pyshotgrid as pysg
-site = pysg.new_site(
-    base_url = 'https://example.shotgunstudio.com',
-    script_name = 'Some User',
-    api_key = '$ome_password')
+
+site = pysg.new_site(base_url='https://example.shotgunstudio.com',
+                     script_name='Some User',
+                     api_key='$ome_password')
+
 for project in site.projects():
     print(project)
     for shot in project.shots():
