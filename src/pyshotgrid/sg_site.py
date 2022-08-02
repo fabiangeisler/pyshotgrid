@@ -1,6 +1,4 @@
-import shotgun_api3
-
-from .core import convert, convert_fields_to_dicts
+from .core import new_entity, convert_fields_to_dicts
 
 
 class SGSite(object):
@@ -9,22 +7,6 @@ class SGSite(object):
 
     :ivar shotgun_api3.shotgun.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
     """
-
-    @classmethod
-    def from_credentials(cls, base_url, script_name, api_key):
-        """
-        Initialize the site with some basic ShotGrid API credentials.
-
-        :param str base_url: The URL to the ShotGrid site.
-        :param str script_name: The name of the script.
-        :param str api_key: The API key.
-        :return: An instance of this class.
-        :rtype: SGSite
-        """
-        return cls(sg=shotgun_api3.Shotgun(base_url=base_url,
-                                           script_name=script_name,
-                                           api_key=api_key))
-
     def __init__(self, sg):
         self._sg = sg
 
@@ -38,19 +20,21 @@ class SGSite(object):
 
     def create(self, entity_type, data):
         """
-        The same function as :py:meth:`Shotgun.create <shotgun_api3:shotgun_api3.shotgun.Shotgun.create>` ,
+        The same function as
+        :py:meth:`Shotgun.create <shotgun_api3:shotgun_api3.shotgun.Shotgun.create>`,
         but it accepts and returns a pyshotgrid object.
         """
-        return convert(self._sg, self._sg.create(entity_type=entity_type,
-                                                 data=convert_fields_to_dicts(data),
-                                                 return_fields=None))
+        return new_entity(self._sg, self._sg.create(entity_type=entity_type,
+                                                    data=convert_fields_to_dicts(data),
+                                                    return_fields=None))
 
     def find(self, entity_type, filters, order=None, filter_operator=None, limit=0,
              retired_only=False, page=0, include_archived_projects=True,
              additional_filter_presets=None):
         """
-        The same function as :py:meth:`Shotgun.find <shotgun_api3:shotgun_api3.shotgun.Shotgun.find>` ,
-        but it accepts and returns pyshotgrid objects.
+        The same function as
+        :py:meth:`Shotgun.find <shotgun_api3:shotgun_api3.shotgun.Shotgun.find>`, but it
+        accepts and returns pyshotgrid objects.
 
         :param entity_type:
         :param filters:
@@ -64,7 +48,7 @@ class SGSite(object):
         :return:
         """
         # TODO convert filter entities
-        return [convert(self._sg, sg_entity)
+        return [new_entity(self._sg, sg_entity)
                 for sg_entity in self._sg.find(
                 entity_type=entity_type,
                 filters=filters,
@@ -81,9 +65,9 @@ class SGSite(object):
                  retired_only=False, page=0, include_archived_projects=True,
                  additional_filter_presets=None):
         """
-        The same function as :py:meth:`Shotgun.find_one <shotgun_api3:shotgun_api3.shotgun.Shotgun.find_one>` ,
+        The same function as
+        :py:meth:`Shotgun.find_one <shotgun_api3:shotgun_api3.shotgun.Shotgun.find_one>` ,
         but it accepts and returns pyshotgrid objects.
-
         """
         # TODO allow entering the display name for the entity_type
         result = self.find(entity_type=entity_type,
@@ -136,7 +120,7 @@ class SGSite(object):
                                if (sg_project['tank_name'] in names_or_ids or
                                    sg_project['name'] in names_or_ids)]
 
-        return [convert(self._sg, sg_project) for sg_project in sg_projects]
+        return [new_entity(self._sg, sg_project) for sg_project in sg_projects]
 
     def pipeline_configuration(self, name_or_id=None, project=None):
         """
@@ -163,7 +147,7 @@ class SGSite(object):
                                            base_filter)
 
         if sg_pipe_config:
-            return convert(self._sg, sg_pipe_config)
+            return new_entity(self._sg, sg_pipe_config)
 
     def people(self, additional_sg_filter=None):
         """
@@ -171,5 +155,5 @@ class SGSite(object):
         :return: All HumanUsers of this ShotGrid site.
         :rtype: list[SGHumanUser]
         """
-        return [convert(self._sg, sg_user)
+        return [new_entity(self._sg, sg_user)
                 for sg_user in self._sg.find('HumanUser', additional_sg_filter or [])]

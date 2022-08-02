@@ -1,7 +1,7 @@
-from .core import (convert,
+from .core import (new_entity,
+                   new_site,
                    convert_fields_to_pysg,
                    convert_fields_to_dicts)
-from .sg_site import SGSite
 from .field import Field
 
 
@@ -53,7 +53,7 @@ class SGEntity(object):
         :return: The pyshotgrid site for this entity.
         :rtype: SGSite
         """
-        return SGSite(sg=self._sg)
+        return new_site(self._sg)
 
     @property
     def url(self):
@@ -265,4 +265,4 @@ class SGEntity(object):
 
             sg_publishes = result
 
-        return [convert(self._sg, sg_publish) for sg_publish in sg_publishes]
+        return [new_entity(self._sg, sg_publish) for sg_publish in sg_publishes]

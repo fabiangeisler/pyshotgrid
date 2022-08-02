@@ -1,6 +1,6 @@
 import os
 
-from .core import (convert,
+from .core import (new_entity,
                    convert_value_to_dict,
                    convert_value_to_pysg)
 
@@ -97,7 +97,7 @@ class Field(object):
             path=path,
             field_name=self._name,
             display_name=display_name)
-        return convert(self._entity.sg, "Attachment", sg_attachment_id)
+        return new_entity(self._entity.sg, "Attachment", sg_attachment_id)
 
     def download(self, path):
         """

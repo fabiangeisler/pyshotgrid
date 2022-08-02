@@ -27,7 +27,7 @@ list the "Cut In" of all shots from all projects:
 
 ```python
 import pyshotgrid as pysg
-site = pysg.SGSite.from_credentials(
+site = pysg.new_site(
     base_url = 'https://example.shotgunstudio.com',
     script_name = 'Some User',
     api_key = '$ome_password')
@@ -115,7 +115,7 @@ All functionality of the `SGEntity` class is based on these three values.
 There are some "special" classes that inherit from `SGEntity` to add some
 common functionality to common entities in ShotGrid. For example the `SGProject`
 class adds a `shots()` function which gives you a list of shots from that project.
-To ensure that you are always using the right class you should use the `pyshotgrid.convert()`
+To ensure that you are always using the right class you should use the `pyshotgrid.new_pysg_obj()`
 function which will return the right instance for you.
 
 ## FAQ

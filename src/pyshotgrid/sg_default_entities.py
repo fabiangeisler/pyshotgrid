@@ -9,7 +9,7 @@ TODO
 """
 import fnmatch
 
-from .core import convert
+from .core import new_entity
 from .sg_entity import SGEntity
 
 
@@ -33,11 +33,11 @@ class SGProject(SGEntity):
         """
         sg_shots = self.sg.find('Shot', [['project', 'is', self.to_dict()]], ['code'])
         if glob_pattern is not None:
-            return [convert(self._sg, sg_shot)
+            return [new_entity(self._sg, sg_shot)
                     for sg_shot in sg_shots
                     if fnmatch.fnmatchcase(sg_shot['code'], glob_pattern)]
         else:
-            return [convert(self._sg, sg_shot) for sg_shot in sg_shots]
+            return [new_entity(self._sg, sg_shot) for sg_shot in sg_shots]
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """
@@ -68,7 +68,7 @@ class SGProject(SGEntity):
         if additional_sg_filter is not None:
             sg_filter += additional_sg_filter
 
-        return [convert(self._sg, sg_user)
+        return [new_entity(self._sg, sg_user)
                 for sg_user in self._sg.find('HumanUser', sg_filter)]
 
 
@@ -132,7 +132,7 @@ class SGShot(SGEntity):
                                   "filters": [['step.Step.code', 'is', pipeline_step],
                                               ['step.Step.short_name', 'is', pipeline_step]]})
 
-        return [convert(self._sg, sg_task)
+        return [new_entity(self._sg, sg_task)
                 for sg_task in self._sg.find('Task', sg_filter)]
 
 
