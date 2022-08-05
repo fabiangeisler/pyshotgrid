@@ -36,6 +36,7 @@ extensions = ['sphinx.ext.autodoc',  # Auto generate code documentation
               'sphinx.ext.viewcode',  # View the code inside the documentation
               'myst_parser',  # Read markdown files
               'sphinx.ext.intersphinx',  # Link to external documentation
+              'sphinx.ext.githubpages',  # Github pages friendly documentaion
               ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -168,3 +169,13 @@ intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
                        'shotgun_api3': ('https://developer.shotgridsoftware.com/python-api/', None),
                        }
 
+
+# -- Options for autodoc generation ------------------------
+
+autodoc_default_options = {
+    'members': True,
+    'member-order': 'bysource',
+    'special-members': '__init__',
+    'undoc-members': True,
+    'exclude-members': '__weakref__'
+}

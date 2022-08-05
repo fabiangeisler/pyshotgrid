@@ -1,4 +1,11 @@
-"""Main module."""
+"""
+Main module which collects all important functionality.
+
+Use it like::
+
+    >>> import pyshotgrid
+
+"""
 
 from .core import (new_entity,  # noqa: F401
                    new_site,  # noqa: F401
@@ -17,6 +24,7 @@ register_fallback_pysg_class(SGEntity)
 # Register default pysg plugins
 register_pysg_class('Project', sde.SGProject)
 register_pysg_class('Shot', sde.SGShot)
+register_pysg_class('Asset', sde.SGAsset)
 register_pysg_class('Task', sde.SGTask)
 register_pysg_class('PublishedFile', sde.SGPublishedFile)
 register_pysg_class('Playlist', sde.SGPlaylist)

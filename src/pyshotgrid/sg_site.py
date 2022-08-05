@@ -1,13 +1,16 @@
-from .core import new_entity, convert_fields_to_dicts
+from .core import new_entity, convert_fields_to_dicts, convert_filters_to_dict
 
 
 class SGSite(object):
     """
     An instance of this class represents the ShotGrid site as a whole.
 
-    :ivar shotgun_api3.shotgun.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
     """
     def __init__(self, sg):
+        """
+        :param shotgun_api3.shotgun.Shotgun sg:
+            A fully initialized instance of shotgun_api3.Shotgun.
+        """
         self._sg = sg
 
     @property
@@ -53,11 +56,10 @@ class SGSite(object):
         :param additional_filter_presets:
         :return:
         """
-        # TODO convert filter entities
         return [new_entity(self._sg, sg_entity)
                 for sg_entity in self._sg.find(
                 entity_type=entity_type,
-                filters=filters,
+                filters=convert_filters_to_dict(filters),
                 fields=None,
                 order=order,
                 filter_operator=filter_operator,

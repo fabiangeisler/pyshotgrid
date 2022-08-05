@@ -11,10 +11,11 @@ __SG_SITE_CLASS = None
 def new_entity(sg, *args, **kwargs):
     """
     Create a new instance of a pyshotgrid class that represents a ShotGrid entity.
-    ..Note::
 
-        This does NOT _create_ an entity in Shotgrid. It just gives you a python
-        object that _represents_ an entity.
+    .. Note::
+
+        This does NOT *create* an entity in Shotgrid. It just gives you a python
+        object that *represents* an entity.
 
     The function can be used in 3 ways which all do the same thing::
 
@@ -196,6 +197,34 @@ def convert_value_to_dict(value):
         return value.to_dict()
     else:
         return value
+
+
+def convert_filters_to_dict(filters):
+    """
+    Convert any pysg objects form the given shotgun_api3 filter to simple dictionaries.
+
+    Example::
+
+        >>> convert_filters_to_dict([['user', 'is', SGHumanUser(sg, id=5)]])
+        [['user', 'is', {'type': 'HumanUser', 'id': 5}]]
+
+    :param list[list] filters: The filters to convert
+    :return: The filter with all pysg objects converted to dictionaries.
+    :rtype: list[list]
+    """
+    for f in filters:
+        if isinstance(f[2], list):
+            tmp = []
+            for entity in f[2]:
+                if isinstance(entity, __ENTITY_FALLBACK_CLASS):
+                    tmp.append(entity.to_dict())
+                else:
+                    tmp.append(entity)
+            f[2] = tmp
+        elif isinstance(f[2], __ENTITY_FALLBACK_CLASS):
+            f[2] = f[2].to_dict()
+
+    return filters
 
 
 def convert_value_to_pysg(sg, value):

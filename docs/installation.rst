@@ -68,5 +68,7 @@ Here is what you have to do:
 3. Add the path to the `sys.path` in the `tank_init.py`.
 
 4. You are done. :) You are now able to use `pyshotgird` throughout your SGTK setup.
-   Note::
-    There is no need to install the shotgun_api3 since that is already shipped with SGTK.
+
+   .. note::
+
+      There is no need to install the shotgun_api3 since that is already shipped with SGTK.

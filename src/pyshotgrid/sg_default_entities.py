@@ -1,9 +1,6 @@
 """
 This module collects all default pyshotgrid custom entities.
 """
-# TODO
-# - sequence entity
-# - asset entity
 import fnmatch
 
 from .core import new_entity
@@ -13,12 +10,14 @@ from .sg_entity import SGEntity
 class SGProject(SGEntity):
     """
     An instance of this class represents a single Project entity in ShotGrid.
-
-    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
-    :ivar int project_id: The ID of the project entity.
     """
 
     def __init__(self, sg, project_id):
+        """
+        :param shotgun_api3.shotgun.Shotgun sg:
+            A fully initialized instance of shotgun_api3.Shotgun.
+        :param int project_id: The ID of the project entity.
+        """
         super(SGProject, self).__init__(sg, entity_type='Project', entity_id=project_id)
 
     def shots(self, glob_pattern=None):
@@ -36,6 +35,21 @@ class SGProject(SGEntity):
         else:
             return [new_entity(self._sg, sg_shot) for sg_shot in sg_shots]
 
+    def assets(self, glob_pattern=None):
+        """
+        :param str|None glob_pattern: A glob to match the assets to return. For example
+                                      `TEST_*` would return all assets that start with `TEST_`.
+        :return: All the assets from this project.
+        :rtype: list[SGAsset]
+        """
+        sg_assets = self.sg.find('Asset', [['project', 'is', self.to_dict()]], ['code'])
+        if glob_pattern is not None:
+            return [new_entity(self._sg, sg_asset)
+                    for sg_asset in sg_assets
+                    if fnmatch.fnmatchcase(sg_asset['code'], glob_pattern)]
+        else:
+            return [new_entity(self._sg, sg_shot) for sg_shot in sg_assets]
+
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """
         :param str|list[str]|None pub_types: The names of the Publish File Types to return.
@@ -47,7 +61,7 @@ class SGProject(SGEntity):
             - if there are publishes with the same "name" and "version_number" the
               newest one wins.
         :param additional_sg_filter:
-        :return: All published files from this shot.
+        :return: All published files from this project.
         :rtype: list[SGPublishedFile]
         """
         return self._publishes(base_filter=[['project', 'is', self.to_dict()]],
@@ -80,12 +94,14 @@ class SGProject(SGEntity):
 class SGShot(SGEntity):
     """
     An instance of this class represents a single Shot entity in ShotGrid.
-
-    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
-    :ivar int shot_id: The ID of the shot entity.
     """
 
     def __init__(self, sg, shot_id):
+        """
+        :param shotgun_api3.shotgun.Shotgun sg:
+            A fully initialized instance of shotgun_api3.Shotgun.
+        :param int shot_id: The ID of the shot entity.
+        """
         super(SGShot, self).__init__(sg, entity_type='Shot', entity_id=shot_id)
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
@@ -141,15 +157,83 @@ class SGShot(SGEntity):
                 for sg_task in self._sg.find('Task', sg_filter)]
 
 
+class SGAsset(SGEntity):
+    """
+    An instance of this class represents a single Asset entity in ShotGrid.
+    """
+
+    def __init__(self, sg, asset_id):
+        """
+        :param shotgun_api3.shotgun.Shotgun sg:
+            A fully initialized instance of shotgun_api3.Shotgun.
+        :param int asset_id: The ID of the Asset entity.
+        """
+        super(SGAsset, self).__init__(sg, entity_type='Shot', entity_id=asset_id)
+
+    def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
+        """
+        :param str|list[str]|None pub_types: The names of the Publish File Types to return.
+        :param bool latest: Whether to get the "latest" publishes or not. This uses the
+                            same logic as the tk-multi-loader2 app which is as follows:
+
+                              - group all publishes with the same "name" field together
+                              - from these get the publishes with the highest "version_number" field
+                              - if there are publishes with the same "name" and "version_number" the
+                                newest one wins.
+        :param additional_sg_filter:
+        :return: All published files from this asset.
+        :rtype: list[SGPublishedFile]
+        """
+        return self._publishes(base_filter=[['entity', 'is', self.to_dict()]],
+                               pub_types=pub_types,
+                               latest=latest,
+                               additional_sg_filter=additional_sg_filter)
+
+    def tasks(self, names=None, pipeline_step=None):
+        """
+        :param list[str]|None names: The names of Tasks to return.
+        :param str|dict|SGEntity|None pipeline_step: Name, short name or entity object
+                                                     or the Pipeline Step to filter by.
+        :returns: A list of Tasks
+        :rtype: list[SGTask]
+        """
+        sg_filter = [['entity', 'is', self.to_dict()]]
+
+        if names is not None:
+            if len(names) == 1:
+                names_filter = ['code', 'is', names[0]]
+            else:
+                names_filter = {"filter_operator": "any", "filters": []}
+                for name in names:
+                    names_filter['filters'].append(
+                        ['code', 'is', name])
+            sg_filter.append(names_filter)
+
+        if pipeline_step is not None:
+            if isinstance(pipeline_step, dict):
+                sg_filter.append(['step', 'is', pipeline_step])
+            elif isinstance(pipeline_step, SGEntity):
+                sg_filter.append(['step', 'is', pipeline_step.to_dict()])
+            else:
+                sg_filter.append({"filter_operator": "any",
+                                  "filters": [['step.Step.code', 'is', pipeline_step],
+                                              ['step.Step.short_name', 'is', pipeline_step]]})
+
+        return [new_entity(self._sg, sg_task)
+                for sg_task in self._sg.find('Task', sg_filter)]
+
+
 class SGTask(SGEntity):
     """
     An instance of this class represents a single Task entity in ShotGrid.
-
-    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
-    :ivar int task_id: The ID of the Task entity.
     """
 
     def __init__(self, sg, task_id):
+        """
+        :param shotgun_api3.shotgun.Shotgun sg:
+            A fully initialized instance of shotgun_api3.Shotgun.
+        :param int task_id: The ID of the Task entity.
+        """
         super(SGTask, self).__init__(sg, entity_type='Task', entity_id=task_id)
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
@@ -175,12 +259,14 @@ class SGTask(SGEntity):
 class SGPublishedFile(SGEntity):
     """
     An instance of this class represents a single PublishedFile entity in ShotGrid.
-
-    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
-    :ivar int published_file_id: The ID of the PublishedFile entity.
     """
 
     def __init__(self, sg, published_file_id):
+        """
+        :param shotgun_api3.shotgun.Shotgun sg:
+            A fully initialized instance of shotgun_api3.Shotgun.
+        :param int published_file_id: The ID of the PublishedFile entity.
+        """
         super(SGPublishedFile, self).__init__(sg, entity_type='PublishedFile',
                                               entity_id=published_file_id)
 
@@ -195,24 +281,28 @@ class SGPublishedFile(SGEntity):
 class SGVersion(SGEntity):
     """
     An instance of this class represents a single Version entity in ShotGrid.
-
-    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
-    :ivar int version_id: The ID of the Version entity.
     """
 
     def __init__(self, sg, version_id):
+        """
+        :param shotgun_api3.shotgun.Shotgun sg:
+            A fully initialized instance of shotgun_api3.Shotgun.
+        :param int version_id: The ID of the Version entity.
+        """
         super(SGVersion, self).__init__(sg, entity_type='Version', entity_id=version_id)
 
 
 class SGPlaylist(SGEntity):
     """
     An instance of this class represents a single Playlist entity in ShotGrid.
-
-    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
-    :ivar int version_id: The ID of the Playlist entity.
     """
 
     def __init__(self, sg, playlist_id):
+        """
+        :param shotgun_api3.shotgun.Shotgun sg:
+            A fully initialized instance of shotgun_api3.Shotgun.
+        :param int playlist_id: The ID of the Playlist entity.
+        """
         super(SGPlaylist, self).__init__(sg, entity_type='Playlist', entity_id=playlist_id)
 
     @property
@@ -236,26 +326,66 @@ class SGPlaylist(SGEntity):
 class SGHumanUser(SGEntity):
     """
     An instance of this class represents a single HumanUser entity in ShotGrid.
-
-    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
-    :ivar int human_user_id: The ID of the PublishedFile entity.
     """
 
     def __init__(self, sg, human_user_id):
+        """
+        :param shotgun_api3.shotgun.Shotgun sg:
+            A fully initialized instance of shotgun_api3.Shotgun.
+        :param int human_user_id: The ID of the PublishedFile entity.
+        """
         super(SGHumanUser, self).__init__(sg,
                                           entity_type='HumanUser',
                                           entity_id=human_user_id)
 
-    def tasks(self, projects=None, status=None, pipeline_step=None):
+    def tasks(self, names=None, project=None, pipeline_step=None):
         """
-        :param list|None projects: A list of projects to return the tasks for.
-        :param list|None status: A list of status that the tasks should have
-        :param int|str|None pipeline_step: The pipeline_step of the tasks to return.
-        :return: All tasks assigned to this HumanUser.
+        :param list[str]|None names: The names of Tasks to return.
+        :param str|dict|SGEntity|None project: Name, tank_name or entity object
+                                               or the Project to filter by.
+        :param str|dict|SGEntity|None pipeline_step: Name, short name or entity object
+                                                     or the Pipeline Step to filter by.
+        :returns: A list of Tasks
         :rtype: list[SGTask]
         """
-        # TODO
-        raise NotImplementedError()
+        sg_filter = [{"filter_operator": "any",
+                      "filters": [
+                          ['task_assignees', 'contains', self.to_dict()],
+                          ['task_assignees.Group.users', 'contains', self.to_dict()],
+                      ]}]
+
+        if names is not None:
+            if len(names) == 1:
+                names_filter = ['code', 'is', names[0]]
+            else:
+                names_filter = {"filter_operator": "any", "filters": []}
+                for name in names:
+                    names_filter['filters'].append(
+                        ['code', 'is', name])
+            sg_filter.append(names_filter)
+
+        if project is not None:
+            if isinstance(project, dict):
+                sg_filter.append(['project', 'is', project])
+            elif isinstance(project, SGEntity):
+                sg_filter.append(['project', 'is', project.to_dict()])
+            else:
+                sg_filter.append({"filter_operator": "any",
+                                  "filters": [['project.Project.code', 'is', project],
+                                              ['project.Project.tank_name', 'is', project]]})
+
+        if pipeline_step is not None:
+            if isinstance(pipeline_step, dict):
+                sg_filter.append(['step', 'is', pipeline_step])
+            elif isinstance(pipeline_step, SGEntity):
+                sg_filter.append(['step', 'is', pipeline_step.to_dict()])
+            else:
+                sg_filter.append({"filter_operator": "any",
+                                  "filters": [['step.Step.code', 'is', pipeline_step],
+                                              ['step.Step.short_name', 'is', pipeline_step]]})
+
+        return [new_entity(self._sg, sg_task)
+                for sg_task in self._sg.find('Task', sg_filter)]
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """
@@ -275,20 +405,3 @@ class SGHumanUser(SGEntity):
                                pub_types=pub_types,
                                latest=latest,
                                additional_sg_filter=additional_sg_filter)
-
-    def projects(self):
-        """
-        :return: All projects that this HumanUser is assigned to.
-        :rtype: list[SGProject]
-        """
-        return [new_entity(self._sg, sg_project)
-                for sg_project in self._sg.find('Project',
-                                                [['users', 'contains', self.to_dict()]])]
-
-    def versions(self):
-        """
-        :return: All Versions that this HumanUser created.
-        :rtype: list[SGVersion]
-        """
-        # TODO
-        raise NotImplementedError()

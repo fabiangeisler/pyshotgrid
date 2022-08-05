@@ -8,14 +8,16 @@ from .field import Field
 class SGEntity(object):
     """
     An instance of this class represents a single entity in ShotGrid.
-
-    :ivar shotgun_api3.shotgun.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
-    :ivar str entity_type: The ShotGrid type of the entity.
-    :ivar int entity_id: The ID of the ShotGrid entity.
     """
 
     def __init__(self, sg, entity_type, entity_id):
-        self._sg = sg
+        """
+        :param shotgun_api3.shotgun.Shotgun sg:
+            A fully initialized instance of shotgun_api3.Shotgun.
+        :param str entity_type: The ShotGrid type of the entity.
+        :param int entity_id: The ID of the ShotGrid entity.
+        """
+        self._sg = sg  # :type: shotgun_api3.shotgun.Shotgun
         self._type = entity_type
         self._id = entity_id
 
@@ -59,10 +61,11 @@ class SGEntity(object):
     def url(self):
         """
         :return: The ShotGrid URL for this entity.
-                 .. Note::
 
-                     This will only work on entities that have a detail view enabled
-                     in the system settings.
+            .. note::
+
+               This will only work on entities that have a detail view enabled
+               in the system settings.
         :rtype: str
         """
         return '{}/detail/{}/{}'.format(self.sg.base_url, self._type, self._id)
@@ -121,11 +124,15 @@ class SGEntity(object):
     def to_dict(self):
         # noinspection PyUnresolvedReferences
         """
-        :returns: The entity as a dict which is ready to consume by the shotgun_api3 methods.
-                  .. Note::
+        Creates a dict with just "type" and "id" (and does not call SG).
 
-                        >>> sg_entity.to_dict()
-                        Creates a dict with just "type" and "id" (and does not call SG).
+        Example::
+
+            >>> sg_entity.to_dict()
+            {'type': 'CustomEntity01', 'id': 1}
+
+        :returns: The entity as a dict which is ready to consume by the shotgun_api3 methods.
+
         :rtype: dict[str,Any]
         """
         return {'id': self._id, 'type': self._type}
@@ -186,6 +193,7 @@ class SGEntity(object):
     def delete(self):
         """
         Delete this entity.
+
         .. Note::
 
             The python object that represents this entity does not make sense any more after you

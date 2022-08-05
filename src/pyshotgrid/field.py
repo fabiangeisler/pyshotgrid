@@ -9,15 +9,16 @@ class Field(object):
     """
     This class represents a field on a ShotGrid entity.
     It provides an interface to manage various aspects of a field.
-
-    :ivar str name: The name of the field.
-    :ivar SGEntity entity: The entity that this field is attached to.
     """
     # Note to developers:
     # The naming convention of this class intentionally leaves out the "SG" in front,
     # since there is a ShotGrid entity that is called "Field".
 
     def __init__(self, name, entity):
+        """
+        :param str name: The name of the field.
+        :param SGEntity entity: The entity that this field is attached to.
+        """
         self._name = name
         self._entity = entity
 
@@ -105,12 +106,18 @@ class Field(object):
 
         :param str path: The path to download to.
         :return:
+        :raises:
+            :RuntimeError: When nothing was uploaded to this field.
         """
-        # TODO What if the field is empty?
         sg_attachment = self._entity.sg.find_one(
             self._entity.type,
             [["id", "is", self._entity.id]],
             [self._name])[self._name]
+
+        if sg_attachment is None:
+            raise RuntimeError('Cannot download file from field "{}" on entity "{}", because there'
+                               'is nothing uploaded.'.format(self.name, self.entity.to_dict()))
+
         # if we can split of a file extension from the given path we assume that the path is the
         # full path with file name to download to. In the other case we assume that the path is
         # the directory to download to and attach the attachment name as the file name to the

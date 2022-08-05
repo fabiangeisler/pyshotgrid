@@ -12,12 +12,14 @@ There are two important classes to understand in pyshotgrid:
 
 The SGEntity class
 ------------------
+
 The `SGEntity` class is the base class for all specific Entity classes.
 It represents a single entity from a ShotGrid site and only
 stores 3 values:
- - The shotgun_api3.Shotgun instance that is used to get and set all the information from.
- - The ShotGrid entity type
- - The ShotGrid entity ID
+
+  - The shotgun_api3.Shotgun instance that is used to get and set all the information from.
+  - The ShotGrid entity type
+  - The ShotGrid entity ID
 
 All functionality of the `SGEntity` class is based on these three values.
 There are some "special" classes that inherit from `SGEntity` to add some
