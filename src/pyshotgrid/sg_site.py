@@ -25,10 +25,10 @@ class SGSite(object):
         but it accepts and returns a pyshotgrid object.
 
         :param str entity_type: The type of the entity to create.
-        :param dict[str,Any]|None data: dict of fields and values to set on creation. 
-                                        The values can contain pysg objects. 
+        :param dict[str,Any]|None data: dict of fields and values to set on creation.
+                                        The values can contain pysg objects.
         :return: The new created entity.
-        :rtype: SGEntity 
+        :rtype: SGEntity
         """
         return new_entity(self._sg, self._sg.create(entity_type=entity_type,
                                                     data=convert_fields_to_dicts(data),
@@ -161,6 +161,6 @@ class SGSite(object):
         :return: All HumanUsers of this ShotGrid site.
         :rtype: list[SGHumanUser]
         """
-        # TODO add "only_active" and "name_or_id" parameter 
+        # TODO add "only_active" and "name_or_id" parameter
         return [new_entity(self._sg, sg_user)
                 for sg_user in self._sg.find('HumanUser', additional_sg_filter or [])]

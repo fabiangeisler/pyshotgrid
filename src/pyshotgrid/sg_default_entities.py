@@ -255,7 +255,7 @@ class SGHumanUser(SGEntity):
         :rtype: list[SGTask]
         """
         # TODO
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """
@@ -291,4 +291,4 @@ class SGHumanUser(SGEntity):
         :rtype: list[SGVersion]
         """
         # TODO
-        raise NotImplemented()
+        raise NotImplementedError()
