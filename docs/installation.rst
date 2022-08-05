@@ -51,3 +51,22 @@ Once you have a copy of the source, you can install it with:
 
 .. _Github repo: https://github.com/fabiangeisler/pyshotgrid
 .. _tarball: https://github.com/fabiangeisler/pyshotgrid/tarball/master
+
+
+Use pyshotgrid with ShotGrid Toolkit
+------------------------------------
+
+There are a few ways you can use `pyshotgrid` with ShotGrid Toolkit (SGTK).
+The most straight forward approach would be use it in the `tank_init.py`.
+
+Here is what you have to do:
+
+1. Download pyshotgrid
+
+2. Put it in a central location where everyone can access it
+
+3. Add the path to the `sys.path` in the `tank_init.py`.
+
+4. You are done. :) You are now able to use `pyshotgird` throughout your SGTK setup.
+   Note::
+    There is no need to install the shotgun_api3 since that is already shipped with SGTK.

@@ -10,6 +10,7 @@ Welcome to pyshotgrid's documentation!
    usage
    modules
    contributing
+   how_it_works
 
 Indices and tables
 ==================

@@ -1,12 +1,9 @@
 """
 This module collects all default pyshotgrid custom entities.
-
-TODO
-- Playlist entity
-- version entity
-- sequence entity
-- asset entity
 """
+# TODO
+# - sequence entity
+# - asset entity
 import fnmatch
 
 from .core import new_entity
@@ -70,6 +67,14 @@ class SGProject(SGEntity):
 
         return [new_entity(self._sg, sg_user)
                 for sg_user in self._sg.find('HumanUser', sg_filter)]
+
+    def playlists(self):
+        """
+        :return: All playlists attached to this project.
+        :rtype: list[SGPlaylist]
+        """
+        return [new_entity(self._sg, sg_playlist)
+                for sg_playlist in self._sg.find('Playlist', [['project', 'is', self.to_dict()]])]
 
 
 class SGShot(SGEntity):
@@ -187,6 +192,47 @@ class SGPublishedFile(SGEntity):
     # TODO get_all_publish_versions
 
 
+class SGVersion(SGEntity):
+    """
+    An instance of this class represents a single Version entity in ShotGrid.
+
+    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
+    :ivar int version_id: The ID of the Version entity.
+    """
+
+    def __init__(self, sg, version_id):
+        super(SGVersion, self).__init__(sg, entity_type='Version', entity_id=version_id)
+
+
+class SGPlaylist(SGEntity):
+    """
+    An instance of this class represents a single Playlist entity in ShotGrid.
+
+    :ivar shotgun_api3.Shotgun sg: A fully initialized instance of shotgun_api3.Shotgun.
+    :ivar int version_id: The ID of the Playlist entity.
+    """
+
+    def __init__(self, sg, playlist_id):
+        super(SGPlaylist, self).__init__(sg, entity_type='Playlist', entity_id=playlist_id)
+
+    @property
+    def media_url(self):
+        """
+        :return: The Media center URL for this playlist.
+        :rtype: str
+        :raises:
+            :RuntimeError: When this playlist is not attached to a project.
+        """
+        sg_project = self['project'].get()
+        if sg_project is None:
+            raise RuntimeError('Cannot get media URL for playlist "{}"'
+                               ', because it is not attached to a project.'.format(self.id))
+        # Example URL:
+        # https://example.shotgunstudio.com/page/media_center?type=Playlist&id=123&project_id=456
+        return ('{}/page/media_center?type={}&id={}&project_id={}'
+                '').format(self.sg.base_url, self._type, self._id, sg_project['id'].get())
+
+
 class SGHumanUser(SGEntity):
     """
     An instance of this class represents a single HumanUser entity in ShotGrid.
@@ -199,8 +245,50 @@ class SGHumanUser(SGEntity):
         super(SGHumanUser, self).__init__(sg,
                                           entity_type='HumanUser',
                                           entity_id=human_user_id)
-    # TODO tasks
-    # TODO publishes
-    # TODO projects
-    # TODO versions
-    # TODO time logs ?
+
+    def tasks(self, projects=None, status=None, pipeline_step=None):
+        """
+        :param list|None projects: A list of projects to return the tasks for.
+        :param list|None status: A list of status that the tasks should have
+        :param int|str|None pipeline_step: The pipeline_step of the tasks to return.
+        :return: All tasks assigned to this HumanUser.
+        :rtype: list[SGTask]
+        """
+        # TODO
+        raise NotImplemented()
+
+    def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
+        """
+        :param str|list[str]|None pub_types: The names of the Publish File Types to return.
+        :param bool latest: Whether to get the "latest" publishes or not. This uses the
+                            same logic as the tk-multi-loader2 app which is as follows:
+
+                             - group all publishes with the same "name" field together
+                             - from these get the publishes with the highest "version_number" field
+                             - if there are publishes with the same "name" and "version_number" the
+                               newest one wins.
+        :param additional_sg_filter:
+        :return: All published files from this shot.
+        :rtype: list[SGPublishedFile]
+        """
+        return self._publishes(base_filter=[['created_by', 'is', self.to_dict()]],
+                               pub_types=pub_types,
+                               latest=latest,
+                               additional_sg_filter=additional_sg_filter)
+
+    def projects(self):
+        """
+        :return: All projects that this HumanUser is assigned to.
+        :rtype: list[SGProject]
+        """
+        return [new_entity(self._sg, sg_project)
+                for sg_project in self._sg.find('Project',
+                                                [['users', 'contains', self.to_dict()]])]
+
+    def versions(self):
+        """
+        :return: All Versions that this HumanUser created.
+        :rtype: list[SGVersion]
+        """
+        # TODO
+        raise NotImplemented()

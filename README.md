@@ -12,18 +12,18 @@ object oriented way to talk to [Autodesk ShotGrid](https://www.autodesk.com/prod
 
 * Documentation: https://pyshotgrid.readthedocs.io.
 
-## Usage
+## Quickstart
 
-There are two important classes to understand in pyshotgrid:
-  - `SGSite` - represents your ShotGrid site and is usually
-    your entry point for coding with `pyshotgrid`.
-  - `SGEntity` - represents a single entity in Shotgrid.
-    It provides a lot of convenience methods to update or query information
-    about it from ShotGrid. There are further subclasses that
-    add even more functionality.
+Install `pyshotgrid` via pip:
 
-Here is a quick example of both of them in action.
-list the "code" (aka. "name") of all shots from all projects:
+```shell
+pip install git+https://github.com/shotgunsoftware/python-api.git@v3.3.1
+pip install pyshotgrid
+```
+
+You are now ready to use it in your project (For other installation methods see the
+Installation section in the documentation)!
+Here is a quick example to list the "code" (aka. "name") of all shots from all projects:
 
 ```python
 import pyshotgrid as pysg
@@ -41,7 +41,8 @@ for project in site.projects():
 
 ## Features
 
-A SGEntity instance represents exactly one entity and any operation on it is reflected to ShotGrid.
+In `pyshotgrid` you are working with `SGEntity` instances which each represent exactly one entity
+in ShotGrid. Any operation on it is reflected to ShotGrid.
 So for example you can :
 
 * Get fields from ShotGrid
@@ -78,7 +79,7 @@ So for example you can :
   ```python
   print(sg_project.url)  # https://example.shotgunstudio.com/detail/Project/1
   ```
-* Convert it to a regular dict, to use it in Autodesks' `shotgun_api3`.
+* Convert it to a regular dict, to use it in Autodesk's `shotgun_api3`.
   ```python
   sg_project.to_dict()  # {"type": "Project", "id": 1}
   ```
@@ -92,7 +93,7 @@ So for example you can :
        print(field_name, value)
   ```
 
-Each ShotGrid entity can have special functionality assigned to it. For example the
+Each SGEntity can have special functionality assigned to it. For example the
 default implementation for the Project entity gives you functions to easily query shots, assets
 or publishes.
   ```python
@@ -102,22 +103,6 @@ or publishes.
   ```
 Checkout the API documentation for all the extra functionality.
 You can also customize the classes to fit your workflow needs.
-
-## How it works
-
-Behind the scenes we have one `SGEntity` class which is the base class for all
-other classes. It represents a single entity from a ShotGrid site and only
-stores 3 values:
- - The shotgun_api3.Shotgun instance that is used to get and set all the information from.
- - The ShotGrid entity type
- - The ShotGrid entity ID
-
-All functionality of the `SGEntity` class is based on these three values.
-There are some "special" classes that inherit from `SGEntity` to add some
-common functionality to common entities in ShotGrid. For example the `SGProject`
-class adds a `shots()` function which gives you a list of shots from that project.
-To ensure that you are always using the right class you should use the `pyshotgrid.new_entity()`
-function which will return the right instance for you.
 
 ## FAQ
 
@@ -147,5 +132,5 @@ Feel free to follow me on GitHub. :)
 ## Credits
 
 This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and
-the [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage) project template 
+the [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage) project template
 (but was heavily modified in the meantime).
