@@ -6,7 +6,7 @@ twine
 flake8
 Sphinx
 sphinx-rtd-theme
-myst-parser
+myst-parser;python_version > "2.7"
 coverage
 nose2
 tox
