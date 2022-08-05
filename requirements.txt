@@ -10,5 +10,4 @@ myst-parser;python_version > "2.7"
 coverage
 nose2
 tox
-python-dotenv[cli];python_version > "2.7"
 mock==3.0.5;python_version < "3.6"

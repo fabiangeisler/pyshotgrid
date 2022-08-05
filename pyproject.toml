@@ -21,7 +21,6 @@ classifiers = [
     "Programming Language :: Python :: 2",
     "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -44,12 +43,11 @@ version = {attr = "pyshotgrid.VERSION"}
 legacy_tox_ini = """
 [tox]
 skip_missing_interpreters = true
-envlist = py27, py36, py37, py38, py39, flake8
+envlist = py27, py37, py38, py39, flake8
 
 [gh-actions]
 python =
     2.7: py27
-    3.6: py36
     3.7: py37
     3.8: py38
     3.9: py39, flake8
