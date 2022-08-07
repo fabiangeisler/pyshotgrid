@@ -1,0 +1,12 @@
+# Default line ending behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Files that will always have CRLF line endings on checkout.
+# Windows command files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Files that will always have LF line endings on checkout.
+# Linux command files
+*.sh text eol=lf
+*.env text eol=lf

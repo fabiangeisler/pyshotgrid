@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyshotgrid"
+authors = [
+  { name="Fabian Geisler", email="info@fasbue.com" },
+]
+description = "A pythonic and object oriented way to talk to Autodesk ShotGrid."
+readme.file = "README.md"
+readme.content-type = "text/markdown"
+license.text="MIT"
+requires-python = ">=2.7"
+keywords = ['shotgrid']
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dynamic = ["version"]
+
+[project.urls]
+"Homepage" = "https://github.com/fabiangeisler/pyshotgrid"
+"Bug Tracker" = "https://github.com/fabiangeisler/pyshotgrid/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "pyshotgrid.VERSION"}
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+skip_missing_interpreters = true
+envlist = py27, py37, py38, py39, flake8
+
+[gh-actions]
+python =
+    2.7: py27
+    3.7: py37
+    3.8: py38
+    3.9: py39, flake8
+
+[testenv:flake8]
+basepython = python
+exclude = docs
+deps = flake8
+commands = flake8 src tests --max-line-length=100
+
+[testenv:docs]
+description=Documentation generation
+basepython=python
+changedir=docs
+deps=
+    sphinx
+    sphinx_rtd_theme
+    myst-parser
+    git+https://github.com/shotgunsoftware/python-api.git@v3.3.1
+commands=
+    sphinx-build -b html -d {envtmpdir}/doctrees . _builds
+
+[testenv]
+deps =
+    -rrequirements.txt
+commands = nose2 -v --with-coverage --coverage ./src --coverage-report html --coverage-report term
+"""

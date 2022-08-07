@@ -7,10 +7,10 @@ Welcome to pyshotgrid's documentation!
 
    readme
    installation
-   usage
    modules
    contributing
-   history
+   how_it_works
+   how_to_add_custom_entities
 
 Indices and tables
 ==================
