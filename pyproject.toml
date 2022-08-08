@@ -14,7 +14,7 @@ license.text="MIT"
 requires-python = ">=2.7"
 keywords = ['shotgrid']
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
@@ -31,6 +31,7 @@ dynamic = ["version"]
 
 [project.urls]
 "Homepage" = "https://github.com/fabiangeisler/pyshotgrid"
+"Documentation" = "https://fabiangeisler.github.io/pyshotgrid"
 "Bug Tracker" = "https://github.com/fabiangeisler/pyshotgrid/issues"
 
 [tool.setuptools.packages.find]
