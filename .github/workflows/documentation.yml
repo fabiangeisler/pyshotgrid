@@ -39,7 +39,7 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload build dir
-          path: './doc/_build'
+          path: './docs/_builds'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@main
