@@ -73,13 +73,17 @@ Ready to contribute? Here's how to set up `pyshotgrid` for local development.
     $ python -m pip install -r requirements.txt
     $ python -m pip install -e .
 
-4. Create a branch for local development::
+4. Install the pre-commit hooks to ensure code quality::
+
+    $ pre-commit install
+
+5. Create a branch for local development::
 
     $ git checkout -b name-of-your-bugfix-or-feature
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the
+6. When you're done making changes, check that your changes pass flake8 and the
    tests by running tox::
 
     $ tox
@@ -87,13 +91,13 @@ Ready to contribute? Here's how to set up `pyshotgrid` for local development.
    To run the tests against other Python versions you need to have them installed on
    your machine.
 
-6. Commit your changes and push your branch to GitHub::
+7. Commit your changes and push your branch to GitHub::
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
     $ git push origin name-of-your-bugfix-or-feature
 
-7. Submit a pull request through the GitHub website.
+8. Submit a pull request through the GitHub website.
 
 Pull Request Guidelines
 -----------------------
@@ -113,7 +117,6 @@ Tips
 
 To run a subset of tests::
 
-
     $ python -m unittest tests.test_pyshotgrid
 
 Deploying
@@ -123,6 +126,8 @@ A reminder for the maintainers on how to deploy.
 Make sure all your changes are committed.
 Then run::
 
-$ bump2version patch # possible: major / minor / patch
-$ git push
-$ git push --tags
+    $ bump2version patch # possible: major / minor / patch
+    $ git push --follow-tags
+
+After that create a Release on GitHub. This will trigger
+a GitHub action that deploys to the module to PyPI.

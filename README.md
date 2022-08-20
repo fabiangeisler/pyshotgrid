@@ -4,8 +4,6 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-# Overview
-
 `pyshotgrid` is a python package that gives you a pythonic and
 object oriented way to talk to [Autodesk ShotGrid](https://www.autodesk.com/products/shotgrid/overview).
 
@@ -13,7 +11,7 @@ object oriented way to talk to [Autodesk ShotGrid](https://www.autodesk.com/prod
 > This python library is still in early development and the API is not yet stable.
 > Please be cautious in a production environment.
 
-## Quickstart
+# Quickstart
 
 Install `pyshotgrid` via pip:
 
@@ -40,7 +38,7 @@ for project in site.projects():
         print(shot["code"].get())
 ```
 
-## Features
+# Features
 
 In `pyshotgrid` you are working with `SGEntity` instances which each represent exactly one entity
 in ShotGrid. Any operation on it is reflected to ShotGrid.
@@ -105,31 +103,31 @@ or publishes.
 Checkout the API documentation for all the extra functionality.
 You can also customize the classes to fit your workflow needs.
 
-## FAQ
+# FAQ
 
-### Is it faster than `shotgun_api3`?
+## Is it faster than `shotgun_api3`?
 No, and since it is build on top of `shotgun_api3`, it never will be.
 `pyshotgrid` is syntactic sugar that hopefully enables you to develop better and faster. :)
 
-### Is `pyshotgrid` replacing `shotgun_api3`?
+## Is `pyshotgrid` replacing `shotgun_api3`?
 No, quite the opposite. It is meant to be used in conjunction with `shotgun_api3` and
 improve handling and writing code with it. Its main goal is to make it easier to write
 code for common scenarios and leave the special cases for the `shotgun_api3`. That said,
 it is totally possible to write `pyshotgrid` code without using `shotgun_api3`.
 
-### I have some custom entity setup in ShotGrid. Can this be reflected in `pyshotgrid`?
+## I have some custom entity setup in ShotGrid. Can this be reflected in `pyshotgrid`?
 Yes, it can! By default `pyshotgrid` returns any entity as `SGEntity` to provide
 A minimum of functionality in all cases. However you can write your own class
 that inherits from `SGEntity` and register that to `pyshotgrid`. After that,
 pyshotgrid will use your custom entity whenever you ask for it. With this method
 you can even overwrite default classes that ship with `pyshotgrid`.
 
-### Is this an official project from Autodesk?
+## Is this an official project from Autodesk?
 No, just a brainchild from me, [Fabian Geisler](https://github.com/fabiangeisler).
 I am a Pipeline Developer based in Berlin.
 Feel free to follow me on GitHub. :)
 
-## Credits
+# Credits
 
 This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and
 the [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage) project template
