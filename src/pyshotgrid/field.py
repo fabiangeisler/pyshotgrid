@@ -1,8 +1,6 @@
 import os
 
-from .core import (new_entity,
-                   convert_value_to_dict,
-                   convert_value_to_pysg)
+from .core import new_entity, convert_value_to_dict, convert_value_to_pysg
 
 
 class Field(object):
@@ -10,6 +8,7 @@ class Field(object):
     This class represents a field on a ShotGrid entity.
     It provides an interface to manage various aspects of a field.
     """
+
     # Note to developers:
     # The naming convention of this class intentionally leaves out the "SG" in front,
     # since there is a ShotGrid entity that is called "Field".
@@ -46,9 +45,11 @@ class Field(object):
                  pyshotgrid objects.
         :rtype: Any
         """
-        value = self._entity.sg.find_one(self._entity.type,
-                                         [['id', 'is', self._entity.id]],
-                                         [self._name]).get(self._name)
+        value = self._entity.sg.find_one(
+            entity_type=self._entity.type,
+            filters=[["id", "is", self._entity.id]],
+            fields=[self._name],
+        ).get(self._name)
         return value if raw_values else convert_value_to_pysg(self._entity.sg, value)
 
     def set(self, value):
@@ -57,9 +58,11 @@ class Field(object):
 
         :param Any value: The value to set the field to.
         """
-        self._entity.sg.update(self._entity.type,
-                               self._entity.id,
-                               data={self._name: convert_value_to_dict(value)})
+        self._entity.sg.update(
+            self._entity.type,
+            self._entity.id,
+            data={self._name: convert_value_to_dict(value)},
+        )
 
     def add(self, values):
         """
@@ -67,10 +70,12 @@ class Field(object):
 
         :param list[Any] values: The value to add to this field.
         """
-        self._entity.sg.update(self._entity.type,
-                               self._entity.id,
-                               data={self._name: convert_value_to_dict(values)},
-                               multi_entity_update_modes='add')
+        self._entity.sg.update(
+            self._entity.type,
+            self._entity.id,
+            data={self._name: convert_value_to_dict(values)},
+            multi_entity_update_modes="add",
+        )
 
     def remove(self, values):
         """
@@ -78,10 +83,12 @@ class Field(object):
 
         :param list[Any] values: The values to remove from this field.
         """
-        self._entity.sg.update(self._entity.type,
-                               self._entity.id,
-                               data={self._name: convert_value_to_dict(values)},
-                               multi_entity_update_modes='remove')
+        self._entity.sg.update(
+            self._entity.type,
+            self._entity.id,
+            data={self._name: convert_value_to_dict(values)},
+            multi_entity_update_modes="remove",
+        )
 
     def upload(self, path, display_name=None):
         """
@@ -97,7 +104,8 @@ class Field(object):
             entity_id=self._entity.id,
             path=path,
             field_name=self._name,
-            display_name=display_name)
+            display_name=display_name,
+        )
         return new_entity(self._entity.sg, "Attachment", sg_attachment_id)
 
     def download(self, path):
@@ -110,13 +118,14 @@ class Field(object):
             :RuntimeError: When nothing was uploaded to this field.
         """
         sg_attachment = self._entity.sg.find_one(
-            self._entity.type,
-            [["id", "is", self._entity.id]],
-            [self._name])[self._name]
+            self._entity.type, [["id", "is", self._entity.id]], [self._name]
+        )[self._name]
 
         if sg_attachment is None:
-            raise RuntimeError('Cannot download file from field "{}" on entity "{}", because there'
-                               'is nothing uploaded.'.format(self.name, self.entity.to_dict()))
+            raise RuntimeError(
+                'Cannot download file from field "{}" on entity "{}", because there'
+                "is nothing uploaded.".format(self.name, self.entity.to_dict())
+            )
 
         # if we can split of a file extension from the given path we assume that the path is the
         # full path with file name to download to. In the other case we assume that the path is
@@ -129,8 +138,8 @@ class Field(object):
             local_file_path = path
 
         return self._entity.sg.download_attachment(
-            attachment=sg_attachment,
-            file_path=local_file_path)
+            attachment=sg_attachment, file_path=local_file_path
+        )
 
     def schema(self):
         """
@@ -163,7 +172,9 @@ class Field(object):
                       'unique': {'editable': False, 'value': False},
                       'visible': {'editable': True, 'value': True}}
         """
-        return self._entity.sg.schema_field_read(self._entity.type, self._name)[self._name]
+        return self._entity.sg.schema_field_read(self._entity.type, self._name)[
+            self._name
+        ]
 
     def _update_schema(self, prop, value, project_entity=None):
         """
@@ -172,10 +183,9 @@ class Field(object):
         :return: True when the update succeeded.
         :rtype: bool
         """
-        return self._entity.sg.schema_field_update(self._entity.type,
-                                                   self._name,
-                                                   {prop: value},
-                                                   project_entity=project_entity)
+        return self._entity.sg.schema_field_update(
+            self._entity.type, self._name, {prop: value}, project_entity=project_entity
+        )
 
     @property
     def data_type(self):
@@ -183,11 +193,11 @@ class Field(object):
         :return: The data type of the field.
         :rtype: str
         """
-        return self.schema()['data_type']['value']
+        return self.schema()["data_type"]["value"]
 
     @data_type.setter
     def data_type(self, value):
-        self._update_schema('data_type', value)
+        self._update_schema("data_type", value)
 
     @property
     def description(self):
@@ -195,7 +205,7 @@ class Field(object):
         :return: The description of the field.
         :rtype: str
         """
-        return self.schema()['description']['value']
+        return self.schema()["description"]["value"]
 
     @property
     def display_name(self):
@@ -203,11 +213,11 @@ class Field(object):
         :return: The display name of the field.
         :rtype: str
         """
-        return self.schema()['name']['value']
+        return self.schema()["name"]["value"]
 
     @display_name.setter
     def display_name(self, value):
-        self._update_schema('name', value)
+        self._update_schema("name", value)
 
     @property
     def custom_metadata(self):
@@ -215,11 +225,11 @@ class Field(object):
         :return: Custom metadata attached to this field.
         :rtype: str
         """
-        return self.schema()['custom_metadata']['value']
+        return self.schema()["custom_metadata"]["value"]
 
     @custom_metadata.setter
     def custom_metadata(self, value):
-        self._update_schema('custom_metadata', value)
+        self._update_schema("custom_metadata", value)
 
     @property
     def properties(self):
@@ -228,11 +238,11 @@ class Field(object):
                  This can for example give you all the possible values of a status field.
         :rtype: dict[str,dict[str,Any]]
         """
-        return self.schema()['properties']
+        return self.schema()["properties"]
 
     @properties.setter
     def properties(self, value):
-        self._update_schema('properties', value)
+        self._update_schema("properties", value)
 
     def batch_update_dict(self, value):
         """
@@ -242,7 +252,9 @@ class Field(object):
         :rtype: dict[str,Any]
         """
         value = convert_value_to_dict(value)
-        return {"request_type": "update",
-                "entity_type": self._entity.type,
-                "entity_id": self._entity.id,
-                "data": {self._name: value}}
+        return {
+            "request_type": "update",
+            "entity_type": self._entity.type,
+            "entity_id": self._entity.id,
+            "data": {self._name: value},
+        }

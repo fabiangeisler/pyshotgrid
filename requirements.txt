@@ -7,6 +7,10 @@ flake8
 Sphinx
 sphinx-rtd-theme
 myst-parser;python_version > "2.7"
+invoke;python_version > "2.7"
+black;python_version > "2.7"
+isort;python_version > "2.7"
+pre-commit;python_version > "2.7"
 coverage
 nose2
 tox

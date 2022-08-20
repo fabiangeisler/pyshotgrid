@@ -7,6 +7,7 @@ Welcome to pyshotgrid's documentation!
 
    readme
    installation
+   user_guide
    modules
    contributing
    how_it_works

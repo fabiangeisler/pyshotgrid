@@ -76,3 +76,6 @@ deps =
     -rrequirements.txt
 commands = nose2 -v --with-coverage --coverage ./src --coverage-report html --coverage-report term
 """
+
+[tool.mypy]
+ignore_missing_imports = true

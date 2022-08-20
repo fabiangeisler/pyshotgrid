@@ -3,9 +3,16 @@ from .core import new_entity, convert_fields_to_dicts, convert_filters_to_dict
 
 class SGSite(object):
     """
-    An instance of this class represents the ShotGrid site as a whole.
+    An instance of this class represents a ShotGrid site as a whole.
 
+    .. Note::
+
+        Try to avoid creating instances of this class in production code and
+        use the :py:meth:`pyshotgrid.new_site <pyshotgrid.core.new_site>`
+        method instead. This gives you more ways to initialize the this class
+        and ensures that the plugin system is correctly used.
     """
+
     def __init__(self, sg):
         """
         :param shotgun_api3.shotgun.Shotgun sg:
@@ -33,13 +40,28 @@ class SGSite(object):
         :return: The new created entity.
         :rtype: SGEntity
         """
-        return new_entity(self._sg, self._sg.create(entity_type=entity_type,
-                                                    data=convert_fields_to_dicts(data),
-                                                    return_fields=None))
+        # noinspection PyTypeChecker
+        return new_entity(
+            self._sg,
+            self._sg.create(
+                entity_type=entity_type,
+                data=convert_fields_to_dicts(data),
+                return_fields=None,
+            ),
+        )
 
-    def find(self, entity_type, filters, order=None, filter_operator=None, limit=0,
-             retired_only=False, page=0, include_archived_projects=True,
-             additional_filter_presets=None):
+    def find(
+        self,
+        entity_type,
+        filters,
+        order=None,
+        filter_operator=None,
+        limit=0,
+        retired_only=False,
+        page=0,
+        include_archived_projects=True,
+        additional_filter_presets=None,
+    ):
         """
         The same function as
         :py:meth:`Shotgun.find <shotgun_api3:shotgun_api3.shotgun.Shotgun.find>`, but it
@@ -56,8 +78,10 @@ class SGSite(object):
         :param additional_filter_presets:
         :return:
         """
-        return [new_entity(self._sg, sg_entity)
-                for sg_entity in self._sg.find(
+        # noinspection PyTypeChecker
+        return [
+            new_entity(self._sg, sg_entity)
+            for sg_entity in self._sg.find(
                 entity_type=entity_type,
                 filters=convert_filters_to_dict(filters),
                 fields=None,
@@ -67,26 +91,39 @@ class SGSite(object):
                 retired_only=retired_only,
                 page=page,
                 include_archived_projects=include_archived_projects,
-                additional_filter_presets=additional_filter_presets)]
+                additional_filter_presets=additional_filter_presets,
+            )
+        ]
 
-    def find_one(self, entity_type, filters, order=None, filter_operator=None, limit=0,
-                 retired_only=False, page=0, include_archived_projects=True,
-                 additional_filter_presets=None):
+    def find_one(
+        self,
+        entity_type,
+        filters,
+        order=None,
+        filter_operator=None,
+        limit=0,
+        retired_only=False,
+        page=0,
+        include_archived_projects=True,
+        additional_filter_presets=None,
+    ):
         """
         The same function as
         :py:meth:`Shotgun.find_one <shotgun_api3:shotgun_api3.shotgun.Shotgun.find_one>` ,
         but it accepts and returns pyshotgrid objects.
         """
         # TODO allow entering the display name for the entity_type
-        result = self.find(entity_type=entity_type,
-                           filters=filters,
-                           order=order,
-                           filter_operator=filter_operator,
-                           limit=limit,
-                           retired_only=retired_only,
-                           page=page,
-                           include_archived_projects=include_archived_projects,
-                           additional_filter_presets=additional_filter_presets)[0]
+        result = self.find(
+            entity_type=entity_type,
+            filters=filters,
+            order=order,
+            filter_operator=filter_operator,
+            limit=limit,
+            retired_only=retired_only,
+            page=page,
+            include_archived_projects=include_archived_projects,
+            additional_filter_presets=additional_filter_presets,
+        )[0]
         if result:
             return result[0]
 
@@ -102,7 +139,9 @@ class SGSite(object):
         if sg_projects:
             return sg_projects[0]
 
-    def projects(self, names_or_ids=None, include_archived=False, template_projects=False):
+    def projects(
+        self, names_or_ids=None, include_archived=False, template_projects=False
+    ):
         """
         :param list[int|str]|None names_or_ids: List of names or ids of the projects to return. The
                                                 names can either match the "tank_name" (recommended)
@@ -112,21 +151,29 @@ class SGSite(object):
         :return: A list of SG projects.
         :rtype: list[SGProject]
         """
-        sg_projects = self._sg.find('Project',
-                                    [['is_template', 'is', template_projects]],
-                                    ['tank_name', 'name'],
-                                    include_archived_projects=include_archived)
+        sg_projects = self._sg.find(
+            "Project",
+            [["is_template", "is", template_projects]],
+            ["tank_name", "name"],
+            include_archived_projects=include_archived,
+        )
 
         if names_or_ids is not None:
             if isinstance(names_or_ids[0], int):
-                sg_projects = [sg_project
-                               for sg_project in sg_projects
-                               if sg_project['id'] in names_or_ids]
+                sg_projects = [
+                    sg_project
+                    for sg_project in sg_projects
+                    if sg_project["id"] in names_or_ids
+                ]
             else:
-                sg_projects = [sg_project
-                               for sg_project in sg_projects
-                               if (sg_project['tank_name'] in names_or_ids or
-                                   sg_project['name'] in names_or_ids)]
+                sg_projects = [
+                    sg_project
+                    for sg_project in sg_projects
+                    if (
+                        sg_project["tank_name"] in names_or_ids
+                        or sg_project["name"] in names_or_ids
+                    )
+                ]
 
         return [new_entity(self._sg, sg_project) for sg_project in sg_projects]
 
@@ -141,18 +188,17 @@ class SGSite(object):
         base_filter = []
         if name_or_id is not None:
             if isinstance(name_or_id, int):
-                base_filter = [['id', 'is', name_or_id]]
+                base_filter = [["id", "is", name_or_id]]
             else:
-                base_filter = [['code', 'is', name_or_id]]
+                base_filter = [["code", "is", name_or_id]]
 
         if project is not None:
             if isinstance(project, dict):
-                base_filter.append(['project', 'in', project])
+                base_filter.append(["project", "in", project])
             else:
-                base_filter.append(['project', 'in', project.to_dict()])
+                base_filter.append(["project", "in", project.to_dict()])
 
-        sg_pipe_config = self._sg.find_one('PipelineConfiguration',
-                                           base_filter)
+        sg_pipe_config = self._sg.find_one("PipelineConfiguration", base_filter)
 
         if sg_pipe_config:
             return new_entity(self._sg, sg_pipe_config)
@@ -164,5 +210,7 @@ class SGSite(object):
         :rtype: list[SGHumanUser]
         """
         # TODO add "only_active" and "name_or_id" parameter
-        return [new_entity(self._sg, sg_user)
-                for sg_user in self._sg.find('HumanUser', additional_sg_filter or [])]
+        return [
+            new_entity(self._sg, sg_user)
+            for sg_user in self._sg.find("HumanUser", additional_sg_filter or [])
+        ]
