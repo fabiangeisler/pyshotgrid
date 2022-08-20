@@ -1,13 +1,17 @@
-from .core import (new_entity,
-                   new_site,
-                   convert_fields_to_pysg,
-                   convert_fields_to_dicts)
+from .core import new_entity, new_site, convert_fields_to_pysg, convert_fields_to_dicts
 from .field import Field
 
 
 class SGEntity(object):
     """
     An instance of this class represents a single entity in ShotGrid.
+
+    .. Note::
+
+        Try to avoid creating instances of this class in production code and
+        use the :py:meth:`pyshotgrid.new_entity <pyshotgrid.core.new_entity>`
+        method instead. This will make sure that you always get the correct
+        entity class to work with.
     """
 
     def __init__(self, sg, entity_type, entity_id):
@@ -22,8 +26,9 @@ class SGEntity(object):
         self._id = entity_id
 
     def __str__(self):
-        return '{} - Type: {} - ID: {} - URL: {}'.format(
-            self.__class__.__name__, self._type, self._id, self.url)
+        return "{} - Type: {} - ID: {} - URL: {}".format(
+            self.__class__.__name__, self._type, self._id, self.url
+        )
 
     @property
     def id(self):
@@ -68,7 +73,7 @@ class SGEntity(object):
                in the system settings.
         :rtype: str
         """
-        return '{}/detail/{}/{}'.format(self.sg.base_url, self._type, self._id)
+        return "{}/detail/{}/{}".format(self.sg.base_url, self._type, self._id)
 
     def __getitem__(self, field):
         """
@@ -90,10 +95,14 @@ class SGEntity(object):
         if isinstance(project_entity, self.__class__):
             project_entity = project_entity.to_dict()
 
-        sg_entity_fields = self.sg.schema_field_read(self._type, project_entity=project_entity)
-        fields = [field
-                  for field, schema in sg_entity_fields.items()
-                  if schema['visible']['value']]
+        sg_entity_fields = self.sg.schema_field_read(
+            self._type, project_entity=project_entity
+        )
+        fields = [
+            field
+            for field, schema in sg_entity_fields.items()
+            if schema["visible"]["value"]
+        ]
 
         return [Field(name=field, entity=self) for field in fields]
 
@@ -108,13 +117,15 @@ class SGEntity(object):
         if isinstance(project_entity, self.__class__):
             project_entity = project_entity.to_dict()
 
-        sg_entity_fields = self.sg.schema_field_read(self._type, project_entity=project_entity)
-        fields = [field
-                  for field, schema in sg_entity_fields.items()
-                  if schema['visible']['value']]
-        all_fields = self.sg.find_one(self._type,
-                                      [['id', 'is', self._id]],
-                                      fields)
+        sg_entity_fields = self.sg.schema_field_read(
+            self._type, project_entity=project_entity
+        )
+        fields = [
+            field
+            for field, schema in sg_entity_fields.items()
+            if schema["visible"]["value"]
+        ]
+        all_fields = self.sg.find_one(self._type, [["id", "is", self._id]], fields)
 
         if raw_values:
             return all_fields
@@ -135,7 +146,7 @@ class SGEntity(object):
 
         :rtype: dict[str,Any]
         """
-        return {'id': self._id, 'type': self._type}
+        return {"id": self._id, "type": self._type}
 
     def batch_update_dict(self, data):
         """
@@ -144,10 +155,12 @@ class SGEntity(object):
                   Useful when you want to collect field changes and set them in one go.
         :rtype: dict[str,Any]
         """
-        return {"request_type": "update",
-                "entity_type": self._type,
-                "entity_id": self._id,
-                "data": convert_fields_to_dicts(data)}
+        return {
+            "request_type": "update",
+            "entity_type": self._type,
+            "entity_id": self._id,
+            "data": convert_fields_to_dicts(data),
+        }
 
     def set(self, data, multi_entity_update_modes=None):
         """
@@ -163,10 +176,12 @@ class SGEntity(object):
                 multi_entity_update_modes={"shots": "add", "assets": "remove"}
         :return:
         """
-        return self.sg.update(self._type,
-                              self._id,
-                              data=convert_fields_to_dicts(data),
-                              multi_entity_update_modes=multi_entity_update_modes)
+        return self.sg.update(
+            self._type,
+            self._id,
+            data=convert_fields_to_dicts(data),
+            multi_entity_update_modes=multi_entity_update_modes,
+        )
 
     def get(self, fields, raw_values=False):
         """
@@ -178,12 +193,10 @@ class SGEntity(object):
         :return: A dict with the fields and their corresponding values.
         :rtype: dict[str,Any]
         """
-        sg_fields = self.sg.find_one(self._type,
-                                     [['id', 'is', self._id]],
-                                     fields)
+        sg_fields = self.sg.find_one(self._type, [["id", "is", self._id]], fields)
 
-        del sg_fields['id']
-        del sg_fields['type']
+        del sg_fields["id"]
+        del sg_fields["type"]
 
         if raw_values:
             return sg_fields
@@ -216,7 +229,9 @@ class SGEntity(object):
         """
         return self.sg.schema_field_read(self._type)
 
-    def _publishes(self, base_filter=None, pub_types=None, latest=False, additional_sg_filter=None):
+    def _publishes(
+        self, base_filter=None, pub_types=None, latest=False, additional_sg_filter=None
+    ):
         """
         This function is meant as a base for a "publishes" function on a sub class. Publishes
         are stored in different fields for each entity and not every entity has a published file.
@@ -240,36 +255,43 @@ class SGEntity(object):
             if isinstance(pub_types, list):
                 pub_types_filter = {"filter_operator": "any", "filters": []}
                 for pub_type in pub_types:
-                    pub_types_filter['filters'].append(
-                        ['published_file_type.PublishedFileType.code', 'is', pub_type])
+                    pub_types_filter["filters"].append(
+                        ["published_file_type.PublishedFileType.code", "is", pub_type]
+                    )
             else:
-                pub_types_filter = ['published_file_type.PublishedFileType.code', 'is', pub_types]
+                pub_types_filter = [
+                    "published_file_type.PublishedFileType.code",
+                    "is",
+                    pub_types,
+                ]
             base_filter.append(pub_types_filter)
 
         additional_sg_filter = additional_sg_filter or []
         result_filter = base_filter + additional_sg_filter
 
-        sg_publishes = self.sg.find('PublishedFile',
-                                    result_filter,
-                                    ['name', 'version_number', 'created_at'])
+        sg_publishes = self.sg.find(
+            "PublishedFile", result_filter, ["name", "version_number", "created_at"]
+        )
         if latest:
             # group publishes by "name"
             tmp = {}
             for sg_publish in sg_publishes:
-                if sg_publish['name'] in tmp:
-                    tmp[sg_publish['name']].append(sg_publish)
+                if sg_publish["name"] in tmp:
+                    tmp[sg_publish["name"]].append(sg_publish)
                 else:
-                    tmp[sg_publish['name']] = [sg_publish]
+                    tmp[sg_publish["name"]] = [sg_publish]
 
             # sort them by date and than by version_number which sorts the latest publish to the
             # last position.
             result = []
             for publishes in tmp.values():
-                publishes.sort(key=lambda pub: (pub['created_at'], pub['version_number']))
+                publishes.sort(
+                    key=lambda pub: (pub["created_at"], pub["version_number"])
+                )
                 result.append(publishes[-1])
 
             # Sort one more time by name.
-            result.sort(key=lambda pub: pub['name'])
+            result.sort(key=lambda pub: pub["name"])
 
             sg_publishes = result
 

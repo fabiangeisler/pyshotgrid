@@ -1,6 +1,8 @@
 [![pypi](https://img.shields.io/pypi/v/pyshotgrid.svg)](https://pypi.python.org/pypi/pyshotgrid)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/pyshotgrid.svg)](https://pypi.python.org/pypi/pyshotgrid/)
 [![Tests](https://github.com/fabiangeisler/pyshotgrid/actions/workflows/Tests.yml/badge.svg)](https://github.com/fabiangeisler/pyshotgrid/actions/workflows/Tests.yml)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 # Overview
 
@@ -113,15 +115,14 @@ No, and since it is build on top of `shotgun_api3`, it never will be.
 No, quite the opposite. It is meant to be used in conjunction with `shotgun_api3` and
 improve handling and writing code with it. Its main goal is to make it easier to write
 code for common scenarios and leave the special cases for the `shotgun_api3`. That said,
-it is possible totally possible to write `pyshotgrid` code without using `shotgun_api3`.
+it is totally possible to write `pyshotgrid` code without using `shotgun_api3`.
 
 ### I have some custom entity setup in ShotGrid. Can this be reflected in `pyshotgrid`?
 Yes, it can! By default `pyshotgrid` returns any entity as `SGEntity` to provide
-A minimum of functionality in all cases. But you can write your own class
-that inherits from `SGEntity` and register that to `pyshotgrid`. After that
-whenever pyshotgrid encounters your custom entity it will
-return your custom implementation. You can even overwrite
-default classes that ship with `pyshotgrid`.
+A minimum of functionality in all cases. However you can write your own class
+that inherits from `SGEntity` and register that to `pyshotgrid`. After that,
+pyshotgrid will use your custom entity whenever you ask for it. With this method
+you can even overwrite default classes that ship with `pyshotgrid`.
 
 ### Is this an official project from Autodesk?
 No, just a brainchild from me, [Fabian Geisler](https://github.com/fabiangeisler).

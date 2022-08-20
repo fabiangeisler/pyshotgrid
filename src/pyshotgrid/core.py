@@ -1,16 +1,20 @@
+from typing import List, Dict, Type, Any
+
 import shotgun_api3
 
 #: Entity plugins that are registered to pyshotgrid.
-__ENTITY_PLUGINS = []
+__ENTITY_PLUGINS = []  # type: List[Dict[str,Any]]
 #: Fallback entity class that is used when no match in the __ENTITY_PLUGINS is found.
-__ENTITY_FALLBACK_CLASS = None
+__ENTITY_FALLBACK_CLASS = None  # type: Type|None
 #: The class that represents the ShotGrid site.
-__SG_SITE_CLASS = None
+__SG_SITE_CLASS = None  # type: Type|None
 
 
 def new_entity(sg, *args, **kwargs):
     """
     Create a new instance of a pyshotgrid class that represents a ShotGrid entity.
+    This function is meant to be used as the main way to create new pyshotgrid instances
+    and will always return the correct entity instance that you should work with.
 
     .. Note::
 
@@ -19,9 +23,9 @@ def new_entity(sg, *args, **kwargs):
 
     The function can be used in 3 ways which all do the same thing::
 
-        new_entity(sg, {'type': 'Project', 'id': 1})
-        new_entity(sg, 'Project', 1)
-        new_entity(sg, entity_type='Project', entity_id=1)
+        sg_entity = pyshotgrid.new_entity(sg, {'type': 'Project', 'id': 1})
+        sg_entity = pyshotgrid.new_entity(sg, 'Project', 1)
+        sg_entity = pyshotgrid.new_entity(sg, entity_type='Project', entity_id=1)
 
     :param shotgun_api3.shotgun.Shotgun sg: A fully initialized Shotgun instance.
     :return: The pyshotgrid object or None if it could not be converted.
@@ -32,30 +36,34 @@ def new_entity(sg, *args, **kwargs):
     if args:
         if isinstance(args[0], dict):
             # new_entity(sg, {'type': 'Project', 'id': 1})
-            entity_type = args[0]['type']
-            entity_id = args[0]['id']
+            entity_type = args[0]["type"]
+            entity_id = args[0]["id"]
         elif len(args) == 2 and isinstance(args[0], str) and isinstance(args[1], int):
             # new_entity(sg, 'Project', 1)
             entity_type = args[0]
             entity_id = args[1]
     elif kwargs:
-        if 'entity_type' in kwargs and 'entity_id' in kwargs:
-            entity_type = kwargs['entity_type']
-            entity_id = kwargs['entity_id']
+        if "entity_type" in kwargs and "entity_id" in kwargs:
+            entity_type = kwargs["entity_type"]
+            entity_id = kwargs["entity_id"]
 
     if entity_type is not None and entity_id is not None:
 
         for entity_plugin in __ENTITY_PLUGINS:
-            if entity_type in [entity_plugin['shotgrid_type'], entity_plugin['display_name']]:
-                return entity_plugin['pysg_class'](sg, entity_id)
+            if entity_type in [
+                entity_plugin["shotgrid_type"],
+                entity_plugin["display_name"],
+            ]:
+                return entity_plugin["pysg_class"](sg, entity_id)
         # noinspection PyCallingNonCallable
         return __ENTITY_FALLBACK_CLASS(sg, entity_type, entity_id)
 
 
 def new_site(*args, **kwargs):
     """
-    This function will create a new pyshotgrid SGSite instance that represents a
-    ShotGrid site. You can pass in either a shotgun_api3.Shotgun instance or
+    This function will create a new :py:class:`pyshotgrid.SGSite <pyshotgrid.sg_site.SGSite>`
+    instance that represents a ShotGrid site.
+    You can pass in either a shotgun_api3.Shotgun instance or
     the parameters of shotgun_api3.Shotgun itself. So this is equivalent::
 
         >>> sg = shotgun_api3.Shotgun(base_url='https://example.shotgunstudio.com',
@@ -71,7 +79,9 @@ def new_site(*args, **kwargs):
     :rtype: SGSite|None
     """
     if args:
-        if isinstance(args[0], (shotgun_api3.Shotgun, shotgun_api3.lib.mockgun.Shotgun)):
+        if isinstance(
+            args[0], (shotgun_api3.Shotgun, shotgun_api3.lib.mockgun.Shotgun)
+        ):
             sg = args[0]
         else:
             sg = shotgun_api3.Shotgun(*args)
@@ -111,11 +121,13 @@ def register_pysg_class(shotgrid_type, pysg_class, display_name=None):
     """
     global __ENTITY_PLUGINS
 
-    __ENTITY_PLUGINS.append({
-        'shotgrid_type': shotgrid_type,
-        'pysg_class': pysg_class,
-        'display_name': display_name or shotgrid_type,
-    })
+    __ENTITY_PLUGINS.append(
+        {
+            "shotgrid_type": shotgrid_type,
+            "pysg_class": pysg_class,
+            "display_name": display_name or shotgrid_type,
+        }
+    )
 
 
 def register_fallback_pysg_class(pysg_class):
@@ -159,8 +171,7 @@ def convert_fields_to_pysg(sg, fields):
     :return: The same dict with all values converted to pysg objects where possible.
     :rtype: dict[str,Any]
     """
-    return {field: convert_value_to_pysg(sg, value)
-            for field, value in fields.items()}
+    return {field: convert_value_to_pysg(sg, value) for field, value in fields.items()}
 
 
 def convert_fields_to_dicts(fields):
@@ -173,8 +184,7 @@ def convert_fields_to_dicts(fields):
     :return: The same dict with all pysg objects converted to dictionaries.
     :rtype: dict[str,Any]
     """
-    return {field: convert_value_to_dict(value)
-            for field, value in fields.items()}
+    return {field: convert_value_to_dict(value) for field, value in fields.items()}
 
 
 def convert_value_to_dict(value):
@@ -238,7 +248,7 @@ def convert_value_to_pysg(sg, value):
     """
     if isinstance(value, list):
         return [new_entity(sg, entity) for entity in value]
-    elif isinstance(value, dict) and 'type' in value and 'id' in value:
+    elif isinstance(value, dict) and "type" in value and "id" in value:
         return new_entity(sg, value)
     else:
         return value

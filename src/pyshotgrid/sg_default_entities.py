@@ -10,6 +10,13 @@ from .sg_entity import SGEntity
 class SGProject(SGEntity):
     """
     An instance of this class represents a single Project entity in ShotGrid.
+
+    .. Note::
+
+        Try to avoid creating instances of this class in production code and
+        use the :py:meth:`pyshotgrid.new_entity <pyshotgrid.core.new_entity>`
+        method instead. This will make sure that you always get the correct
+        entity class to work with.
     """
 
     def __init__(self, sg, project_id):
@@ -18,7 +25,7 @@ class SGProject(SGEntity):
             A fully initialized instance of shotgun_api3.Shotgun.
         :param int project_id: The ID of the project entity.
         """
-        super(SGProject, self).__init__(sg, entity_type='Project', entity_id=project_id)
+        super(SGProject, self).__init__(sg, entity_type="Project", entity_id=project_id)
 
     def shots(self, glob_pattern=None):
         """
@@ -27,11 +34,13 @@ class SGProject(SGEntity):
         :return: All the shots from this project.
         :rtype: list[SGShot]
         """
-        sg_shots = self.sg.find('Shot', [['project', 'is', self.to_dict()]], ['code'])
+        sg_shots = self.sg.find("Shot", [["project", "is", self.to_dict()]], ["code"])
         if glob_pattern is not None:
-            return [new_entity(self._sg, sg_shot)
-                    for sg_shot in sg_shots
-                    if fnmatch.fnmatchcase(sg_shot['code'], glob_pattern)]
+            return [
+                new_entity(self._sg, sg_shot)
+                for sg_shot in sg_shots
+                if fnmatch.fnmatchcase(sg_shot["code"], glob_pattern)
+            ]
         else:
             return [new_entity(self._sg, sg_shot) for sg_shot in sg_shots]
 
@@ -42,11 +51,13 @@ class SGProject(SGEntity):
         :return: All the assets from this project.
         :rtype: list[SGAsset]
         """
-        sg_assets = self.sg.find('Asset', [['project', 'is', self.to_dict()]], ['code'])
+        sg_assets = self.sg.find("Asset", [["project", "is", self.to_dict()]], ["code"])
         if glob_pattern is not None:
-            return [new_entity(self._sg, sg_asset)
-                    for sg_asset in sg_assets
-                    if fnmatch.fnmatchcase(sg_asset['code'], glob_pattern)]
+            return [
+                new_entity(self._sg, sg_asset)
+                for sg_asset in sg_assets
+                if fnmatch.fnmatchcase(sg_asset["code"], glob_pattern)
+            ]
         else:
             return [new_entity(self._sg, sg_shot) for sg_shot in sg_assets]
 
@@ -64,10 +75,12 @@ class SGProject(SGEntity):
         :return: All published files from this project.
         :rtype: list[SGPublishedFile]
         """
-        return self._publishes(base_filter=[['project', 'is', self.to_dict()]],
-                               pub_types=pub_types,
-                               latest=latest,
-                               additional_sg_filter=additional_sg_filter)
+        return self._publishes(
+            base_filter=[["project", "is", self.to_dict()]],
+            pub_types=pub_types,
+            latest=latest,
+            additional_sg_filter=additional_sg_filter,
+        )
 
     def people(self, additional_sg_filter=None):
         """
@@ -75,25 +88,38 @@ class SGProject(SGEntity):
         :return: All HumanUsers assigned to this project.
         :rtype: list[SGHumanUser]
         """
-        sg_filter = [['projects', 'contains', self.to_dict()]]
+        sg_filter = [["projects", "contains", self.to_dict()]]
         if additional_sg_filter is not None:
             sg_filter += additional_sg_filter
 
-        return [new_entity(self._sg, sg_user)
-                for sg_user in self._sg.find('HumanUser', sg_filter)]
+        return [
+            new_entity(self._sg, sg_user)
+            for sg_user in self._sg.find("HumanUser", sg_filter)
+        ]
 
     def playlists(self):
         """
         :return: All playlists attached to this project.
         :rtype: list[SGPlaylist]
         """
-        return [new_entity(self._sg, sg_playlist)
-                for sg_playlist in self._sg.find('Playlist', [['project', 'is', self.to_dict()]])]
+        return [
+            new_entity(self._sg, sg_playlist)
+            for sg_playlist in self._sg.find(
+                "Playlist", [["project", "is", self.to_dict()]]
+            )
+        ]
 
 
 class SGShot(SGEntity):
     """
     An instance of this class represents a single Shot entity in ShotGrid.
+
+    .. Note::
+
+        Try to avoid creating instances of this class in production code and
+        use the :py:meth:`pyshotgrid.new_entity <pyshotgrid.core.new_entity>`
+        method instead. This will make sure that you always get the correct
+        entity class to work with.
     """
 
     def __init__(self, sg, shot_id):
@@ -102,7 +128,7 @@ class SGShot(SGEntity):
             A fully initialized instance of shotgun_api3.Shotgun.
         :param int shot_id: The ID of the shot entity.
         """
-        super(SGShot, self).__init__(sg, entity_type='Shot', entity_id=shot_id)
+        super(SGShot, self).__init__(sg, entity_type="Shot", entity_id=shot_id)
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """
@@ -118,10 +144,12 @@ class SGShot(SGEntity):
         :return: All published files from this shot.
         :rtype: list[SGPublishedFile]
         """
-        return self._publishes(base_filter=[['entity', 'is', self.to_dict()]],
-                               pub_types=pub_types,
-                               latest=latest,
-                               additional_sg_filter=additional_sg_filter)
+        return self._publishes(
+            base_filter=[["entity", "is", self.to_dict()]],
+            pub_types=pub_types,
+            latest=latest,
+            additional_sg_filter=additional_sg_filter,
+        )
 
     def tasks(self, names=None, pipeline_step=None):
         """
@@ -131,35 +159,49 @@ class SGShot(SGEntity):
         :returns: A list of Tasks
         :rtype: list[SGTask]
         """
-        sg_filter = [['entity', 'is', self.to_dict()]]
+        sg_filter = [["entity", "is", self.to_dict()]]
 
         if names is not None:
             if len(names) == 1:
-                names_filter = ['code', 'is', names[0]]
+                names_filter = ["code", "is", names[0]]
             else:
                 names_filter = {"filter_operator": "any", "filters": []}
                 for name in names:
-                    names_filter['filters'].append(
-                        ['code', 'is', name])
+                    names_filter["filters"].append(["code", "is", name])
             sg_filter.append(names_filter)
 
         if pipeline_step is not None:
             if isinstance(pipeline_step, dict):
-                sg_filter.append(['step', 'is', pipeline_step])
+                sg_filter.append(["step", "is", pipeline_step])
             elif isinstance(pipeline_step, SGEntity):
-                sg_filter.append(['step', 'is', pipeline_step.to_dict()])
+                sg_filter.append(["step", "is", pipeline_step.to_dict()])
             else:
-                sg_filter.append({"filter_operator": "any",
-                                  "filters": [['step.Step.code', 'is', pipeline_step],
-                                              ['step.Step.short_name', 'is', pipeline_step]]})
+                sg_filter.append(
+                    {
+                        "filter_operator": "any",
+                        "filters": [
+                            ["step.Step.code", "is", pipeline_step],
+                            ["step.Step.short_name", "is", pipeline_step],
+                        ],
+                    }
+                )
 
-        return [new_entity(self._sg, sg_task)
-                for sg_task in self._sg.find('Task', sg_filter)]
+        return [
+            new_entity(self._sg, sg_task)
+            for sg_task in self._sg.find("Task", sg_filter)
+        ]
 
 
 class SGAsset(SGEntity):
     """
     An instance of this class represents a single Asset entity in ShotGrid.
+
+    .. Note::
+
+        Try to avoid creating instances of this class in production code and
+        use the :py:meth:`pyshotgrid.new_entity <pyshotgrid.core.new_entity>`
+        method instead. This will make sure that you always get the correct
+        entity class to work with.
     """
 
     def __init__(self, sg, asset_id):
@@ -168,7 +210,7 @@ class SGAsset(SGEntity):
             A fully initialized instance of shotgun_api3.Shotgun.
         :param int asset_id: The ID of the Asset entity.
         """
-        super(SGAsset, self).__init__(sg, entity_type='Shot', entity_id=asset_id)
+        super(SGAsset, self).__init__(sg, entity_type="Shot", entity_id=asset_id)
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """
@@ -184,10 +226,12 @@ class SGAsset(SGEntity):
         :return: All published files from this asset.
         :rtype: list[SGPublishedFile]
         """
-        return self._publishes(base_filter=[['entity', 'is', self.to_dict()]],
-                               pub_types=pub_types,
-                               latest=latest,
-                               additional_sg_filter=additional_sg_filter)
+        return self._publishes(
+            base_filter=[["entity", "is", self.to_dict()]],
+            pub_types=pub_types,
+            latest=latest,
+            additional_sg_filter=additional_sg_filter,
+        )
 
     def tasks(self, names=None, pipeline_step=None):
         """
@@ -197,35 +241,49 @@ class SGAsset(SGEntity):
         :returns: A list of Tasks
         :rtype: list[SGTask]
         """
-        sg_filter = [['entity', 'is', self.to_dict()]]
+        sg_filter = [["entity", "is", self.to_dict()]]
 
         if names is not None:
             if len(names) == 1:
-                names_filter = ['code', 'is', names[0]]
+                names_filter = ["code", "is", names[0]]
             else:
                 names_filter = {"filter_operator": "any", "filters": []}
                 for name in names:
-                    names_filter['filters'].append(
-                        ['code', 'is', name])
+                    names_filter["filters"].append(["code", "is", name])
             sg_filter.append(names_filter)
 
         if pipeline_step is not None:
             if isinstance(pipeline_step, dict):
-                sg_filter.append(['step', 'is', pipeline_step])
+                sg_filter.append(["step", "is", pipeline_step])
             elif isinstance(pipeline_step, SGEntity):
-                sg_filter.append(['step', 'is', pipeline_step.to_dict()])
+                sg_filter.append(["step", "is", pipeline_step.to_dict()])
             else:
-                sg_filter.append({"filter_operator": "any",
-                                  "filters": [['step.Step.code', 'is', pipeline_step],
-                                              ['step.Step.short_name', 'is', pipeline_step]]})
+                sg_filter.append(
+                    {
+                        "filter_operator": "any",
+                        "filters": [
+                            ["step.Step.code", "is", pipeline_step],
+                            ["step.Step.short_name", "is", pipeline_step],
+                        ],
+                    }
+                )
 
-        return [new_entity(self._sg, sg_task)
-                for sg_task in self._sg.find('Task', sg_filter)]
+        return [
+            new_entity(self._sg, sg_task)
+            for sg_task in self._sg.find("Task", sg_filter)
+        ]
 
 
 class SGTask(SGEntity):
     """
     An instance of this class represents a single Task entity in ShotGrid.
+
+    .. Note::
+
+        Try to avoid creating instances of this class in production code and
+        use the :py:meth:`pyshotgrid.new_entity <pyshotgrid.core.new_entity>`
+        method instead. This will make sure that you always get the correct
+        entity class to work with.
     """
 
     def __init__(self, sg, task_id):
@@ -234,7 +292,7 @@ class SGTask(SGEntity):
             A fully initialized instance of shotgun_api3.Shotgun.
         :param int task_id: The ID of the Task entity.
         """
-        super(SGTask, self).__init__(sg, entity_type='Task', entity_id=task_id)
+        super(SGTask, self).__init__(sg, entity_type="Task", entity_id=task_id)
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """
@@ -250,15 +308,24 @@ class SGTask(SGEntity):
         :return: All published files from this shot.
         :rtype: list[SGPublishedFile]
         """
-        return self._publishes(base_filter=[['task', 'is', self.to_dict()]],
-                               pub_types=pub_types,
-                               latest=latest,
-                               additional_sg_filter=additional_sg_filter)
+        return self._publishes(
+            base_filter=[["task", "is", self.to_dict()]],
+            pub_types=pub_types,
+            latest=latest,
+            additional_sg_filter=additional_sg_filter,
+        )
 
 
 class SGPublishedFile(SGEntity):
     """
     An instance of this class represents a single PublishedFile entity in ShotGrid.
+
+    .. Note::
+
+        Try to avoid creating instances of this class in production code and
+        use the :py:meth:`pyshotgrid.new_entity <pyshotgrid.core.new_entity>`
+        method instead. This will make sure that you always get the correct
+        entity class to work with.
     """
 
     def __init__(self, sg, published_file_id):
@@ -267,8 +334,9 @@ class SGPublishedFile(SGEntity):
             A fully initialized instance of shotgun_api3.Shotgun.
         :param int published_file_id: The ID of the PublishedFile entity.
         """
-        super(SGPublishedFile, self).__init__(sg, entity_type='PublishedFile',
-                                              entity_id=published_file_id)
+        super(SGPublishedFile, self).__init__(
+            sg, entity_type="PublishedFile", entity_id=published_file_id
+        )
 
     # TODO is_latest
     # TODO get_first_publish
@@ -281,6 +349,13 @@ class SGPublishedFile(SGEntity):
 class SGVersion(SGEntity):
     """
     An instance of this class represents a single Version entity in ShotGrid.
+
+    .. Note::
+
+        Try to avoid creating instances of this class in production code and
+        use the :py:meth:`pyshotgrid.new_entity <pyshotgrid.core.new_entity>`
+        method instead. This will make sure that you always get the correct
+        entity class to work with.
     """
 
     def __init__(self, sg, version_id):
@@ -289,12 +364,19 @@ class SGVersion(SGEntity):
             A fully initialized instance of shotgun_api3.Shotgun.
         :param int version_id: The ID of the Version entity.
         """
-        super(SGVersion, self).__init__(sg, entity_type='Version', entity_id=version_id)
+        super(SGVersion, self).__init__(sg, entity_type="Version", entity_id=version_id)
 
 
 class SGPlaylist(SGEntity):
     """
     An instance of this class represents a single Playlist entity in ShotGrid.
+
+    .. Note::
+
+        Try to avoid creating instances of this class in production code and
+        use the :py:meth:`pyshotgrid.new_entity <pyshotgrid.core.new_entity>`
+        method instead. This will make sure that you always get the correct
+        entity class to work with.
     """
 
     def __init__(self, sg, playlist_id):
@@ -303,7 +385,9 @@ class SGPlaylist(SGEntity):
             A fully initialized instance of shotgun_api3.Shotgun.
         :param int playlist_id: The ID of the Playlist entity.
         """
-        super(SGPlaylist, self).__init__(sg, entity_type='Playlist', entity_id=playlist_id)
+        super(SGPlaylist, self).__init__(
+            sg, entity_type="Playlist", entity_id=playlist_id
+        )
 
     @property
     def media_url(self):
@@ -313,19 +397,29 @@ class SGPlaylist(SGEntity):
         :raises:
             :RuntimeError: When this playlist is not attached to a project.
         """
-        sg_project = self['project'].get()
+        sg_project = self["project"].get()
         if sg_project is None:
-            raise RuntimeError('Cannot get media URL for playlist "{}"'
-                               ', because it is not attached to a project.'.format(self.id))
+            raise RuntimeError(
+                'Cannot get media URL for playlist "{}"'
+                ", because it is not attached to a project.".format(self.id)
+            )
         # Example URL:
         # https://example.shotgunstudio.com/page/media_center?type=Playlist&id=123&project_id=456
-        return ('{}/page/media_center?type={}&id={}&project_id={}'
-                '').format(self.sg.base_url, self._type, self._id, sg_project['id'].get())
+        return "{}/page/media_center?type={}&id={}&project_id={}".format(
+            self.sg.base_url, self._type, self._id, sg_project["id"].get()
+        )
 
 
 class SGHumanUser(SGEntity):
     """
     An instance of this class represents a single HumanUser entity in ShotGrid.
+
+    .. Note::
+
+        Try to avoid creating instances of this class in production code and
+        use the :py:meth:`pyshotgrid.new_entity <pyshotgrid.core.new_entity>`
+        method instead. This will make sure that you always get the correct
+        entity class to work with.
     """
 
     def __init__(self, sg, human_user_id):
@@ -334,9 +428,9 @@ class SGHumanUser(SGEntity):
             A fully initialized instance of shotgun_api3.Shotgun.
         :param int human_user_id: The ID of the PublishedFile entity.
         """
-        super(SGHumanUser, self).__init__(sg,
-                                          entity_type='HumanUser',
-                                          entity_id=human_user_id)
+        super(SGHumanUser, self).__init__(
+            sg, entity_type="HumanUser", entity_id=human_user_id
+        )
 
     def tasks(self, names=None, project=None, pipeline_step=None):
         """
@@ -348,44 +442,61 @@ class SGHumanUser(SGEntity):
         :returns: A list of Tasks
         :rtype: list[SGTask]
         """
-        sg_filter = [{"filter_operator": "any",
-                      "filters": [
-                          ['task_assignees', 'contains', self.to_dict()],
-                          ['task_assignees.Group.users', 'contains', self.to_dict()],
-                      ]}]
+        sg_filter = [
+            {
+                "filter_operator": "any",
+                "filters": [
+                    ["task_assignees", "contains", self.to_dict()],
+                    ["task_assignees.Group.users", "contains", self.to_dict()],
+                ],
+            }
+        ]
 
         if names is not None:
             if len(names) == 1:
-                names_filter = ['code', 'is', names[0]]
+                names_filter = ["code", "is", names[0]]
             else:
                 names_filter = {"filter_operator": "any", "filters": []}
                 for name in names:
-                    names_filter['filters'].append(
-                        ['code', 'is', name])
+                    names_filter["filters"].append(["code", "is", name])
             sg_filter.append(names_filter)
 
         if project is not None:
             if isinstance(project, dict):
-                sg_filter.append(['project', 'is', project])
+                sg_filter.append(["project", "is", project])
             elif isinstance(project, SGEntity):
-                sg_filter.append(['project', 'is', project.to_dict()])
+                sg_filter.append(["project", "is", project.to_dict()])
             else:
-                sg_filter.append({"filter_operator": "any",
-                                  "filters": [['project.Project.code', 'is', project],
-                                              ['project.Project.tank_name', 'is', project]]})
+                sg_filter.append(
+                    {
+                        "filter_operator": "any",
+                        "filters": [
+                            ["project.Project.code", "is", project],
+                            ["project.Project.tank_name", "is", project],
+                        ],
+                    }
+                )
 
         if pipeline_step is not None:
             if isinstance(pipeline_step, dict):
-                sg_filter.append(['step', 'is', pipeline_step])
+                sg_filter.append(["step", "is", pipeline_step])
             elif isinstance(pipeline_step, SGEntity):
-                sg_filter.append(['step', 'is', pipeline_step.to_dict()])
+                sg_filter.append(["step", "is", pipeline_step.to_dict()])
             else:
-                sg_filter.append({"filter_operator": "any",
-                                  "filters": [['step.Step.code', 'is', pipeline_step],
-                                              ['step.Step.short_name', 'is', pipeline_step]]})
+                sg_filter.append(
+                    {
+                        "filter_operator": "any",
+                        "filters": [
+                            ["step.Step.code", "is", pipeline_step],
+                            ["step.Step.short_name", "is", pipeline_step],
+                        ],
+                    }
+                )
 
-        return [new_entity(self._sg, sg_task)
-                for sg_task in self._sg.find('Task', sg_filter)]
+        return [
+            new_entity(self._sg, sg_task)
+            for sg_task in self._sg.find("Task", sg_filter)
+        ]
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """
@@ -401,7 +512,9 @@ class SGHumanUser(SGEntity):
         :return: All published files from this shot.
         :rtype: list[SGPublishedFile]
         """
-        return self._publishes(base_filter=[['created_by', 'is', self.to_dict()]],
-                               pub_types=pub_types,
-                               latest=latest,
-                               additional_sg_filter=additional_sg_filter)
+        return self._publishes(
+            base_filter=[["created_by", "is", self.to_dict()]],
+            pub_types=pub_types,
+            latest=latest,
+            additional_sg_filter=additional_sg_filter,
+        )
