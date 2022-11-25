@@ -92,7 +92,7 @@ class SGEntity(object):
                  only fields that are visible to the project are returned.
         :rtype: list[Field]
         """
-        if isinstance(project_entity, self.__class__):
+        if project_entity is not None and not isinstance(project_entity, dict):
             project_entity = project_entity.to_dict()
 
         sg_entity_fields = self.sg.schema_field_read(
@@ -114,7 +114,7 @@ class SGEntity(object):
                  only fields that are visible to the project are returned.
         :rtype: dict[str,Any]
         """
-        if isinstance(project_entity, self.__class__):
+        if project_entity is not None and not isinstance(project_entity, dict):
             project_entity = project_entity.to_dict()
 
         sg_entity_fields = self.sg.schema_field_read(
