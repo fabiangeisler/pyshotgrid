@@ -43,7 +43,7 @@ def _delete_director(items_to_delete):
         if item.is_dir():
             shutil.rmtree(item, ignore_errors=True)
         elif item.is_file():
-            Path.unlink(item, missing_ok=True)
+            item.unlink()
         else:
             # noinspection PyCompatibility
             raise ValueError(f"{item} is not a directory or a file")
@@ -191,23 +191,18 @@ def lint_black(c, check=False, all_files=False):
     ],
     help={
         "all-files": "Selects all files to be scanned. Default is 'src' only",
-        "open_browser": "Open the mypy report in the web browser",
     },
     optional=["all_files"],
 )
-def lint_flake8(c, open_browser=False, all_files=False):
+def lint_flake8(c, all_files=False):
     """Run flake8 against selected files."""
     _clean_flake8()
     if all_files:
         # noinspection PyCompatibility
-        c.run(f"flake8 --format=html --htmldir=flake-report {PYTHON_FILES_ALL_STR}")
+        c.run(f"flake8 {PYTHON_FILES_ALL_STR} --max-line-length=100")
     else:
         # noinspection PyCompatibility
-        c.run(f"flake8 --format=html --htmldir=flake-report {PYTHON_FILES_SRC_STR}")
-    if open_browser:
-        # report_path = (ROOT_DIR / "flake-report" / "index.html").absolute().as_uri()
-        report_path = "".join(['"', str(ROOT_DIR / "flake-report" / "index.html"), '"'])
-        webbrowser.open(report_path)
+        c.run(f"flake8 {PYTHON_FILES_SRC_STR} tests --max-line-length=100")
 
 
 @task(pre=[lint_isort, lint_black, lint_flake8])
