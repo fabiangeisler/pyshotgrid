@@ -59,7 +59,7 @@ class SGProject(SGEntity):
                 if fnmatch.fnmatchcase(sg_asset["code"], glob_pattern)
             ]
         else:
-            return [new_entity(self._sg, sg_shot) for sg_shot in sg_assets]
+            return [new_entity(self._sg, sg_asset) for sg_asset in sg_assets]
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """
@@ -210,7 +210,7 @@ class SGAsset(SGEntity):
             A fully initialized instance of shotgun_api3.Shotgun.
         :param int asset_id: The ID of the Asset entity.
         """
-        super(SGAsset, self).__init__(sg, entity_type="Shot", entity_id=asset_id)
+        super(SGAsset, self).__init__(sg, entity_type="Asset", entity_id=asset_id)
 
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """
