@@ -1,4 +1,4 @@
-from .core import new_entity, new_site, convert_fields_to_pysg, convert_fields_to_dicts
+from .core import convert_fields_to_dicts, convert_fields_to_pysg, new_entity, new_site
 from .field import Field
 
 

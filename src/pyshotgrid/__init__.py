@@ -7,16 +7,16 @@ Use it like::
 
 """
 
+from . import sg_default_entities as sde
+from .core import new_entity  # noqa: F401
+from .core import new_site  # noqa: F401
 from .core import (
-    new_entity,  # noqa: F401
-    new_site,  # noqa: F401
-    register_pysg_class,
     register_fallback_pysg_class,
+    register_pysg_class,
     register_sg_site_class,
 )
-from .sg_entity import SGEntity, Field  # noqa: F401
+from .sg_entity import Field, SGEntity  # noqa: F401
 from .sg_site import SGSite  # noqa: F401
-from . import sg_default_entities as sde
 
 #: The pyshotgrid version number as string
 VERSION = "0.7.1"
