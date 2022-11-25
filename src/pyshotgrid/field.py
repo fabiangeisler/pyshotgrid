@@ -184,7 +184,10 @@ class Field(object):
         :rtype: bool
         """
         return self._entity.sg.schema_field_update(
-            self._entity.type, self._name, {prop: value}, project_entity=project_entity
+            self._entity.type,
+            self._name,
+            {prop: value},
+            project_entity=convert_value_to_dict(project_entity),
         )
 
     @property
