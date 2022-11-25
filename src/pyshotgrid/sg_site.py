@@ -1,4 +1,4 @@
-from .core import new_entity, convert_fields_to_dicts, convert_filters_to_dict
+from .core import convert_fields_to_dicts, convert_filters_to_dict, new_entity
 
 
 class SGSite(object):

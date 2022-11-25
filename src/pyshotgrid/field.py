@@ -1,6 +1,6 @@
 import os
 
-from .core import new_entity, convert_value_to_dict, convert_value_to_pysg
+from .core import convert_value_to_dict, convert_value_to_pysg, new_entity
 
 
 class Field(object):
