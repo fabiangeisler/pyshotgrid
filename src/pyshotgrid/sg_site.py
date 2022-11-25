@@ -123,7 +123,7 @@ class SGSite(object):
             page=page,
             include_archived_projects=include_archived_projects,
             additional_filter_presets=additional_filter_presets,
-        )[0]
+        )
         if result:
             return result[0]
 
