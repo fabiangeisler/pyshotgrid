@@ -1,6 +1,7 @@
-from typing import List, Dict, Type, Any
+from typing import Any, Dict, List, Type
 
 import shotgun_api3
+import shotgun_api3.lib.mockgun
 
 #: Entity plugins that are registered to pyshotgrid.
 __ENTITY_PLUGINS = []  # type: List[Dict[str,Any]]
