@@ -247,6 +247,14 @@ class Field(object):
     def properties(self, value):
         self._update_schema("properties", value)
 
+    @property
+    def valid_types(self):
+        """
+        :return: The valid SG entity types for entity- and multi-entity-fields.
+        :rtype: list[str]
+        """
+        return self.schema()["properties"]["valid_types"]["value"]
+
     def batch_update_dict(self, value):
         """
         :param Any value: The value to set.
