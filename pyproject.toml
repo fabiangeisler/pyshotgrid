@@ -79,3 +79,8 @@ commands = nose2 -v --with-coverage --coverage ./src --coverage-report html --co
 
 [tool.mypy]
 ignore_missing_imports = true
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.7.1"
+tag_format = "v$version"
