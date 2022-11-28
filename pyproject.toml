@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
@@ -44,17 +45,17 @@ version = {attr = "pyshotgrid.VERSION"}
 legacy_tox_ini = """
 [tox]
 skip_missing_interpreters = true
-envlist = py27, py37, py38, py39, flake8
+envlist = py27, py37, py38, py39, py310, py310-flake8
 
 [gh-actions]
 python =
     2.7: py27
     3.7: py37
     3.8: py38
-    3.9: py39, flake8
+    3.9: py39
+    3.10: py310, py310-flake8
 
-[testenv:flake8]
-basepython = python
+[testenv:py310-flake8]
 exclude = docs
 deps = flake8
 commands = flake8 src tests --max-line-length=100

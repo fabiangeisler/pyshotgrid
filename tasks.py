@@ -189,20 +189,11 @@ def lint_black(c, check=False, all_files=False):
         "flake8",
         "fl",
     ],
-    help={
-        "all-files": "Selects all files to be scanned. Default is 'src' only",
-    },
-    optional=["all_files"],
 )
-def lint_flake8(c, all_files=False):
+def lint_flake8(c):
     """Run flake8 against selected files."""
     _clean_flake8()
-    if all_files:
-        # noinspection PyCompatibility
-        c.run(f"flake8 {PYTHON_FILES_ALL_STR} --max-line-length=100")
-    else:
-        # noinspection PyCompatibility
-        c.run(f"flake8 {PYTHON_FILES_SRC_STR} tests --max-line-length=100")
+    c.run("tox -e py310-flake8")
 
 
 @task(pre=[lint_isort, lint_black, lint_flake8])
