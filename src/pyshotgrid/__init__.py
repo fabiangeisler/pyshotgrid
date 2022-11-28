@@ -19,7 +19,7 @@ from .sg_entity import Field, SGEntity  # noqa: F401
 from .sg_site import SGSite  # noqa: F401
 
 #: The pyshotgrid version number as string
-VERSION = "0.7.1"
+VERSION = "0.8.0"
 
 register_sg_site_class(SGSite)
 register_fallback_pysg_class(SGEntity)
