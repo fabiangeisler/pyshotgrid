@@ -18,7 +18,7 @@ TEST_DIR = ROOT_DIR / "tests"
 SRC_DIR = ROOT_DIR / "src"
 
 DOC_DIR = ROOT_DIR / "docs"
-DOCS_BUILD_DIR = DOC_DIR / "_build"
+DOCS_BUILD_DIR = DOC_DIR / "_builds"
 DOCS_INDEX = DOCS_BUILD_DIR / "index.html"
 
 BUILD_FROM = ROOT_DIR / "."
@@ -257,9 +257,7 @@ def test(c):
 def docs(c, open_browser=False):
     """Build documentation."""
     _clean_docs()
-    # noinspection PyCompatibility
-    build_docs = f'sphinx-build -b html "{DOC_DIR}" "{DOCS_BUILD_DIR}"'
-    c.run(build_docs)
+    c.run("tox -e docs")
     if open_browser:
         webbrowser.open(str(DOCS_INDEX))
 
