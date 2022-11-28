@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Type  # noqa: F401
 
 import shotgun_api3
 import shotgun_api3.lib.mockgun
