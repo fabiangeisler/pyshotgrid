@@ -9,6 +9,7 @@ Using `pyshotgrid` with ShotGrid Toolkit
 
 After you made `pyshotgrid` accessible in ShotGrid Toolkit the best way to use it is to convert
 any entity to a `pyshotgrid` object instance. What you need for this is:
+
 - a shotgun_api3.Shotgun instance (which conveniently is present almost everywhere in SGTK)
 - the type of the entity
 - the id of the entity
