@@ -61,13 +61,10 @@ commands = flake8 src tests --max-line-length=100
 
 [testenv:docs]
 description=Documentation generation
-basepython=python
+basepython=python3
 changedir=docs
 deps=
-    sphinx
-    sphinx_rtd_theme
-    myst-parser
-    git+https://github.com/shotgunsoftware/python-api.git@v3.3.1
+    -rrequirements_docs.txt
 commands=
     sphinx-build -b html -d {envtmpdir}/doctrees . _builds
 
