@@ -91,13 +91,16 @@ Ready to contribute? Here's how to set up `pyshotgrid` for local development.
    To run the tests against other Python versions you need to have them installed on
    your machine.
 
-7. Commit your changes and push your branch to GitHub::
+7. Commit your changes with `Commitizen <https://commitizen-tools.github.io/commitizen/#usage>`_::
 
     $ git add .
-    $ git commit -m "Your detailed description of your changes."
+    $ cz commit
+
+8. Push your branch to GitHub::
+
     $ git push origin name-of-your-bugfix-or-feature
 
-8. Submit a pull request through the GitHub website.
+9. Submit a pull request through the GitHub website.
 
 Pull Request Guidelines
 -----------------------
@@ -123,10 +126,10 @@ Deploying
 ---------
 
 A reminder for the maintainers on how to deploy.
-Make sure all your changes are committed.
-Then run::
+Make sure all your changes are committed and all Pull-Requests merged.
+Then run this on `main`::
 
-    $ bump2version patch # possible: major / minor / patch
+    $ cz bump
     $ git push --follow-tags
 
 After that create a Release on GitHub. This will trigger
