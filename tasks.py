@@ -11,7 +11,7 @@ import webbrowser
 from pathlib import Path
 
 # Third party modules
-from invoke import call, task
+from invoke import task
 
 ROOT_DIR = Path(__file__).parent
 TEST_DIR = ROOT_DIR / "tests"
@@ -23,18 +23,6 @@ DOCS_INDEX = DOCS_BUILD_DIR / "index.html"
 
 BUILD_FROM = ROOT_DIR / "."
 DIST_SOURCE = ROOT_DIR / "dist" / "*"
-
-
-PYTHON_FILES_ALL = list(ROOT_DIR.rglob("*.py"))
-PYTHON_FILES_ALL.remove(ROOT_DIR / "tasks.py")
-PYTHON_FILES_ALL_STR = ""
-for file in PYTHON_FILES_ALL:
-    PYTHON_FILES_ALL_STR = "".join([PYTHON_FILES_ALL_STR, '"', str(file), '" '])
-
-PYTHON_FILES_SRC = list(SRC_DIR.rglob("*.py"))
-PYTHON_FILES_SRC_STR = ""
-for file in PYTHON_FILES_SRC:
-    PYTHON_FILES_SRC_STR = "".join([PYTHON_FILES_SRC_STR, '"', str(file), '" '])
 
 
 def _delete_director(items_to_delete):
@@ -116,12 +104,10 @@ def _clean_docs():
         _finder(ROOT_DIR, pattern)
 
 
-def _clean_flake8():
-    """Clean the bandit report files."""
+def _clean_ruff():
+    """Clean the ruff cache files."""
     patterns = [
-        "flake-report/",
-        "*report.html",
-        "*source.html",
+        ".ruff_cache",
     ]
     for pattern in patterns:
         _finder(ROOT_DIR, pattern)
@@ -135,102 +121,50 @@ def clean(c):
     _clean_python()
     _clean_test()
     _clean_docs()
-    _clean_flake8()
+    _clean_ruff()
 
 
 @task(
-    name="lint-isort",
+    name="black",
     aliases=[
-        "isort",
-        "is",
-    ],
-    help={
-        "check": "Checks if source is formatted without applying changes",
-        "all-files": "Selects all files to be scanned. Default is 'src' only",
-    },
-)
-def lint_isort(c, check=False, all_files=False):
-    """Run isort against selected python files."""
-    isort_options = ["--check-only", "--diff"] if check else []
-    if all_files:
-        # noinspection PyCompatibility
-        c.run(f"isort {' '.join(isort_options)} {PYTHON_FILES_ALL_STR}")
-    else:
-        # noinspection PyCompatibility
-        c.run(f"isort {' '.join(isort_options)} {PYTHON_FILES_SRC_STR}")
-
-
-@task(
-    name="lint-black",
-    aliases=[
-        "black",
         "bl",
     ],
     help={
         "check": "Checks if source is formatted without applying changes",
-        "all-files": "Selects all files to be scanned. Default is 'src' only",
     },
     optional=["all_files"],
 )
-def lint_black(c, check=False, all_files=False):
+def black(c, check=False):
     """Runs black formatter against selected python files."""
     black_options = ["--diff", "--check"] if check else []
-    if all_files:
-        # noinspection PyCompatibility
-        c.run(f"black {' '.join(black_options)} {PYTHON_FILES_ALL_STR}")
-    else:
-        # noinspection PyCompatibility
-        c.run(f"black {' '.join(black_options)} {PYTHON_FILES_SRC_STR}")
+    # noinspection PyCompatibility
+    c.run(f"black {' '.join(black_options)} {SRC_DIR}")
 
 
 @task(
-    name="lint-flake8",
-    aliases=[
-        "flake8",
-        "fl",
-    ],
-)
-def lint_flake8(c):
-    """Run flake8 against selected files."""
-    _clean_flake8()
-    c.run("tox -e py310-flake8")
-
-
-@task(pre=[lint_isort, lint_black, lint_flake8])
-def lint(c):
-    """Run all lint tasks on 'src' files only."""
-
-
-# noinspection PyTypeChecker
-@task(
-    pre=[
-        call(lint_isort, all_files=True),
-        call(lint_black, all_files=True),
-        call(lint_flake8, all_files=True),
-    ]
-)
-def lint_all(c):
-    """Run all lint tasks on all files."""
-
-
-@task(
+    name="ruff",
     help={
-        "open_browser": "Open the mypy report in the web browser",
-        "all-files": "Selects all files to be scanned. Default is 'src' only",
+        "fix": "Attempt to fix found code issues.",
     },
 )
-def mypy(c, open_browser=False, all_files=False):
-    """Run mypy against selected python files."""
-    _clean_mypy()
-    if all_files:
-        # noinspection PyCompatibility
-        c.run(f"mypy {PYTHON_FILES_ALL_STR}")
-    else:
-        # noinspection PyCompatibility
-        c.run(f"mypy {PYTHON_FILES_SRC_STR}")
-    if open_browser:
-        report_path = '"' + str(ROOT_DIR / "mypy-report" / "index.html") + '"'
-        webbrowser.open(report_path)
+def ruff(c, fix=False):
+    """Run ruff against selected files."""
+    c.run(f"ruff {SRC_DIR} {TEST_DIR} {'--fix' if fix else ''}")
+
+
+@task()
+def mypy(c):
+    """Run mypy against the code base."""
+    # noinspection PyCompatibility
+    # In order for mypy to find the pyproject.toml we need to execute it from
+    # the root directory.
+    with c.cd(ROOT_DIR):
+        c.run(f"mypy {SRC_DIR}")
+
+
+@task(pre=[black, ruff, mypy])
+def lint(c):
+    """Run all lint tasks."""
 
 
 @task
@@ -255,7 +189,7 @@ def docs(c, open_browser=False):
 
 @task
 def build(c):
-    """Creates a new sdist & wheel build using the PyPA tool."""
+    """Creates a new sdist & wheel build using the PyPI tool."""
     _clean_build()
     # noinspection PyCompatibility
     c.run(f'python -m build "{BUILD_FROM}"')
@@ -275,16 +209,16 @@ def pypi(c):
     c.run(f'python -m twine upload "{DIST_SOURCE}"')
 
 
-@task
-def psr(c):
-    """Runs semantic-release publish."""
-    _clean_build()
-    c.run("semantic-release publish")
+# @task
+# def psr(c):
+#     """Runs semantic-release publish."""
+#     _clean_build()
+#     c.run("semantic-release publish")
 
 
-@task
-def update(c):
-    """Updates the development environment"""
-    c.run("pre-commit clean")
-    c.run("pre-commit gc")
-    c.run("pre-commit autoupdate")
+# @task
+# def update(c):
+#     """Updates the development environment"""
+#     c.run("pre-commit clean")
+#     c.run("pre-commit gc")
+#     c.run("pre-commit autoupdate")
