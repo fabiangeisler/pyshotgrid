@@ -13,6 +13,7 @@ any entity to a `pyshotgrid` object instance. What you need for this is:
 - a shotgun_api3.Shotgun instance (which conveniently is present almost everywhere in SGTK)
 - the type of the entity
 - the id of the entity
+
 These parameters will be passed to the `pyshotgrid.new_entity` method, which returns the
 object you want to work with.
 The method accepts 3 ways of passing arguments to it:
