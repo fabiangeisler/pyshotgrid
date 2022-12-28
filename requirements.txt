@@ -3,10 +3,9 @@ commitizen;python_version > "2.7"
 wheel
 build
 twine
-flake8
+ruff;python_version > "2.7"
 invoke;python_version > "2.7"
 black;python_version > "2.7"
-isort;python_version > "2.7"
 pre-commit;python_version > "2.7"
 coverage
 nose2
