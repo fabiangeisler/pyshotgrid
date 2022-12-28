@@ -1,8 +1,14 @@
+<p align="center">
+  <img src="https://github.com/fabiangeisler/pyshotgrid/blob/main/icons/pysg_logo.png?raw=true" />
+</p>
+
 [![pypi](https://img.shields.io/pypi/v/pyshotgrid.svg)](https://pypi.python.org/pypi/pyshotgrid)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/pyshotgrid.svg)](https://pypi.python.org/pypi/pyshotgrid/)
 [![Tests](https://github.com/fabiangeisler/pyshotgrid/actions/workflows/Tests.yml/badge.svg)](https://github.com/fabiangeisler/pyshotgrid/actions/workflows/Tests.yml)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![linter: ruff](https://img.shields.io/static/v1?label=linter&message=ruff&color=green)](https://github.com/charliermarsh/ruff)
+[![type checker: mypy](https://img.shields.io/badge/%20type_checker-my[py]-%231674b1?style=flat)](https://github.com/python/mypy)
 
 `pyshotgrid` is a python package that gives you a pythonic and
 object oriented way to talk to [Autodesk ShotGrid](https://www.autodesk.com/products/shotgrid/overview).
