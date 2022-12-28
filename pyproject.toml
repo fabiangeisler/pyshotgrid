@@ -53,12 +53,7 @@ python =
     3.7: py37
     3.8: py38
     3.9: py39
-    3.10: py310, py310-flake8
-
-[testenv:py310-flake8]
-exclude = docs
-deps = flake8
-commands = flake8 src tests --max-line-length=100
+    3.10: py310
 
 [testenv:docs]
 description=Documentation generation
@@ -75,7 +70,10 @@ deps =
 commands = nose2 -v --with-coverage --coverage ./src --coverage-report html --coverage-report term
 """
 
-[tool.mypy]
+[[tool.mypy.overrides]]
+module = [
+    "shotgun_api3.*",
+]
 ignore_missing_imports = true
 
 [tool.commitizen]
@@ -88,3 +86,18 @@ major_version_zero = true
 version_files = [
     "src/pyshotgrid/__init__.py:VERSION",
 ]
+
+[tool.ruff]
+line-length = 100
+select = [
+    "E",  # pycodestyle
+    "W",
+    "F",  # PyFlakes
+    "B",  # flake8-bugbear
+    "T20",  # "print" in code
+    "N",  # pep8 naming convention
+    "I",  # isort
+    "RUF",  # Bad unicode characters in code
+]
+
+src = ["src", "tests"]
