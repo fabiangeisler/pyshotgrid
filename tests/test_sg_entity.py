@@ -11,9 +11,9 @@ else:
 
 from shotgun_api3.lib import mockgun
 
-from .testbase import BaseShotGridTest
-
 import pyshotgrid as pysg
+
+from .testbase import BaseShotGridTest
 
 
 class TestSGEntity(BaseShotGridTest):
