@@ -1,14 +1,19 @@
+import typing
 from typing import Any, Dict, List, Type  # noqa: F401
 
 import shotgun_api3
 import shotgun_api3.lib.mockgun
 
+if typing.TYPE_CHECKING:
+    from pyshotgrid.sg_entity import SGEntity  # noqa: F401
+    from pyshotgrid.sg_site import SGSite  # noqa: F401
+
 #: Entity plugins that are registered to pyshotgrid.
 __ENTITY_PLUGINS = []  # type: List[Dict[str,Any]]
 #: Fallback entity class that is used when no match in the __ENTITY_PLUGINS is found.
-__ENTITY_FALLBACK_CLASS = None  # type: Type|None
+__ENTITY_FALLBACK_CLASS = None  # type: Type[SGEntity]|None
 #: The class that represents the ShotGrid site.
-__SG_SITE_CLASS = None  # type: Type|None
+__SG_SITE_CLASS = None  # type: Type[SGSite]|None
 
 
 def new_entity(sg, *args, **kwargs):
@@ -216,7 +221,8 @@ def convert_filters_to_dict(filters):
 
     Example::
 
-        >>> convert_filters_to_dict([['user', 'is', SGHumanUser(sg, id=5)]])
+        >>> person = SGEntity(shotgun_api3.Shotgun('...'), entity_type='HumanUser', entity_id=5)
+        >>> convert_filters_to_dict([['user', 'is', person]])
         [['user', 'is', {'type': 'HumanUser', 'id': 5}]]
 
     :param list[list] filters: The filters to convert
