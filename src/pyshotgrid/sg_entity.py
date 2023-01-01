@@ -1,5 +1,5 @@
 from .core import convert_fields_to_dicts, convert_fields_to_pysg, new_entity, new_site
-from .field import Field
+from .field import Field, FieldSchema
 
 
 class SGEntity(object):
@@ -226,8 +226,12 @@ class SGEntity(object):
     def field_schemas(self):
         """
         :return: The schemas of all the entity fields.
+        :rtype: dict[str,FieldSchema]
         """
-        return self.sg.schema_field_read(self._type)
+        return {
+            field: FieldSchema(self._sg, self._type, field)
+            for field in self.sg.schema_field_read(self._type)
+        }
 
     def _publishes(
         self, base_filter=None, pub_types=None, latest=False, additional_sg_filter=None
