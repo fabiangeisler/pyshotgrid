@@ -132,10 +132,10 @@ def clean(c):
     help={
         "check": "Checks if source is formatted without applying changes",
     },
-    optional=["all_files"],
 )
 def black(c, check=False):
     """Runs black formatter against selected python files."""
+    print("Run 'black'")
     black_options = ["--diff", "--check"] if check else []
     # noinspection PyCompatibility
     c.run(f"black {' '.join(black_options)} {SRC_DIR}")
@@ -149,12 +149,14 @@ def black(c, check=False):
 )
 def ruff(c, fix=False):
     """Run ruff against selected files."""
+    print("Run 'ruff'")
     c.run(f"ruff {SRC_DIR} {TEST_DIR} {'--fix' if fix else ''}")
 
 
 @task()
 def mypy(c):
     """Run mypy against the code base."""
+    print("Run 'mypy'")
     # noinspection PyCompatibility
     # In order for mypy to find the pyproject.toml we need to execute it from
     # the root directory.
@@ -167,11 +169,20 @@ def lint(c):
     """Run all lint tasks."""
 
 
-@task
-def test(c):
+@task(
+    name="tox",
+    aliases=[
+        "test",
+        "tests",
+    ],
+    help={
+        "env": "The tox environment(s) to run.",
+    },
+)
+def tox(c, env=""):
     """Run tests using pytest."""
     _clean_test()
-    c.run("tox")
+    c.run(f"tox {'-e ' + env if env else ''}")
 
 
 @task(

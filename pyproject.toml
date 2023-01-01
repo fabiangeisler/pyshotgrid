@@ -45,7 +45,7 @@ version = {attr = "pyshotgrid.VERSION"}
 legacy_tox_ini = """
 [tox]
 skip_missing_interpreters = true
-envlist = py27, py37, py38, py39, py310, py310-flake8
+envlist = py27, py37, py38, py39, py310
 
 [gh-actions]
 python =
@@ -67,7 +67,7 @@ commands=
 [testenv]
 deps =
     -rrequirements.txt
-commands = nose2 -v --with-coverage --coverage ./src --coverage-report html --coverage-report term
+commands = nose2 -v --with-coverage --coverage ./src --coverage-report term
 """
 
 [[tool.mypy.overrides]]
