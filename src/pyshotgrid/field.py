@@ -20,6 +20,14 @@ class Field(object):
         """
         self._name = name
         self._entity = entity
+        self._schema = FieldSchema(
+            sg=self._entity.sg, entity_type=self._entity.type, field_name=self._name
+        )
+
+    def __str__(self):
+        return "{} - {} - Entity: {} Entity ID: {}".format(
+            self.__class__.__name__, self._name, self.entity.type, self._entity.id
+        )
 
     @property
     def name(self):
@@ -141,7 +149,115 @@ class Field(object):
             attachment=sg_attachment, file_path=local_file_path
         )
 
+    @property
     def schema(self):
+        """
+        :return: The schema of this field.
+        :rtype: FieldSchema
+        """
+        return self._schema
+
+    @property
+    def data_type(self):
+        """
+        :return: The data type of the field.
+        :rtype: str
+        """
+        return self._schema.data_type
+
+    @data_type.setter
+    def data_type(self, value):
+        self._schema.data_type = value
+
+    @property
+    def description(self):
+        """
+        :return: The description of the field.
+        :rtype: str
+        """
+        return self._schema.description
+
+    @description.setter
+    def description(self, value):
+        self._schema.description = value
+
+    @property
+    def display_name(self):
+        """
+        :return: The display name of the field.
+        :rtype: str
+        """
+        return self._schema.display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        self._schema.display_name = value
+
+    @property
+    def custom_metadata(self):
+        """
+        :return: Custom metadata attached to this field.
+        :rtype: str
+        """
+        return self._schema.custom_metadata
+
+    @custom_metadata.setter
+    def custom_metadata(self, value):
+        self._schema.custom_metadata = value
+
+    @property
+    def properties(self):
+        """
+        :return: The properties of the field. This strongly depends on the data type of the field.
+                 This can for example give you all the possible values of a status field.
+        :rtype: dict[str,dict[str,Any]]
+        """
+        return self._schema.properties
+
+    @properties.setter
+    def properties(self, value):
+        self._schema.properties = value
+
+    @property
+    def valid_types(self):
+        """
+        :return: The valid SG entity types for entity- and multi-entity-fields.
+        :rtype: list[str]
+        """
+        return self._schema.valid_types
+
+    def batch_update_dict(self, value):
+        """
+        :param Any value: The value to set.
+        :returns: A dict that can be used in a shotgun.batch() call to update this field.
+                  Useful when you want to collect field changes and set them in one go.
+        :rtype: dict[str,Any]
+        """
+        value = convert_value_to_dict(value)
+        return {
+            "request_type": "update",
+            "entity_type": self._entity.type,
+            "entity_id": self._entity.id,
+            "data": {self._name: value},
+        }
+
+
+class FieldSchema(object):
+    """
+    This class represents the schema of a field.
+    """
+
+    def __init__(self, sg, entity_type, field_name):
+        self.sg = sg
+        self.entity_type = entity_type
+        self.field_name = field_name
+
+    def __str__(self):
+        return "{} - {} - Entity: {}".format(
+            self.__class__.__name__, self.field_name, self.entity_type
+        )
+
+    def _get_schema(self):
         """
         :return: The schema of this field.
                  For example::
@@ -172,8 +288,8 @@ class Field(object):
                       'unique': {'editable': False, 'value': False},
                       'visible': {'editable': True, 'value': True}}
         """
-        return self._entity.sg.schema_field_read(self._entity.type, self._name)[
-            self._name
+        return self.sg.schema_field_read(self.entity_type, self.field_name)[
+            self.field_name
         ]
 
     def _update_schema(self, prop, value, project_entity=None):
@@ -183,9 +299,9 @@ class Field(object):
         :return: True when the update succeeded.
         :rtype: bool
         """
-        return self._entity.sg.schema_field_update(
-            self._entity.type,
-            self._name,
+        return self.sg.schema_field_update(
+            self.entity_type,
+            self.field_name,
             {prop: value},
             project_entity=convert_value_to_dict(project_entity),
         )
@@ -196,7 +312,7 @@ class Field(object):
         :return: The data type of the field.
         :rtype: str
         """
-        return self.schema()["data_type"]["value"]
+        return self._get_schema()["data_type"]["value"]
 
     @data_type.setter
     def data_type(self, value):
@@ -208,7 +324,11 @@ class Field(object):
         :return: The description of the field.
         :rtype: str
         """
-        return self.schema()["description"]["value"]
+        return self._get_schema()["description"]["value"]
+
+    @description.setter
+    def description(self, value):
+        self._update_schema("description", value)
 
     @property
     def display_name(self):
@@ -216,7 +336,7 @@ class Field(object):
         :return: The display name of the field.
         :rtype: str
         """
-        return self.schema()["name"]["value"]
+        return self._get_schema()["name"]["value"]
 
     @display_name.setter
     def display_name(self, value):
@@ -228,7 +348,7 @@ class Field(object):
         :return: Custom metadata attached to this field.
         :rtype: str
         """
-        return self.schema()["custom_metadata"]["value"]
+        return self._get_schema()["custom_metadata"]["value"]
 
     @custom_metadata.setter
     def custom_metadata(self, value):
@@ -241,7 +361,7 @@ class Field(object):
                  This can for example give you all the possible values of a status field.
         :rtype: dict[str,dict[str,Any]]
         """
-        return self.schema()["properties"]
+        return self._get_schema()["properties"]
 
     @properties.setter
     def properties(self, value):
@@ -253,19 +373,4 @@ class Field(object):
         :return: The valid SG entity types for entity- and multi-entity-fields.
         :rtype: list[str]
         """
-        return self.schema()["properties"]["valid_types"]["value"]
-
-    def batch_update_dict(self, value):
-        """
-        :param Any value: The value to set.
-        :returns: A dict that can be used in a shotgun.batch() call to update this field.
-                  Useful when you want to collect field changes and set them in one go.
-        :rtype: dict[str,Any]
-        """
-        value = convert_value_to_dict(value)
-        return {
-            "request_type": "update",
-            "entity_type": self._entity.type,
-            "entity_id": self._entity.id,
-            "data": {self._name: value},
-        }
+        return self._get_schema()["properties"]["valid_types"]["value"]
