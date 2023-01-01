@@ -1,3 +1,10 @@
+## v0.9.0 (2023-01-01)
+
+### Feat
+
+- **SGEntity**: comparebility for SGEntity instances
+- **fields**: Split Field schema to its own class
+
 ## v0.8.0 (2022-11-28)
 
 ### Feat
