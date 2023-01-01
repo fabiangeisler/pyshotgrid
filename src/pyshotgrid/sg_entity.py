@@ -75,6 +75,28 @@ class SGEntity(object):
         """
         return "{}/detail/{}/{}".format(self.sg.base_url, self._type, self._id)
 
+    def __eq__(self, other):
+        """
+        Compare SGEntities against each other.
+        We consider the entities equal if all these are true:
+          - the other instance is a (sub-)class of SGEntity
+          - the ID's match
+          - the entity types match
+          - the base URL of the Shotgun instances is the same.
+
+        :param Any other: The other python object to compare to.
+        :return: Whether the 2 instances represent the same entity in ShotGrid.
+        :rtype: bool
+        """
+        return all(
+            (
+                isinstance(other, SGEntity),
+                self._id == other.id,
+                self._type == other.type,
+                self._sg.base_url == other.sg.base_url,
+            )
+        )
+
     def __getitem__(self, field):
         """
         Enabling dict notation to query fields of the entity from ShotGrid.
