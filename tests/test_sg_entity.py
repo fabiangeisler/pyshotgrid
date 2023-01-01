@@ -23,30 +23,7 @@ class TestSGEntity(BaseShotGridTest):
     def setUpClass(cls):
         super(TestSGEntity, cls).setUpClass()
 
-        # Shotgun test project
-        cls.sg_project = cls.sg.create(
-            "Project", {"code": "Test Project", "tank_name": "tp"}
-        )
-        # LocalStorages needed for Operating system independent paths
-        local_storage = cls.sg.create(
-            "LocalStorage",
-            {
-                "code": "primary",
-                "mac_path": "/Volumes/projects",
-                "windows_path": "P:\\",
-                "linux_path": "/mnt/projects",
-            },
-        )
-
-        # published files to query publish form paths.
-        cls.sg_publish = cls.sg.create(
-            "PublishedFile",
-            {
-                "code": "0010_v001.%04d.exr",
-                "path_cache": "tp/sequences/0010_v001.%04d.exr",
-                "path_cache_storage": local_storage,
-            },
-        )
+        cls.add_default_entities()
 
     def test_string_representation(self):
         sg_entity = pysg.SGEntity(self.sg, "Project", 1)
@@ -60,13 +37,13 @@ class TestSGEntity(BaseShotGridTest):
     def test_query_field_dict_notation(self):
         sg_entity = pysg.SGEntity(self.sg, "Project", 1)
 
-        self.assertEqual("tp", sg_entity["tank_name"].get())
+        self.assertEqual("tpa", sg_entity["tank_name"].get())
 
     def test_get(self):
         sg_entity = pysg.SGEntity(self.sg, "Project", 1)
 
         self.assertEqual(
-            {"code": "Test Project", "tank_name": "tp"},
+            {"code": "Test Project A", "tank_name": "tpa"},
             sg_entity.get(["code", "tank_name"]),
         )
 
@@ -225,19 +202,44 @@ class TestSGEntity(BaseShotGridTest):
     def test_field_schemas(self):
         sg_entity = pysg.SGEntity(self.sg, "Project", 1)
 
-        self.assertEqual(
-            "Tank Name", sg_entity.field_schemas()["tank_name"]["name"]["value"]
-        )
+        result = sg_entity.field_schemas()
 
-    def test_batch_update_dict(self):
-        sg_entity = pysg.SGEntity(self.sg, "Project", 1)
+        self.assertEqual("Tank Name", result["tank_name"].display_name)
+        self.assertEqual(67, len(result))
 
-        self.assertEqual(
-            {
-                "data": {"code": "foo", "tank_name": "bar"},
-                "entity_id": 1,
-                "entity_type": "Project",
-                "request_type": "update",
-            },
-            sg_entity.batch_update_dict({"code": "foo", "tank_name": "bar"}),
+    def test_compare_entities(self):
+        sg_entity_a = pysg.SGEntity(self.sg, "Project", 1)
+        sg_entity_b = pysg.sg_default_entities.SGProject(self.sg, 1)
+
+        result = sg_entity_a == sg_entity_b
+
+        self.assertTrue(result)
+
+    def test_compare_entities__ids_dont_match(self):
+        sg_entity_a = pysg.SGEntity(self.sg, "Project", 1)
+        sg_entity_b = pysg.SGEntity(self.sg, "Project", 2)
+
+        result = sg_entity_a != sg_entity_b
+
+        self.assertTrue(result)
+
+    def test_compare_entities__entity_types_dont_match(self):
+        sg_entity_a = pysg.SGEntity(self.sg, "Project", 1)
+        sg_entity_b = pysg.SGEntity(self.sg, "Version", 1)
+
+        result = sg_entity_a != sg_entity_b
+
+        self.assertTrue(result)
+
+    def test_compare_entities__sg_instances_dont_match(self):
+        sg_entity_a = pysg.SGEntity(self.sg, "Project", 1)
+        other_sg = mockgun.Shotgun(
+            base_url="https://other.shotgunstudio.com",
+            script_name="Unittest User",
+            api_key="$ome_password",
         )
+        sg_entity_b = pysg.SGEntity(other_sg, "Project", 1)
+
+        result = sg_entity_a != sg_entity_b
+
+        self.assertTrue(result)

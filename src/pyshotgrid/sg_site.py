@@ -188,15 +188,17 @@ class SGSite(object):
         base_filter = []
         if name_or_id is not None:
             if isinstance(name_or_id, int):
-                base_filter = [["id", "is", name_or_id]]
+                return new_entity(
+                    self._sg, entity_type="PipelineConfiguration", entity_id=name_or_id
+                )
             else:
                 base_filter = [["code", "is", name_or_id]]
 
         if project is not None:
             if isinstance(project, dict):
-                base_filter.append(["project", "in", project])
+                base_filter.append(["project", "is", project])
             else:
-                base_filter.append(["project", "in", project.to_dict()])
+                base_filter.append(["project", "is", project.to_dict()])
 
         sg_pipe_config = self._sg.find_one("PipelineConfiguration", base_filter)
 
