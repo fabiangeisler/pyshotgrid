@@ -239,6 +239,14 @@ class SGEntity(object):
         """
         return self._sg.delete(self._type, self._id)
 
+    @property
+    def display_name(self):
+        """
+        :return: The display name of the current entity.
+        :rtype: str
+        """
+        return self.schema()["name"]["value"]
+
     def schema(self):
         """
         :return: The schema for the current entity.
