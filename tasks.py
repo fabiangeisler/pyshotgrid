@@ -41,6 +41,7 @@ def _finder(directory, item, exclusions=None):
     """
     Utility function to generate a Path list of files based on globs.
 
+    :param Path directory: Base directory to search from.
     :param str item: Specify glob pattern to delete
     :param list[str]|None exclusions: Specify pathlib objects to exclude from deletion
      (can be directories of files)
@@ -99,9 +100,7 @@ def _clean_python():
 
 def _clean_docs():
     """Clean the document build."""
-    patterns = ["_build", "jupyter_execute", "*.css"]
-    for pattern in patterns:
-        _finder(ROOT_DIR, pattern)
+    _finder(DOC_DIR, "_build")
 
 
 def _clean_ruff():
@@ -126,9 +125,7 @@ def clean(c):
 
 @task(
     name="black",
-    aliases=[
-        "bl",
-    ],
+    aliases=("bl",),
     help={
         "check": "Checks if source is formatted without applying changes",
     },
@@ -171,10 +168,10 @@ def lint(c):
 
 @task(
     name="tox",
-    aliases=[
+    aliases=(
         "test",
         "tests",
-    ],
+    ),
     help={
         "env": "The tox environment(s) to run.",
     },
@@ -193,7 +190,7 @@ def tox(c, env=""):
 def docs(c, open_browser=False):
     """Build documentation."""
     _clean_docs()
-    c.run("tox -e docs")
+    c.run("tox -e py310_docs")
     if open_browser:
         webbrowser.open(str(DOCS_INDEX))
 
