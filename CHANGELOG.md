@@ -1,3 +1,10 @@
+## v0.10.0 (2023-01-18)
+
+### Feat
+
+- **SGSite**: add entity_field_schemas function
+- **SGEntity**: add display_name property
+
 ## v0.9.1 (2023-01-01)
 
 ### Fix
