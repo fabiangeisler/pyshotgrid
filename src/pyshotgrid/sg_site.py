@@ -1,4 +1,5 @@
 from .core import convert_fields_to_dicts, convert_filters_to_dict, new_entity
+from .field import FieldSchema
 
 
 class SGSite(object):
@@ -126,6 +127,19 @@ class SGSite(object):
         )
         if result:
             return result[0]
+
+    def entity_field_schemas(self):
+        """
+        :return: The field schemas for all entities of the current ShotGrid Site.
+        :rtype: dict[str,dict[str,FieldSchema]]
+        """
+        result = {}
+        for entity, field_schemas in self._sg.schema_read().items():
+            result[entity] = {
+                field_name: FieldSchema(self._sg, entity, field_name)
+                for field_name in field_schemas.keys()
+            }
+        return result
 
     def project(self, name_or_id):
         """
