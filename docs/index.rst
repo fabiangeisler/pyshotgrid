@@ -15,6 +15,7 @@ Welcome to pyshotgrid's documentation!
    how_to_add_custom_entities
    pyshotgrid_vs_shotgun_api3
    api_reference
+   changelog
 
 Indices and tables
 ==================
