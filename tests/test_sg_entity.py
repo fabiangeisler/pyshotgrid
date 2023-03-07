@@ -207,10 +207,10 @@ class TestSGEntity(BaseShotGridTest):
             "https://test.shotgunstudio.com/detail/Project/1", sg_entity.url
         )
 
-    def test_display_name(self):
+    def test_entity_display_name(self):
         sg_entity = pysg.SGEntity(self.sg, "CustomEntity01", 1)
 
-        self.assertEqual("Sprint", sg_entity.display_name)
+        self.assertEqual("Sprint", sg_entity.entity_display_name)
 
     def test_schema(self):
         sg_entity = pysg.SGEntity(self.sg, "Project", 1)

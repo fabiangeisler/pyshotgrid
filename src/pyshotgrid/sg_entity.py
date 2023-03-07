@@ -264,9 +264,9 @@ class SGEntity(object):
         return self._sg.delete(self._type, self._id)
 
     @property
-    def display_name(self):
+    def entity_display_name(self):
         """
-        :return: The display name of the current entity.
+        :return: The display name of the current entity type.
         :rtype: str
         """
         return self.schema()["name"]["value"]
@@ -274,6 +274,7 @@ class SGEntity(object):
     def schema(self):
         """
         :return: The schema for the current entity.
+        :rtype: dict
         """
         return self.sg.schema_entity_read()[self._type]
 
