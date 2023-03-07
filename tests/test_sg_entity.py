@@ -43,9 +43,28 @@ class TestSGEntity(BaseShotGridTest):
         sg_entity = pysg.SGEntity(self.sg, "Project", 1)
 
         self.assertEqual(
-            {"code": "Test Project A", "tank_name": "tpa"},
-            sg_entity.get(["code", "tank_name"]),
+            {"name": "Test Project A", "tank_name": "tpa"},
+            sg_entity.get(["name", "tank_name"]),
         )
+
+    def test_name(self):
+        sg_project = pysg.new_entity(self.sg, "Project", 1)
+        sg_task = pysg.new_entity(self.sg, "Task", 1)
+        sg_asset = pysg.new_entity(self.sg, "Asset", 1)
+
+        result_project_name_field = sg_project.name
+        result_task_name_field = sg_task.name
+        result_asset_name_field = sg_asset.name
+
+        self.assertEqual("name", result_project_name_field.name)
+        self.assertEqual("content", result_task_name_field.name)
+        self.assertEqual("code", result_asset_name_field.name)
+
+    def test_name__errors_when_no_name_field_present(self):
+        sg_entity = pysg.new_entity(self.sg, "Note", 1)
+
+        with self.assertRaises(RuntimeError):
+            _ = sg_entity.name
 
     # FIXME Mockgun.update is missing the "multi_entity_update_modes" parameter. We need to patch it
     # FIXME to make this test work.

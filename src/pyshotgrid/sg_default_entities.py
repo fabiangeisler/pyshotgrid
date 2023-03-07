@@ -294,6 +294,14 @@ class SGTask(SGEntity):
         """
         super(SGTask, self).__init__(sg, entity_type="Task", entity_id=task_id)
 
+    @property
+    def name(self):
+        """
+        :return: The field that represents the name of the Task.
+        :rtype: SGField
+        """
+        return self["content"]
+
     def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
         """
         :param str|list[str]|None pub_types: The names of the Publish File Types to return.

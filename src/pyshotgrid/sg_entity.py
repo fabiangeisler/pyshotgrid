@@ -75,6 +75,29 @@ class SGEntity(object):
         """
         return "{}/detail/{}/{}".format(self.sg.base_url, self._type, self._id)
 
+    @property
+    def name(self):
+        """
+        :return: The field that represents the name of the entity.
+                 Usually either the "code" or "name" field.
+        :rtype: SGField
+        :raises:
+            :RuntimeError: When the current entity does not have a "name" or "code" field.
+        """
+        sg_entity = self._sg.find_one(
+            self._type, [["id", "is", self._id]], ["name", "code"]
+        )
+        if "name" in sg_entity and sg_entity["name"] is not None:
+            return self["name"]
+        elif "code" in sg_entity and sg_entity["code"] is not None:
+            return self["code"]
+        else:
+            raise RuntimeError(
+                "Cannot find a field for the name. "
+                '"{}" entities has neither a "name" nor a "code" field.'
+                "".format(self._type)
+            )
+
     def __eq__(self, other):
         """
         Compare SGEntities against each other.
@@ -104,6 +127,7 @@ class SGEntity(object):
         :param str field: The field to query.
         :return: The value of the field. Any entities will be automatically converted to
                  pyshotgrid objects.
+        :rtype: SGField
         """
         return Field(name=field, entity=self)
 
