@@ -60,9 +60,9 @@ So for example you can :
 * Update fields in ShotGrid
   ```python
   # Set the value of a field ...
-  sg_project["code"].set("foobar")
+  sg_project["name"].set("foobar")
   # ... or set multiple fields at once.
-  sg_project.set({"code": "foobar", "tank_name": "fb"})
+  sg_project.set({"name": "foobar", "tank_name": "fb"})
   ```
 * Values are automatically converted to `pyshotgrid` objects which makes it
   possible to chain queries together.
@@ -71,9 +71,9 @@ So for example you can :
   ```
 * Get information about a field
   ```python
-  print(sg_project["code"].data_type)
-  print(sg_project["code"].description)
-  print(sg_project["code"].display_name)
+  print(sg_project["name"].data_type)
+  print(sg_project["name"].description)
+  print(sg_project["name"].display_name)
   ```
 * Upload/Download to/from a field
   ```python
@@ -88,7 +88,7 @@ So for example you can :
   ```python
   sg_project.to_dict()  # {"type": "Project", "id": 1}
   ```
-* iterate over all fields
+* Iterate over all fields
   ```python
   # Iterate over the fields directly to get some information about them...
   for field, value in sg_project.fields().items():
@@ -96,6 +96,13 @@ So for example you can :
   # ... or iterate over the fields and values at the same time.
   for field_name, value in sg_project.all_field_values().items():
        print(field_name, value)
+  ```
+* You keep forgetting which field is the "name" of an entity? (was it "code" or "name"?)
+  Just use the "SGEntity.name" property:
+  ```python
+  sg_project.name  # returns the "name" field.    Same as sg_project["name"]
+  sg_shot.name     # returns the "code" field.    Same as sg_shot["code"]
+  sg_task.name     # returns the "content" field. Same as sg_task["content"]
   ```
 
 Each SGEntity can have special functionality assigned to it. For example the
