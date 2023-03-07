@@ -74,11 +74,20 @@ class BaseShotGridTest(unittest.TestCase):
             },
         )
 
+        # Pipeline Steps
+        pipeline_step_a = cls.sg.create(
+            "Step",
+            {
+                "code": "Compositing",
+                "short_name": "CMP",
+            },
+        )
+
         # Projects
         project_a = cls.sg.create(
             "Project",
             {
-                "code": "Test Project A",
+                "name": "Test Project A",
                 "tank_name": "tpa",
                 "users": [person_a, person_b, person_c],
             },
@@ -86,7 +95,7 @@ class BaseShotGridTest(unittest.TestCase):
         project_b = cls.sg.create(
             "Project",
             {
-                "code": "Test Project B",
+                "name": "Test Project B",
                 "tank_name": "tpb",
                 "users": [person_a, person_b, person_c],
             },
@@ -102,7 +111,7 @@ class BaseShotGridTest(unittest.TestCase):
         sq222 = cls.sg.create("Sequence", {"code": "sq222", "project": project_a})
 
         # Shots
-        cls.sg.create(
+        shot_a = cls.sg.create(
             "Shot", {"code": "sq111_sh1111", "project": project_a, "sg_sequence": sq111}
         )
         cls.sg.create(
@@ -113,6 +122,18 @@ class BaseShotGridTest(unittest.TestCase):
         )
         cls.sg.create(
             "Shot", {"code": "sq222_sh4444", "project": project_a, "sg_sequence": sq222}
+        )
+
+        # Tasks
+        cls.sg.create(
+            "Task",
+            {
+                "content": "comp",
+                "project": project_a,
+                "entity": shot_a,
+                "step": pipeline_step_a,
+                "task_assignees": [person_a],
+            },
         )
 
         # PublishedFiles
@@ -139,3 +160,6 @@ class BaseShotGridTest(unittest.TestCase):
         cls.sg.create(
             "PipelineConfiguration", {"code": "Develop", "project": project_a}
         )
+
+        # Notes
+        cls.sg.create("Note", {"subject": "Test note"})
