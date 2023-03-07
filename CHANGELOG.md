@@ -1,3 +1,10 @@
+## v0.11.0 (2023-03-07)
+
+### Feat
+
+- **SGEntity**: rename "display_name" to "entity_display_name"
+- **SGEntity**: add "name" property
+
 ## v0.10.0 (2023-01-18)
 
 ### Feat
