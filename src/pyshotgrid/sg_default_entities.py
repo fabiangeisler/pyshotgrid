@@ -2,6 +2,13 @@
 This module collects all default pyshotgrid custom entities.
 """
 import fnmatch
+import typing
+from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
+
+if typing.TYPE_CHECKING:
+    import shotgun_api3  # noqa: F401
+
+    from .field import Field  # noqa: F401
 
 from .core import new_entity
 from .sg_entity import SGEntity
@@ -20,19 +27,19 @@ class SGProject(SGEntity):
     """
 
     def __init__(self, sg, project_id):
+        # type: (shotgun_api3.Shotgun, int) -> None
         """
-        :param shotgun_api3.shotgun.Shotgun sg:
-            A fully initialized instance of shotgun_api3.Shotgun.
-        :param int project_id: The ID of the project entity.
+        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
+        :param project_id: The ID of the project entity.
         """
         super(SGProject, self).__init__(sg, entity_type="Project", entity_id=project_id)
 
     def shots(self, glob_pattern=None):
+        # type: (Optional[str]) -> List[SGShot]
         """
-        :param str|None glob_pattern: A glob to match the shots to return. For example
-                                      `TEST_01_*` would return all shots that start with `TEST_01_`.
+        :param glob_pattern: A glob to match the shots to return. For example
+                             `TEST_01_*` would return all shots that start with `TEST_01_`.
         :return: All the shots from this project.
-        :rtype: list[SGShot]
         """
         sg_shots = self.sg.find("Shot", [["project", "is", self.to_dict()]], ["code"])
         if glob_pattern is not None:
@@ -45,11 +52,11 @@ class SGProject(SGEntity):
             return [new_entity(self._sg, sg_shot) for sg_shot in sg_shots]
 
     def assets(self, glob_pattern=None):
+        # type: (Optional[str]) -> List[SGAsset]
         """
-        :param str|None glob_pattern: A glob to match the assets to return. For example
-                                      `TEST_*` would return all assets that start with `TEST_`.
+        :param glob_pattern: A glob to match the assets to return. For example
+                            `TEST_*` would return all assets that start with `TEST_`.
         :return: All the assets from this project.
-        :rtype: list[SGAsset]
         """
         sg_assets = self.sg.find("Asset", [["project", "is", self.to_dict()]], ["code"])
         if glob_pattern is not None:
@@ -61,10 +68,16 @@ class SGProject(SGEntity):
         else:
             return [new_entity(self._sg, sg_asset) for sg_asset in sg_assets]
 
-    def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
+    def publishes(
+        self,
+        pub_types=None,  # type: Optional[Union[str,List[str]]]
+        latest=False,  # type: bool
+        additional_sg_filter=None,  # type: Optional[List[Any]]
+    ):
+        # type: (...) -> List[Optional[Type[SGEntity]]]
         """
-        :param str|list[str]|None pub_types: The names of the Publish File Types to return.
-        :param bool latest: Whether to get the "latest" publishes or not. This uses the
+        :param pub_types: The names of the Publish File Types to return.
+        :param latest: Whether to get the "latest" publishes or not. This uses the
           same logic as the tk-multi-loader2 app which is as follows:
 
             - group all publishes with the same "name" field together
@@ -73,7 +86,6 @@ class SGProject(SGEntity):
               newest one wins.
         :param additional_sg_filter:
         :return: All published files from this project.
-        :rtype: list[SGPublishedFile]
         """
         return self._publishes(
             base_filter=[["project", "is", self.to_dict()]],
@@ -83,10 +95,10 @@ class SGProject(SGEntity):
         )
 
     def people(self, additional_sg_filter=None):
+        # type: (Optional[List[Any]]) -> List[SGHumanUser]
         """
-        :param list|None additional_sg_filter:
+        :param additional_sg_filter:
         :return: All HumanUsers assigned to this project.
-        :rtype: list[SGHumanUser]
         """
         sg_filter = [["projects", "contains", self.to_dict()]]
         if additional_sg_filter is not None:
@@ -98,9 +110,9 @@ class SGProject(SGEntity):
         ]
 
     def playlists(self):
+        # type: () -> List[SGPlaylist]
         """
         :return: All playlists attached to this project.
-        :rtype: list[SGPlaylist]
         """
         return [
             new_entity(self._sg, sg_playlist)
@@ -123,26 +135,31 @@ class SGShot(SGEntity):
     """
 
     def __init__(self, sg, shot_id):
+        # type: (shotgun_api3.Shotgun, int) -> None
         """
-        :param shotgun_api3.shotgun.Shotgun sg:
-            A fully initialized instance of shotgun_api3.Shotgun.
-        :param int shot_id: The ID of the shot entity.
+        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
+        :param shot_id: The ID of the shot entity.
         """
         super(SGShot, self).__init__(sg, entity_type="Shot", entity_id=shot_id)
 
-    def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
+    def publishes(
+        self,
+        pub_types=None,  # type: Optional[Union[str,List[str]]]
+        latest=False,  # type: bool
+        additional_sg_filter=None,  # type: Optional[List[Any]]
+    ):
+        # type: (...) -> List[Optional[Type[SGEntity]]]
         """
-        :param str|list[str]|None pub_types: The names of the Publish File Types to return.
-        :param bool latest: Whether to get the "latest" publishes or not. This uses the
-                            same logic as the tk-multi-loader2 app which is as follows:
+        :param pub_types: The names of the Publish File Types to return.
+        :param latest: Whether to get the "latest" publishes or not. This uses the
+                       same logic as the tk-multi-loader2 app which is as follows:
 
-                              - group all publishes with the same "name" field together
-                              - from these get the publishes with the highest "version_number" field
-                              - if there are publishes with the same "name" and "version_number" the
-                                newest one wins.
+                         - group all publishes with the same "name" field together
+                         - from these get the publishes with the highest "version_number" field
+                         - if there are publishes with the same "name" and "version_number" the
+                           newest one wins.
         :param additional_sg_filter:
         :return: All published files from this shot.
-        :rtype: list[SGPublishedFile]
         """
         return self._publishes(
             base_filter=[["entity", "is", self.to_dict()]],
@@ -151,13 +168,17 @@ class SGShot(SGEntity):
             additional_sg_filter=additional_sg_filter,
         )
 
-    def tasks(self, names=None, pipeline_step=None):
+    def tasks(
+        self,
+        names=None,  # type: Optional[List[str]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
+    ):
+        # type: (...) -> List[SGTask]
         """
-        :param list[str]|None names: The names of Tasks to return.
-        :param str|dict|SGEntity|None pipeline_step: Name, short name or entity object
-                                                     or the Pipeline Step to filter by.
+        :param names: The names of Tasks to return.
+        :param pipeline_step: Name, short name or entity object
+                              or the Pipeline Step to filter by.
         :returns: A list of Tasks
-        :rtype: list[SGTask]
         """
         sg_filter = [["entity", "is", self.to_dict()]]
 
@@ -205,26 +226,31 @@ class SGAsset(SGEntity):
     """
 
     def __init__(self, sg, asset_id):
+        # type: (shotgun_api3.Shotgun, int) -> None
         """
-        :param shotgun_api3.shotgun.Shotgun sg:
-            A fully initialized instance of shotgun_api3.Shotgun.
-        :param int asset_id: The ID of the Asset entity.
+        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
+        :param asset_id: The ID of the Asset entity.
         """
         super(SGAsset, self).__init__(sg, entity_type="Asset", entity_id=asset_id)
 
-    def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
+    def publishes(
+        self,
+        pub_types=None,  # type: Optional[Union[str,List[str]]]
+        latest=False,  # type: bool
+        additional_sg_filter=None,  # type: Optional[List[Any]]
+    ):
+        # type: (...) -> List[Optional[Type[SGEntity]]]
         """
-        :param str|list[str]|None pub_types: The names of the Publish File Types to return.
-        :param bool latest: Whether to get the "latest" publishes or not. This uses the
-                            same logic as the tk-multi-loader2 app which is as follows:
+        :param pub_types: The names of the Publish File Types to return.
+        :param latest: Whether to get the "latest" publishes or not. This uses the
+                       same logic as the tk-multi-loader2 app which is as follows:
 
-                              - group all publishes with the same "name" field together
-                              - from these get the publishes with the highest "version_number" field
-                              - if there are publishes with the same "name" and "version_number" the
-                                newest one wins.
+                         - group all publishes with the same "name" field together
+                         - from these get the publishes with the highest "version_number" field
+                         - if there are publishes with the same "name" and "version_number" the
+                           newest one wins.
         :param additional_sg_filter:
         :return: All published files from this asset.
-        :rtype: list[SGPublishedFile]
         """
         return self._publishes(
             base_filter=[["entity", "is", self.to_dict()]],
@@ -233,21 +259,31 @@ class SGAsset(SGEntity):
             additional_sg_filter=additional_sg_filter,
         )
 
-    def tasks(self, names=None, pipeline_step=None):
+    def tasks(
+        self,
+        names=None,  # type: Optional[List[str]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
+    ):
+        # type: (...) -> List[SGTask]
         """
-        :param list[str]|None names: The names of Tasks to return.
-        :param str|dict|SGEntity|None pipeline_step: Name, short name or entity object
-                                                     or the Pipeline Step to filter by.
-        :returns: A list of Tasks
-        :rtype: list[SGTask]
+        :param names: The names of Tasks to return.
+        :param pipeline_step: Name, short name or entity object
+                              or the Pipeline Step to filter by.
+        :returns: A list of Tasks.
         """
-        sg_filter = [["entity", "is", self.to_dict()]]
+        sg_filter = [
+            ["entity", "is", self.to_dict()]
+        ]  # type: List[Union[List[Any],Dict[str,Any]]]
 
         if names is not None:
             if len(names) == 1:
-                names_filter = ["code", "is", names[0]]
+                names_filter = [
+                    "code",
+                    "is",
+                    names[0],
+                ]  # type: Union[List[Any],Dict[str,Any]]
             else:
-                names_filter = {"filter_operator": "any", "filters": []}
+                names_filter = {"filter_operator": "any", "filters": list()}
                 for name in names:
                     names_filter["filters"].append(["code", "is", name])
             sg_filter.append(names_filter)
@@ -287,34 +323,39 @@ class SGTask(SGEntity):
     """
 
     def __init__(self, sg, task_id):
+        # type: (shotgun_api3.Shotgun, int) -> None
         """
-        :param shotgun_api3.shotgun.Shotgun sg:
-            A fully initialized instance of shotgun_api3.Shotgun.
-        :param int task_id: The ID of the Task entity.
+        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
+        :param task_id: The ID of the Task entity.
         """
         super(SGTask, self).__init__(sg, entity_type="Task", entity_id=task_id)
 
     @property
     def name(self):
+        # type: () -> Field
         """
         :return: The field that represents the name of the Task.
-        :rtype: SGField
         """
         return self["content"]
 
-    def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
+    def publishes(
+        self,
+        pub_types=None,  # type: Optional[Union[str,List[str]]]
+        latest=False,  # type: bool
+        additional_sg_filter=None,  # type: Optional[List[Any]]
+    ):
+        # type: (...) -> List[Optional[Type[SGEntity]]]
         """
-        :param str|list[str]|None pub_types: The names of the Publish File Types to return.
-        :param bool latest: Whether to get the "latest" publishes or not. This uses the
-                            same logic as the tk-multi-loader2 app which is as follows:
+        :param pub_types: The names of the Publish File Types to return.
+        :param latest: Whether to get the "latest" publishes or not. This uses the
+                       same logic as the tk-multi-loader2 app which is as follows:
 
-                             - group all publishes with the same "name" field together
-                             - from these get the publishes with the highest "version_number" field
-                             - if there are publishes with the same "name" and "version_number" the
-                               newest one wins.
+                        - group all publishes with the same "name" field together
+                        - from these get the publishes with the highest "version_number" field
+                        - if there are publishes with the same "name" and "version_number" the
+                          newest one wins.
         :param additional_sg_filter:
         :return: All published files from this shot.
-        :rtype: list[SGPublishedFile]
         """
         return self._publishes(
             base_filter=[["task", "is", self.to_dict()]],
@@ -337,10 +378,10 @@ class SGPublishedFile(SGEntity):
     """
 
     def __init__(self, sg, published_file_id):
+        # type: (shotgun_api3.Shotgun, int) -> None
         """
-        :param shotgun_api3.shotgun.Shotgun sg:
-            A fully initialized instance of shotgun_api3.Shotgun.
-        :param int published_file_id: The ID of the PublishedFile entity.
+        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
+        :param published_file_id: The ID of the PublishedFile entity.
         """
         super(SGPublishedFile, self).__init__(
             sg, entity_type="PublishedFile", entity_id=published_file_id
@@ -367,10 +408,10 @@ class SGVersion(SGEntity):
     """
 
     def __init__(self, sg, version_id):
+        # type: (shotgun_api3.Shotgun, int) -> None
         """
-        :param shotgun_api3.shotgun.Shotgun sg:
-            A fully initialized instance of shotgun_api3.Shotgun.
-        :param int version_id: The ID of the Version entity.
+        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
+        :param version_id: The ID of the Version entity.
         """
         super(SGVersion, self).__init__(sg, entity_type="Version", entity_id=version_id)
 
@@ -388,10 +429,10 @@ class SGPlaylist(SGEntity):
     """
 
     def __init__(self, sg, playlist_id):
+        # type: (shotgun_api3.Shotgun, int) -> None
         """
-        :param shotgun_api3.shotgun.Shotgun sg:
-            A fully initialized instance of shotgun_api3.Shotgun.
-        :param int playlist_id: The ID of the Playlist entity.
+        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
+        :param playlist_id: The ID of the Playlist entity.
         """
         super(SGPlaylist, self).__init__(
             sg, entity_type="Playlist", entity_id=playlist_id
@@ -399,9 +440,9 @@ class SGPlaylist(SGEntity):
 
     @property
     def media_url(self):
+        # type: () -> str
         """
         :return: The Media center URL for this playlist.
-        :rtype: str
         :raises:
             :RuntimeError: When this playlist is not attached to a project.
         """
@@ -431,16 +472,22 @@ class SGHumanUser(SGEntity):
     """
 
     def __init__(self, sg, human_user_id):
+        # type: (shotgun_api3.Shotgun, int) -> None
         """
-        :param shotgun_api3.shotgun.Shotgun sg:
-            A fully initialized instance of shotgun_api3.Shotgun.
-        :param int human_user_id: The ID of the PublishedFile entity.
+        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
+        :param human_user_id: The ID of the PublishedFile entity.
         """
         super(SGHumanUser, self).__init__(
             sg, entity_type="HumanUser", entity_id=human_user_id
         )
 
-    def tasks(self, names=None, project=None, pipeline_step=None):
+    def tasks(
+        self,
+        names=None,  # type: Optional[List[str]]
+        project=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
+    ):
+        # type: (...) -> List[SGTask]
         """
         :param list[str]|None names: The names of Tasks to return.
         :param str|dict|SGEntity|None project: Name, tank_name or entity object
@@ -506,19 +553,24 @@ class SGHumanUser(SGEntity):
             for sg_task in self._sg.find("Task", sg_filter)
         ]
 
-    def publishes(self, pub_types=None, latest=False, additional_sg_filter=None):
+    def publishes(
+        self,
+        pub_types=None,  # type: Optional[Union[str,List[str]]]
+        latest=False,  # type: bool
+        additional_sg_filter=None,  # type: Optional[List[Any]]
+    ):
+        # type: (...) -> List[Optional[Type[SGEntity]]]
         """
-        :param str|list[str]|None pub_types: The names of the Publish File Types to return.
-        :param bool latest: Whether to get the "latest" publishes or not. This uses the
-                            same logic as the tk-multi-loader2 app which is as follows:
+        :param pub_types: The names of the Publish File Types to return.
+        :param latest: Whether to get the "latest" publishes or not. This uses the
+                       same logic as the tk-multi-loader2 app which is as follows:
 
-                             - group all publishes with the same "name" field together
-                             - from these get the publishes with the highest "version_number" field
-                             - if there are publishes with the same "name" and "version_number" the
-                               newest one wins.
+                        - group all publishes with the same "name" field together
+                        - from these get the publishes with the highest "version_number" field
+                        - if there are publishes with the same "name" and "version_number" the
+                          newest one wins.
         :param additional_sg_filter:
         :return: All published files from this shot.
-        :rtype: list[SGPublishedFile]
         """
         return self._publishes(
             base_filter=[["created_by", "is", self.to_dict()]],

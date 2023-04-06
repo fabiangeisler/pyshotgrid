@@ -4,3 +4,4 @@ build
 Sphinx
 sphinx-rtd-theme
 myst-parser;python_version > "2.7"
+sphinx-autodoc-typehints;python_version > "2.7"

@@ -1,3 +1,11 @@
+import typing
+from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
+
+if typing.TYPE_CHECKING:
+    import shotgun_api3  # noqa: F401
+
+    from .sg_entity import SGEntity  # noqa: F401
+
 from .core import convert_fields_to_dicts, convert_filters_to_dict, new_entity
 from .field import FieldSchema
 
@@ -15,31 +23,31 @@ class SGSite(object):
     """
 
     def __init__(self, sg):
+        # type: (shotgun_api3.shotgun.Shotgun) -> None
         """
-        :param shotgun_api3.shotgun.Shotgun sg:
-            A fully initialized instance of shotgun_api3.Shotgun.
+        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
         """
         self._sg = sg
 
     @property
     def sg(self):
+        # type: () -> shotgun_api3.shotgun.Shotgun
         """
         :return: The Shotgun instance that the entity belongs to.
-        :rtype: shotgun_api3.shotgun.Shotgun
         """
         return self._sg
 
     def create(self, entity_type, data):
+        # type: (str,Dict[str,Any]) -> Optional[Type[SGEntity]]
         """
         The same function as
         :py:meth:`Shotgun.create <shotgun_api3:shotgun_api3.shotgun.Shotgun.create>`,
         but it accepts and returns a pyshotgrid object.
 
-        :param str entity_type: The type of the entity to create.
-        :param dict[str,Any]|None data: dict of fields and values to set on creation.
-                                        The values can contain pysg objects.
+        :param entity_type: The type of the entity to create.
+        :param data: dict of fields and values to set on creation.
+                     The values can contain pysg objects.
         :return: The new created entity.
-        :rtype: SGEntity
         """
         # noinspection PyTypeChecker
         return new_entity(
@@ -53,16 +61,17 @@ class SGSite(object):
 
     def find(
         self,
-        entity_type,
-        filters,
-        order=None,
-        filter_operator=None,
-        limit=0,
-        retired_only=False,
-        page=0,
-        include_archived_projects=True,
-        additional_filter_presets=None,
+        entity_type,  # type: str
+        filters,  # type: List[List[Any]]
+        order=None,  # type: Optional[Dict[str,str]]
+        filter_operator=None,  # type: Optional[str]
+        limit=0,  # type: int
+        retired_only=False,  # type: bool
+        page=0,  # type: int
+        include_archived_projects=True,  # type: bool
+        additional_filter_presets=None,  # type: Optional[str]
     ):
+        # type: (...) -> List[Optional[Type[SGEntity]]]
         """
         The same function as
         :py:meth:`Shotgun.find <shotgun_api3:shotgun_api3.shotgun.Shotgun.find>`, but it
@@ -98,16 +107,17 @@ class SGSite(object):
 
     def find_one(
         self,
-        entity_type,
-        filters,
-        order=None,
-        filter_operator=None,
-        limit=0,
-        retired_only=False,
-        page=0,
-        include_archived_projects=True,
-        additional_filter_presets=None,
+        entity_type,  # type: str
+        filters,  # type: List[List[Any]]
+        order=None,  # type: Optional[Dict[str,str]]
+        filter_operator=None,  # type: Optional[str]
+        limit=0,  # type: int
+        retired_only=False,  # type: bool
+        page=0,  # type: int
+        include_archived_projects=True,  # type: bool
+        additional_filter_presets=None,  # type: Optional[str]
     ):
+        # type: (...) -> Optional[Type[SGEntity]]
         """
         The same function as
         :py:meth:`Shotgun.find_one <shotgun_api3:shotgun_api3.shotgun.Shotgun.find_one>` ,
@@ -127,11 +137,12 @@ class SGSite(object):
         )
         if result:
             return result[0]
+        return None
 
     def entity_field_schemas(self):
+        # type: () -> Dict[str,Dict[str,FieldSchema]]
         """
         :return: The field schemas for all entities of the current ShotGrid Site.
-        :rtype: dict[str,dict[str,FieldSchema]]
         """
         result = {}
         for entity, field_schemas in self._sg.schema_read().items():
@@ -142,28 +153,29 @@ class SGSite(object):
         return result
 
     def project(self, name_or_id):
+        # type: (Union[str,int]) -> Optional[Type[SGEntity]]
         """
-        :param int|str name_or_id: The name or id of the project to return.
-                                   The name can either match the "tank_name" (recommended)
-                                   or the "name" field.
+        :param name_or_id: The name or id of the project to return.
+                           The name can either match the "tank_name" (recommended)
+                           or the "name" field.
         :return: The found SG project or None.
-        :rtype: SGProject|None
         """
         sg_projects = self.projects(names_or_ids=[name_or_id], include_archived=True)
         if sg_projects:
             return sg_projects[0]
+        return None
 
     def projects(
         self, names_or_ids=None, include_archived=False, template_projects=False
     ):
+        # type: (Optional[List[Union[str,int]]],bool,bool) -> List[Type[SGEntity]]
         """
-        :param list[int|str]|None names_or_ids: List of names or ids of the projects to return. The
-                                                names can either match the "tank_name" (recommended)
-                                                or the "name" field.
-        :param bool include_archived: Whether to include archived projects or not.
-        :param bool template_projects: Whether to return template projects or not.
+        :param names_or_ids: List of names or ids of the projects to return. The
+                             names can either match the "tank_name" (recommended)
+                             or the "name" field.
+        :param include_archived: Whether to include archived projects or not.
+        :param template_projects: Whether to return template projects or not.
         :return: A list of SG projects.
-        :rtype: list[SGProject]
         """
         sg_projects = self._sg.find(
             "Project",
@@ -191,13 +203,16 @@ class SGSite(object):
 
         return [new_entity(self._sg, sg_project) for sg_project in sg_projects]
 
-    def pipeline_configuration(self, name_or_id=None, project=None):
+    def pipeline_configuration(
+        self,
+        name_or_id=None,  # type: Optional[Union[str,int]]
+        project=None,  # type: Optional[Union[Dict[str,Any],Type[SGEntity]]]
+    ):
+        # type: (...) -> Optional[Type[SGEntity]]
         """
-        :param int|str|None name_or_id: Name or ID of the PipelineConfiguration.
-        :param dict|SGEntity|None project: The project that the PipelineConfiguration
-                                                 is attached to.
+        :param name_or_id: Name or ID of the PipelineConfiguration.
+        :param project: The project that the PipelineConfiguration is attached to.
         :return: The PipelineConfiguration.
-        :rtype: SGEntity|None
         """
         base_filter = []
         if name_or_id is not None:
@@ -218,12 +233,13 @@ class SGSite(object):
 
         if sg_pipe_config:
             return new_entity(self._sg, sg_pipe_config)
+        return None
 
     def people(self, additional_sg_filter=None):
+        # type: (Optional[List[Dict[str,Any]]]) -> List[Optional[Type[SGEntity]]]
         """
-        :param list|None additional_sg_filter:
+        :param additional_sg_filter:
         :return: All HumanUsers of this ShotGrid site.
-        :rtype: list[SGHumanUser]
         """
         # TODO add "only_active" and "name_or_id" parameter
         return [
