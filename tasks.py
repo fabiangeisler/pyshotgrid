@@ -158,7 +158,7 @@ def mypy(c):
     # In order for mypy to find the pyproject.toml we need to execute it from
     # the root directory.
     with c.cd(ROOT_DIR):
-        c.run(f"mypy {SRC_DIR}")
+        c.run(f"mypy {SRC_DIR} --pretty")
 
 
 @task(pre=[black, ruff, mypy])

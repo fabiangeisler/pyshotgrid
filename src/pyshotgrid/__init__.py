@@ -15,7 +15,8 @@ from .core import (
     register_pysg_class,
     register_sg_site_class,
 )
-from .sg_entity import Field, SGEntity  # noqa: F401
+from .field import Field, FieldSchema  # noqa: F401
+from .sg_entity import SGEntity
 from .sg_site import SGSite
 
 #: The pyshotgrid version number as string

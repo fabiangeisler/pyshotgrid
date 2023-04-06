@@ -38,6 +38,8 @@ extensions = [
     "myst_parser",  # Read markdown files
     "sphinx.ext.intersphinx",  # Link to external documentation
     "sphinx.ext.githubpages",  # Github pages friendly documentaion
+    "sphinx.ext.autodoc",  # Generate type hints from regular Python type annotations
+    "sphinx_autodoc_typehints",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

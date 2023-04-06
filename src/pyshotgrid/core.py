@@ -1,5 +1,5 @@
 import typing
-from typing import Any, Dict, List, Type  # noqa: F401
+from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
 
 import shotgun_api3
 import shotgun_api3.lib.mockgun
@@ -11,12 +11,13 @@ if typing.TYPE_CHECKING:
 #: Entity plugins that are registered to pyshotgrid.
 __ENTITY_PLUGINS = []  # type: List[Dict[str,Any]]
 #: Fallback entity class that is used when no match in the __ENTITY_PLUGINS is found.
-__ENTITY_FALLBACK_CLASS = None  # type: Type[SGEntity]|None
+__ENTITY_FALLBACK_CLASS = None  # type: Optional[Type[SGEntity]]
 #: The class that represents the ShotGrid site.
-__SG_SITE_CLASS = None  # type: Type[SGSite]|None
+__SG_SITE_CLASS = None  # type: Optional[Type[SGSite]]
 
 
 def new_entity(sg, *args, **kwargs):
+    # type: (shotgun_api3.shotgun.Shotgun, Any, Any) -> Optional[Type[SGEntity]]
     """
     Create a new instance of a pyshotgrid class that represents a ShotGrid entity.
     This function is meant to be used as the main way to create new pyshotgrid instances
@@ -33,9 +34,8 @@ def new_entity(sg, *args, **kwargs):
         sg_entity = pyshotgrid.new_entity(sg, 'Project', 1)
         sg_entity = pyshotgrid.new_entity(sg, entity_type='Project', entity_id=1)
 
-    :param shotgun_api3.shotgun.Shotgun sg: A fully initialized Shotgun instance.
+    :param sg: A fully initialized Shotgun instance.
     :return: The pyshotgrid object or None if it could not be converted.
-    :rtype: SGEntity|None
     """
     entity_type = None
     entity_id = None
@@ -63,9 +63,11 @@ def new_entity(sg, *args, **kwargs):
                 return entity_plugin["pysg_class"](sg, entity_id)
         # noinspection PyCallingNonCallable
         return __ENTITY_FALLBACK_CLASS(sg, entity_type, entity_id)
+    return None
 
 
 def new_site(*args, **kwargs):
+    # type: (Any, Any) -> Type[SGSite]
     """
     This function will create a new :py:class:`pyshotgrid.SGSite <pyshotgrid.sg_site.SGSite>`
     instance that represents a ShotGrid site.
@@ -82,7 +84,6 @@ def new_site(*args, **kwargs):
         ...                    api_key='$ome_password')
 
     :return: A new instance of the pyshotgrid site.
-    :rtype: SGSite|None
     """
     if args:
         if isinstance(
@@ -97,6 +98,7 @@ def new_site(*args, **kwargs):
 
 
 def register_pysg_class(shotgrid_type, pysg_class, display_name=None):
+    # type: (str, Type[SGEntity], Optional[str]) -> None
     """
     Register a class for a ShotGrid type to pyshotgrid.
     This is best illustrated as by an example: Suppose you have a custom entity setup where you
@@ -120,10 +122,10 @@ def register_pysg_class(shotgrid_type, pysg_class, display_name=None):
         Registering a class for an existing entity will overwrite the existing entity class.
         This way you can add/overwrite functionality for the classes that are shipped by default.
 
-    :param str shotgrid_type: The ShotGrid entity type to register for.
-    :param class pysg_class: The class to use for this entity type.
-    :param str|None display_name: The display name of the entity type. If this is None, the display
-                                  name will be the same as the shotgrid_type parameter.
+    :param shotgrid_type: The ShotGrid entity type to register for.
+    :param pysg_class: The class to use for this entity type.
+    :param display_name: The display name of the entity type. If this is None, the display
+                         name will be the same as the shotgrid_type parameter.
     """
     global __ENTITY_PLUGINS
 
@@ -137,6 +139,7 @@ def register_pysg_class(shotgrid_type, pysg_class, display_name=None):
 
 
 def register_fallback_pysg_class(pysg_class):
+    # type: (Type[SGEntity]) -> None
     """
     Register a class for shotgrid entities that will be used when none of the specific
     entity classes have a match.
@@ -146,13 +149,14 @@ def register_fallback_pysg_class(pysg_class):
         By default this registers the SGEntity class as fallback, but you can use it to
         overwrite this behaviour.
 
-    :param class pysg_class: The class to use as a fallback.
+    :param pysg_class: The class to use as a fallback.
     """
     global __ENTITY_FALLBACK_CLASS
     __ENTITY_FALLBACK_CLASS = pysg_class
 
 
 def register_sg_site_class(sg_site_class):
+    # type: (Type[SGSite]) -> None
     """
     Register a class that represents the ShotGrid site.
 
@@ -161,45 +165,45 @@ def register_sg_site_class(sg_site_class):
         This defaults to the SGSite class, but you can use it to
         overwrite this behaviour.
 
-    :param class sg_site_class: The class to use as a fallback.
+    :param sg_site_class: The class to use as a fallback.
     """
     global __SG_SITE_CLASS
     __SG_SITE_CLASS = sg_site_class
 
 
 def convert_fields_to_pysg(sg, fields):
+    # type: (shotgun_api3.Shotgun, Dict[str,Any]) -> Dict[str,Any]
     """
     Convert all the values from a fields dict to pysg objects where possible.
 
-    :param shotgun_api3.Shotgun sg: A fully initialized Shotgun instance.
-    :param dict[str,Any] fields: A fields dict as returned from a shotgun_api3.Shotgun.find()
+    :param sg: A fully initialized Shotgun instance.
+    :param fields: A fields dict as returned from a shotgun_api3.Shotgun.find()
                                  call for example.
     :return: The same dict with all values converted to pysg objects where possible.
-    :rtype: dict[str,Any]
     """
     return {field: convert_value_to_pysg(sg, value) for field, value in fields.items()}
 
 
 def convert_fields_to_dicts(fields):
+    # type: (Dict[str,Any]) -> Dict[str,Any]
     """
     Convert all the values from a fields dict to simple dictionaries. The counterpart function
     to `func:_convert_fields_to_pysg`.
 
-    :param dict[str,Any] fields: A fields dict as returned from a shotgun_api3.Shotgun.find()
+    :param fields: A fields dict as returned from a shotgun_api3.Shotgun.find()
                                  call for example.
     :return: The same dict with all pysg objects converted to dictionaries.
-    :rtype: dict[str,Any]
     """
     return {field: convert_value_to_dict(value) for field, value in fields.items()}
 
 
 def convert_value_to_dict(value):
+    # type: (Any) -> Union[Dict[str,Any],List[Dict[str,Any]]]
     """
     Convert any pysg objects form the given value to simple dictionaries.
 
-    :param Any value: A field value
+    :param value: A field value
     :return: The value with all pysg objects converted to dictionaries.
-    :rtype: dict[str,Any]
     """
     if isinstance(value, list):
         tmp = []
@@ -216,6 +220,7 @@ def convert_value_to_dict(value):
 
 
 def convert_filters_to_dict(filters):
+    # type: (List[List[Any]]) -> List[List[Any]]
     """
     Convert any pysg objects form the given shotgun_api3 filter to simple dictionaries.
 
@@ -225,9 +230,8 @@ def convert_filters_to_dict(filters):
         >>> convert_filters_to_dict([['user', 'is', person]])
         [['user', 'is', {'type': 'HumanUser', 'id': 5}]]
 
-    :param list[list] filters: The filters to convert
+    :param filters: The filters to convert
     :return: The filter with all pysg objects converted to dictionaries.
-    :rtype: list[list]
     """
     for f in filters:
         if isinstance(f[2], list):
@@ -245,13 +249,13 @@ def convert_filters_to_dict(filters):
 
 
 def convert_value_to_pysg(sg, value):
+    # type: (shotgun_api3.Shotgun,Any) -> Any
     """
     Convert the value from a field to pysg object(s) where possible.
 
-    :param shotgun_api3.Shotgun sg: A fully initialized Shotgun instance.
-    :param Any value: A field value
+    :param sg: A fully initialized Shotgun instance.
+    :param value: A field value
     :return: The value converted to pysg object(s) where possible.
-    :rtype: Any
     """
     if isinstance(value, list):
         return [new_entity(sg, entity) for entity in value]

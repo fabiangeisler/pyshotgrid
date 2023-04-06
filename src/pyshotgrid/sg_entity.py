@@ -1,3 +1,11 @@
+import typing
+from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
+
+if typing.TYPE_CHECKING:
+    import shotgun_api3  # noqa: F401
+
+    from .sg_site import SGSite  # noqa: F401
+
 from .core import convert_fields_to_dicts, convert_fields_to_pysg, new_entity, new_site
 from .field import Field, FieldSchema
 
@@ -15,55 +23,57 @@ class SGEntity(object):
     """
 
     def __init__(self, sg, entity_type, entity_id):
+        # type: (shotgun_api3.shotgun.Shotgun, str, int) -> None
         """
-        :param shotgun_api3.shotgun.Shotgun sg:
-            A fully initialized instance of shotgun_api3.Shotgun.
-        :param str entity_type: The ShotGrid type of the entity.
-        :param int entity_id: The ID of the ShotGrid entity.
+        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
+        :param entity_type: The ShotGrid type of the entity.
+        :param entity_id: The ID of the ShotGrid entity.
         """
         self._sg = sg  # :type: shotgun_api3.shotgun.Shotgun
         self._type = entity_type
         self._id = entity_id
 
     def __str__(self):
+        # type: () -> str
         return "{} - Type: {} - ID: {} - URL: {}".format(
             self.__class__.__name__, self._type, self._id, self.url
         )
 
     @property
     def id(self):
+        # type: () -> int
         """
         :return: The ID of the ShotGrid entity.
-        :rtype: int
         """
         return self._id
 
     @property
     def type(self):
+        # type: () -> str
         """
         :return: The type of the ShotGrid entity.
-        :rtype: str
         """
         return self._type
 
     @property
     def sg(self):
+        # type: () -> shotgun_api3.shotgun.Shotgun
         """
         :return: The Shotgun instance that the entity belongs to.
-        :rtype: shotgun_api3.shotgun.Shotgun
         """
         return self._sg
 
     @property
     def site(self):
+        # type: () -> Type[SGSite]
         """
         :return: The pyshotgrid site for this entity.
-        :rtype: SGSite
         """
         return new_site(self._sg)
 
     @property
     def url(self):
+        # type: () -> str
         """
         :return: The ShotGrid URL for this entity.
 
@@ -71,16 +81,15 @@ class SGEntity(object):
 
                This will only work on entities that have a detail view enabled
                in the system settings.
-        :rtype: str
         """
         return "{}/detail/{}/{}".format(self.sg.base_url, self._type, self._id)
 
     @property
     def name(self):
+        # type: () -> Field
         """
         :return: The field that represents the name of the entity.
                  Usually either the "code" or "name" field.
-        :rtype: SGField
         :raises:
             :RuntimeError: When the current entity does not have a "name" or "code" field.
         """
@@ -99,6 +108,7 @@ class SGEntity(object):
             )
 
     def __eq__(self, other):
+        # type: (Any) -> bool
         """
         Compare SGEntities against each other.
         We consider the entities equal if all these are true:
@@ -107,9 +117,8 @@ class SGEntity(object):
           - the entity types match
           - the base URL of the Shotgun instances is the same.
 
-        :param Any other: The other python object to compare to.
+        :param other: The other python object to compare to.
         :return: Whether the 2 instances represent the same entity in ShotGrid.
-        :rtype: bool
         """
         return all(
             (
@@ -121,22 +130,22 @@ class SGEntity(object):
         )
 
     def __getitem__(self, field):
+        # type: (str) -> Field
         """
         Enabling dict notation to query fields of the entity from ShotGrid.
 
-        :param str field: The field to query.
+        :param field: The field to query.
         :return: The value of the field. Any entities will be automatically converted to
                  pyshotgrid objects.
-        :rtype: SGField
         """
         return Field(name=field, entity=self)
 
     def fields(self, project_entity=None):
+        # type: (Union[Dict[str,Any],SGEntity,None]) -> List[Field]
         """
-        :param dict[str,Any]|SGEntity|None project_entity: A project entity to filter by.
+        :param project_entity: A project entity to filter by.
         :return: All fields from this entity. If a project entity is given
                  only fields that are visible to the project are returned.
-        :rtype: list[Field]
         """
         if project_entity is not None and not isinstance(project_entity, dict):
             project_entity = project_entity.to_dict()
@@ -153,12 +162,12 @@ class SGEntity(object):
         return [Field(name=field, entity=self) for field in fields]
 
     def all_field_values(self, project_entity=None, raw_values=False):
+        # type: (Optional[Union[Dict[str,Any],SGEntity]],bool) -> Dict[str,Any]
         """
-        :param dict[str,Any]|SGEntity project_entity: A project entity to filter by.
-        :param bool raw_values: Whether to convert entities to pysg objects or not.
+        :param project_entity: A project entity to filter by.
+        :param raw_values: Whether to convert entities to pysg objects or not.
         :return: All fields and values from this entity in a dict. If a project entity is given
                  only fields that are visible to the project are returned.
-        :rtype: dict[str,Any]
         """
         if project_entity is not None and not isinstance(project_entity, dict):
             project_entity = project_entity.to_dict()
@@ -179,6 +188,7 @@ class SGEntity(object):
             return convert_fields_to_pysg(self._sg, all_fields)
 
     def to_dict(self):
+        # type: () -> Dict[str,Any]
         # noinspection PyUnresolvedReferences
         """
         Creates a dict with just "type" and "id" (and does not call SG).
@@ -189,17 +199,15 @@ class SGEntity(object):
             {'type': 'CustomEntity01', 'id': 1}
 
         :returns: The entity as a dict which is ready to consume by the shotgun_api3 methods.
-
-        :rtype: dict[str,Any]
         """
         return {"id": self._id, "type": self._type}
 
     def batch_update_dict(self, data):
+        # type: (Dict[str,Any]) -> Dict[str,Any]
         """
-        :param dict[str,Any] data: A dict with the fields and values to set.
+        :param data: A dict with the fields and values to set.
         :returns: A dict that can be used in a shotgun.batch() call to update some fields.
                   Useful when you want to collect field changes and set them in one go.
-        :rtype: dict[str,Any]
         """
         return {
             "request_type": "update",
@@ -209,11 +217,12 @@ class SGEntity(object):
         }
 
     def set(self, data, multi_entity_update_modes=None):
+        # type: (Dict[str,Any],Optional[Dict[str,Any]]) -> Dict[str,Any]
         """
         Set many fields at once on this entity.
 
-        :param dict[str,Any] data: A dict with the fields and values to set.
-        :param dict multi_entity_update_modes: Optional dict indicating what update mode to use
+        :param data: A dict with the fields and values to set.
+        :param multi_entity_update_modes: Optional dict indicating what update mode to use
             when updating a multi-entity link field. The keys in the dict are the fields to set
             the mode for, and the values from the dict are one of ``set``, ``add``, or ``remove``.
             Defaults to ``set``.
@@ -222,6 +231,7 @@ class SGEntity(object):
                 multi_entity_update_modes={"shots": "add", "assets": "remove"}
         :return:
         """
+        # TODO: Needs to return SGEntities?
         return self.sg.update(
             self._type,
             self._id,
@@ -230,14 +240,14 @@ class SGEntity(object):
         )
 
     def get(self, fields, raw_values=False):
+        # type: (List[str],bool) -> Dict[str,Any]
         """
         Set many fields at once on this entity.
 
-        :param list[str] fields: A list of fields to query from this entity.
-        :param bool raw_values: Any entities will be converted to pyshotgrid instances.
+        :param fields: A list of fields to query from this entity.
+        :param raw_values: Any entities will be converted to pyshotgrid instances.
                                 If you set this parameter to True you can turn this behaviour off.
         :return: A dict with the fields and their corresponding values.
-        :rtype: dict[str,Any]
         """
         sg_fields = self.sg.find_one(self._type, [["id", "is", self._id]], fields)
 
@@ -250,6 +260,7 @@ class SGEntity(object):
             return convert_fields_to_pysg(self._sg, sg_fields)
 
     def delete(self):
+        # type: () -> bool
         """
         Delete this entity.
 
@@ -259,29 +270,28 @@ class SGEntity(object):
             ran this method and will create errors if you keep calling functions on it.
 
         :return: Whether the entity was successfully deleted.
-        :rtype: bool
         """
         return self._sg.delete(self._type, self._id)
 
     @property
     def entity_display_name(self):
+        # type: () -> str
         """
         :return: The display name of the current entity type.
-        :rtype: str
         """
         return self.schema()["name"]["value"]
 
     def schema(self):
+        # type: () -> Dict[str,Dict[str,Any]]
         """
         :return: The schema for the current entity.
-        :rtype: dict
         """
         return self.sg.schema_entity_read()[self._type]
 
     def field_schemas(self):
+        # type: () -> Dict[str,FieldSchema]
         """
         :return: The schemas of all the entity fields.
-        :rtype: dict[str,FieldSchema]
         """
         return {
             field: FieldSchema(self._sg, self._type, field)
@@ -289,8 +299,13 @@ class SGEntity(object):
         }
 
     def _publishes(
-        self, base_filter=None, pub_types=None, latest=False, additional_sg_filter=None
+        self,
+        base_filter=None,  # type: Optional[List[Any]]
+        pub_types=None,  # type: Optional[Union[str,List[str]]]
+        latest=False,  # type: bool
+        additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
+        # type: (...) -> List[Optional[Type[SGEntity]]]
         """
         This function is meant as a base for a "publishes" function on a sub class. Publishes
         are stored in different fields for each entity and not every entity has a published file.
@@ -298,21 +313,20 @@ class SGEntity(object):
 
         :param base_filter: The basic sg filter to get the publishes that are associated with
                             this entity.
-        :param str|list[str]|None pub_types: The names of the Publish File Types to return.
-        :param bool latest: Whether to get the "latest" publishes or not. This uses the
-                            same logic as the tk-multi-loader2 app which is as follows:
-                             - group all publishes with the same "name" field together
-                             - from these get the publishes with the highest "version_number" field
-                             - if there are publishes with the same "name" and "version_number" the
-                               newest one wins.
+        :param pub_types: The names of the Publish File Types to return.
+        :param latest: Whether to get the "latest" publishes or not. This uses the
+                       same logic as the tk-multi-loader2 app which is as follows:
+                        - group all publishes with the same "name" field together
+                        - from these get the publishes with the highest "version_number" field
+                        - if there are publishes with the same "name" and "version_number" the
+                          newest one wins.
         :param additional_sg_filter:
         :return: All published files from this shot.
-        :rtype: list[SGPublishedFile]
         """
         base_filter = base_filter or []
         if pub_types is not None:
             if isinstance(pub_types, list):
-                pub_types_filter = {"filter_operator": "any", "filters": []}
+                pub_types_filter = {"filter_operator": "any", "filters": list()}
                 for pub_type in pub_types:
                     pub_types_filter["filters"].append(
                         ["published_file_type.PublishedFileType.code", "is", pub_type]
@@ -333,7 +347,7 @@ class SGEntity(object):
         )
         if latest:
             # group publishes by "name"
-            tmp = {}
+            tmp = {}  # type: Dict[str,List[SGEntity]]
             for sg_publish in sg_publishes:
                 if sg_publish["name"] in tmp:
                     tmp[sg_publish["name"]].append(sg_publish)
