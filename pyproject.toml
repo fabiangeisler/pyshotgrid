@@ -69,6 +69,12 @@ deps =
 commands = nose2 -v --with-coverage --coverage ./src --coverage-report term
 """
 
+[tool.mypy]
+python_version = "2.7"
+strict = true
+warn_return_any = false
+pretty = true
+
 [[tool.mypy.overrides]]
 module = [
     "shotgun_api3.*",
