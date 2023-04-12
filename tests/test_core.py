@@ -94,6 +94,18 @@ class TestCoreConvertFunctions(BaseShotGridTest):
         )
 
 
+class SGNote(pysg.SGEntity):
+    """
+    Test class.
+    """
+
+
+class CustomSGProject(pysg.sg_default_entities.SGProject):
+    """
+    Test class from default SGEntity.
+    """
+
+
 class TestCoreNewFunctions(BaseShotGridTest):
     @classmethod
     def setUpClass(cls):
@@ -101,9 +113,36 @@ class TestCoreNewFunctions(BaseShotGridTest):
 
         cls.add_default_entities()
 
+    def setUp(self):
+        pysg.core.__ENTITY_PLUGINS = {}
+
     def test_new_entity(self):
         sg_entity_a = pysg.new_entity(self.sg, {"type": "Project", "id": 1})
         sg_entity_b = pysg.new_entity(self.sg, "Project", 1)
         sg_entity_c = pysg.new_entity(self.sg, entity_type="Project", entity_id=1)
 
         self.assertTrue(sg_entity_a == sg_entity_b == sg_entity_c)
+
+    def test_new_entity__raises_error_on_wrong_inputs(self):
+        with self.assertRaises(ValueError):
+            pysg.new_entity(self.sg, 123)
+
+    def test_register_pysg_class__add_custom_sg_class(self):
+        pysg.register_pysg_class("Note", SGNote)
+        sg_entity_a = pysg.new_entity(self.sg, {"type": "Note", "id": 1})
+
+        result = sg_entity_a.__class__
+
+        self.assertTrue(SGNote == result)
+
+    def test_register_pysg_class__overwrite_default_sg_class(self):
+        pysg.register_pysg_class("Project", CustomSGProject)
+        sg_entity_a = pysg.new_entity(self.sg, {"type": "Project", "id": 1})
+
+        result = sg_entity_a.__class__
+
+        self.assertTrue(CustomSGProject == result)
+
+    def test_register_pysg_class__errors_on_invalid_class(self):
+        with self.assertRaises(TypeError):
+            pysg.register_pysg_class("Project", str)  # type: ignore

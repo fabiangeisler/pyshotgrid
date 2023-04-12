@@ -14,7 +14,7 @@ class TestSGProject(BaseShotGridTest):
         cls.add_default_entities()
 
     def test_shots(self):
-        sg_project = sde.SGProject(self.sg, 1)
+        sg_project = sde.SGProject(self.sg, "Project", 1)
 
         result = sg_project.shots()
 
@@ -22,7 +22,7 @@ class TestSGProject(BaseShotGridTest):
         self.assertTrue(isinstance(result[0], sde.SGShot))
 
     def test_shots_glob(self):
-        sg_project = sde.SGProject(self.sg, 1)
+        sg_project = sde.SGProject(self.sg, "Project", 1)
 
         result = sg_project.shots("sq111_*")
 
@@ -31,7 +31,7 @@ class TestSGProject(BaseShotGridTest):
         self.assertEqual("sq111_sh2222", result[1]["code"].get())
 
     def test_assets(self):
-        sg_project = sde.SGProject(self.sg, 1)
+        sg_project = sde.SGProject(self.sg, "Project", 1)
 
         result = sg_project.assets()
 
@@ -39,7 +39,7 @@ class TestSGProject(BaseShotGridTest):
         self.assertTrue(isinstance(result[0], sde.SGAsset))
 
     def test_assets_glob(self):
-        sg_project = sde.SGProject(self.sg, 1)
+        sg_project = sde.SGProject(self.sg, "Project", 1)
 
         result = sg_project.assets("Car*")
 
@@ -48,7 +48,7 @@ class TestSGProject(BaseShotGridTest):
         self.assertEqual("CarB", result[1]["code"].get())
 
     def test_playlists(self):
-        sg_project = sde.SGProject(self.sg, 1)
+        sg_project = sde.SGProject(self.sg, "Project", 1)
 
         result = sg_project.playlists()
 
