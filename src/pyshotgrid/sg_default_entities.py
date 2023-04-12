@@ -8,10 +8,9 @@ from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
 if typing.TYPE_CHECKING:
     import shotgun_api3  # noqa: F401
 
-    from .field import Field  # noqa: F401
+    from .core import Field  # noqa: F401
 
-from .core import new_entity
-from .sg_entity import SGEntity
+from .core import SGEntity, new_entity
 
 
 class SGProject(SGEntity):
@@ -26,16 +25,8 @@ class SGProject(SGEntity):
         entity class to work with.
     """
 
-    def __init__(self, sg, project_id):
-        # type: (shotgun_api3.Shotgun, int) -> None
-        """
-        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
-        :param project_id: The ID of the project entity.
-        """
-        super(SGProject, self).__init__(sg, entity_type="Project", entity_id=project_id)
-
     def shots(self, glob_pattern=None):
-        # type: (Optional[str]) -> List[SGShot]
+        # type: (Optional[str]) -> List[Union[Type[SGEntity], SGEntity]]
         """
         :param glob_pattern: A glob to match the shots to return. For example
                              `TEST_01_*` would return all shots that start with `TEST_01_`.
@@ -52,7 +43,7 @@ class SGProject(SGEntity):
             return [new_entity(self._sg, sg_shot) for sg_shot in sg_shots]
 
     def assets(self, glob_pattern=None):
-        # type: (Optional[str]) -> List[SGAsset]
+        # type: (Optional[str]) -> List[Union[Type[SGEntity], SGEntity]]
         """
         :param glob_pattern: A glob to match the assets to return. For example
                             `TEST_*` would return all assets that start with `TEST_`.
@@ -74,7 +65,7 @@ class SGProject(SGEntity):
         latest=False,  # type: bool
         additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
-        # type: (...) -> List[Optional[Type[SGEntity]]]
+        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -95,7 +86,7 @@ class SGProject(SGEntity):
         )
 
     def people(self, additional_sg_filter=None):
-        # type: (Optional[List[Any]]) -> List[SGHumanUser]
+        # type: (Optional[List[Any]]) -> List[Union[Type[SGEntity], SGEntity]]
         """
         :param additional_sg_filter:
         :return: All HumanUsers assigned to this project.
@@ -110,7 +101,7 @@ class SGProject(SGEntity):
         ]
 
     def playlists(self):
-        # type: () -> List[SGPlaylist]
+        # type: () -> List[Union[Type[SGEntity], SGEntity]]
         """
         :return: All playlists attached to this project.
         """
@@ -134,21 +125,13 @@ class SGShot(SGEntity):
         entity class to work with.
     """
 
-    def __init__(self, sg, shot_id):
-        # type: (shotgun_api3.Shotgun, int) -> None
-        """
-        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
-        :param shot_id: The ID of the shot entity.
-        """
-        super(SGShot, self).__init__(sg, entity_type="Shot", entity_id=shot_id)
-
     def publishes(
         self,
         pub_types=None,  # type: Optional[Union[str,List[str]]]
         latest=False,  # type: bool
         additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
-        # type: (...) -> List[Optional[Type[SGEntity]]]
+        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -173,18 +156,24 @@ class SGShot(SGEntity):
         names=None,  # type: Optional[List[str]]
         pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
     ):
-        # type: (...) -> List[SGTask]
+        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
         """
         :param names: The names of Tasks to return.
         :param pipeline_step: Name, short name or entity object
                               or the Pipeline Step to filter by.
         :returns: A list of Tasks
         """
-        sg_filter = [["entity", "is", self.to_dict()]]
+        sg_filter = [
+            ["entity", "is", self.to_dict()]
+        ]  # type: List[Union[List[Any],Dict[str,Any]]]
 
         if names is not None:
             if len(names) == 1:
-                names_filter = ["code", "is", names[0]]
+                names_filter = [
+                    "code",
+                    "is",
+                    names[0],
+                ]  # type: Union[List[Any],Dict[str,Any]]
             else:
                 names_filter = {"filter_operator": "any", "filters": []}
                 for name in names:
@@ -225,21 +214,13 @@ class SGAsset(SGEntity):
         entity class to work with.
     """
 
-    def __init__(self, sg, asset_id):
-        # type: (shotgun_api3.Shotgun, int) -> None
-        """
-        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
-        :param asset_id: The ID of the Asset entity.
-        """
-        super(SGAsset, self).__init__(sg, entity_type="Asset", entity_id=asset_id)
-
     def publishes(
         self,
         pub_types=None,  # type: Optional[Union[str,List[str]]]
         latest=False,  # type: bool
         additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
-        # type: (...) -> List[Optional[Type[SGEntity]]]
+        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -264,7 +245,7 @@ class SGAsset(SGEntity):
         names=None,  # type: Optional[List[str]]
         pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
     ):
-        # type: (...) -> List[SGTask]
+        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
         """
         :param names: The names of Tasks to return.
         :param pipeline_step: Name, short name or entity object
@@ -322,14 +303,6 @@ class SGTask(SGEntity):
         entity class to work with.
     """
 
-    def __init__(self, sg, task_id):
-        # type: (shotgun_api3.Shotgun, int) -> None
-        """
-        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
-        :param task_id: The ID of the Task entity.
-        """
-        super(SGTask, self).__init__(sg, entity_type="Task", entity_id=task_id)
-
     @property
     def name(self):
         # type: () -> Field
@@ -344,7 +317,7 @@ class SGTask(SGEntity):
         latest=False,  # type: bool
         additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
-        # type: (...) -> List[Optional[Type[SGEntity]]]
+        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -377,16 +350,6 @@ class SGPublishedFile(SGEntity):
         entity class to work with.
     """
 
-    def __init__(self, sg, published_file_id):
-        # type: (shotgun_api3.Shotgun, int) -> None
-        """
-        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
-        :param published_file_id: The ID of the PublishedFile entity.
-        """
-        super(SGPublishedFile, self).__init__(
-            sg, entity_type="PublishedFile", entity_id=published_file_id
-        )
-
     # TODO is_latest
     # TODO get_first_publish
     # TODO get_previous_publishes
@@ -407,14 +370,6 @@ class SGVersion(SGEntity):
         entity class to work with.
     """
 
-    def __init__(self, sg, version_id):
-        # type: (shotgun_api3.Shotgun, int) -> None
-        """
-        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
-        :param version_id: The ID of the Version entity.
-        """
-        super(SGVersion, self).__init__(sg, entity_type="Version", entity_id=version_id)
-
 
 class SGPlaylist(SGEntity):
     """
@@ -427,16 +382,6 @@ class SGPlaylist(SGEntity):
         method instead. This will make sure that you always get the correct
         entity class to work with.
     """
-
-    def __init__(self, sg, playlist_id):
-        # type: (shotgun_api3.Shotgun, int) -> None
-        """
-        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
-        :param playlist_id: The ID of the Playlist entity.
-        """
-        super(SGPlaylist, self).__init__(
-            sg, entity_type="Playlist", entity_id=playlist_id
-        )
 
     @property
     def media_url(self):
@@ -471,23 +416,13 @@ class SGHumanUser(SGEntity):
         entity class to work with.
     """
 
-    def __init__(self, sg, human_user_id):
-        # type: (shotgun_api3.Shotgun, int) -> None
-        """
-        :param sg: A fully initialized instance of shotgun_api3.Shotgun.
-        :param human_user_id: The ID of the PublishedFile entity.
-        """
-        super(SGHumanUser, self).__init__(
-            sg, entity_type="HumanUser", entity_id=human_user_id
-        )
-
     def tasks(
         self,
         names=None,  # type: Optional[List[str]]
         project=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
         pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
     ):
-        # type: (...) -> List[SGTask]
+        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
         """
         :param list[str]|None names: The names of Tasks to return.
         :param str|dict|SGEntity|None project: Name, tank_name or entity object
@@ -505,11 +440,15 @@ class SGHumanUser(SGEntity):
                     ["task_assignees.Group.users", "contains", self.to_dict()],
                 ],
             }
-        ]
+        ]  # type: List[Union[List[Any],Dict[str,Any]]]
 
         if names is not None:
             if len(names) == 1:
-                names_filter = ["code", "is", names[0]]
+                names_filter = [
+                    "code",
+                    "is",
+                    names[0],
+                ]  # type: Union[List[Any],Dict[str,Any]]
             else:
                 names_filter = {"filter_operator": "any", "filters": []}
                 for name in names:
@@ -521,7 +460,7 @@ class SGHumanUser(SGEntity):
                 sg_filter.append(["project", "is", project])
             elif isinstance(project, SGEntity):
                 sg_filter.append(["project", "is", project.to_dict()])
-            else:
+            elif isinstance(project, str):
                 sg_filter.append(
                     {
                         "filter_operator": "any",
@@ -531,13 +470,18 @@ class SGHumanUser(SGEntity):
                         ],
                     }
                 )
+            else:
+                raise TypeError(
+                    'The "project" parameter needs to be one of '
+                    "type str, dict, SGEntity or None."
+                )
 
         if pipeline_step is not None:
             if isinstance(pipeline_step, dict):
                 sg_filter.append(["step", "is", pipeline_step])
             elif isinstance(pipeline_step, SGEntity):
                 sg_filter.append(["step", "is", pipeline_step.to_dict()])
-            else:
+            elif isinstance(pipeline_step, str):
                 sg_filter.append(
                     {
                         "filter_operator": "any",
@@ -546,6 +490,11 @@ class SGHumanUser(SGEntity):
                             ["step.Step.short_name", "is", pipeline_step],
                         ],
                     }
+                )
+            else:
+                raise TypeError(
+                    'The "pipeline_step" parameter needs to be one of '
+                    "type str, dict, SGEntity or None."
                 )
 
         return [
@@ -559,7 +508,7 @@ class SGHumanUser(SGEntity):
         latest=False,  # type: bool
         additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
-        # type: (...) -> List[Optional[Type[SGEntity]]]
+        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the

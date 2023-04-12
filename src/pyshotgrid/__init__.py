@@ -9,21 +9,19 @@ Use it like::
 
 from . import sg_default_entities as sde
 from .core import (
+    Field,  # noqa: F401
+    FieldSchema,  # noqa: F401
+    SGEntity,  # noqa: F401
+    SGSite,  # noqa: F401
     new_entity,  # noqa: F401
     new_site,  # noqa: F401
-    register_fallback_pysg_class,
     register_pysg_class,
-    register_sg_site_class,
+    register_sg_site_class,  # noqa: F401
 )
-from .field import Field, FieldSchema  # noqa: F401
-from .sg_entity import SGEntity
-from .sg_site import SGSite
 
 #: The pyshotgrid version number as string
 VERSION = "0.11.0"
 
-register_sg_site_class(SGSite)
-register_fallback_pysg_class(SGEntity)
 # Register default pysg plugins
 register_pysg_class("Project", sde.SGProject)
 register_pysg_class("Shot", sde.SGShot)
