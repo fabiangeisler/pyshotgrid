@@ -233,7 +233,7 @@ class TestSGEntity(BaseShotGridTest):
 
     def test_compare_entities(self):
         sg_entity_a = pysg.SGEntity(self.sg, "Project", 1)
-        sg_entity_b = pysg.sg_default_entities.SGProject(self.sg, 1)
+        sg_entity_b = pysg.sg_default_entities.SGProject(self.sg, "Project", 1)
 
         result = sg_entity_a == sg_entity_b
 

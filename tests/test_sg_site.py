@@ -1,6 +1,5 @@
 """Tests for `pyshotgrid` SGSite class."""
 import pyshotgrid as pysg
-import pyshotgrid.field
 import pyshotgrid.sg_default_entities as sde
 
 from .testbase import BaseShotGridTest
@@ -60,6 +59,4 @@ class TestSGSite(BaseShotGridTest):
 
         result = sg_site.entity_field_schemas()
 
-        self.assertTrue(
-            isinstance(result["Project"]["code"], pyshotgrid.field.FieldSchema)
-        )
+        self.assertTrue(isinstance(result["Project"]["code"], pysg.FieldSchema))
