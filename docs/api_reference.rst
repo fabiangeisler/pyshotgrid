@@ -11,7 +11,4 @@ API Reference
    :caption: Modules:
 
    modules/core
-   modules/field
    modules/sg_default_entities
-   modules/sg_entity
-   modules/sg_site
