@@ -19,6 +19,3 @@ repos:
   hooks:
     - id: ruff
       # Respect `exclude` and `extend-exclude` settings.
-      pass_filenames: false
-      files: '^src/'
-      args: ["src", "tests", "--force-exclude"]
