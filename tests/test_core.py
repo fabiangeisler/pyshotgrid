@@ -94,18 +94,6 @@ class TestCoreConvertFunctions(BaseShotGridTest):
         )
 
 
-class SGNote(pysg.SGEntity):
-    """
-    Test class.
-    """
-
-
-class CustomSGProject(pysg.sg_default_entities.SGProject):
-    """
-    Test class from default SGEntity.
-    """
-
-
 class TestCoreNewFunctions(BaseShotGridTest):
     @classmethod
     def setUpClass(cls):
@@ -127,6 +115,37 @@ class TestCoreNewFunctions(BaseShotGridTest):
         with self.assertRaises(ValueError):
             pysg.new_entity(self.sg, 123)
 
+    def test_new_site(self):
+        sg_site_a = pysg.new_site(self.sg)
+
+        self.assertTrue(isinstance(sg_site_a, pysg.SGSite))
+
+
+class SGNote(pysg.SGEntity):
+    """
+    Test SGEntity class.
+    """
+
+
+class CustomSGProject(pysg.sg_default_entities.SGProject):
+    """
+    Test class from default SGEntity.
+    """
+
+
+class CustomSGSite(pysg.SGSite):
+    """
+    Test SGSite class.
+    """
+
+
+class TestCorePluginFunctions(BaseShotGridTest):
+    @classmethod
+    def setUpClass(cls):
+        super(TestCorePluginFunctions, cls).setUpClass()
+
+        cls.add_default_entities()
+
     def test_register_pysg_class__add_custom_sg_class(self):
         pysg.register_pysg_class("Note", SGNote)
         sg_entity_a = pysg.new_entity(self.sg, {"type": "Note", "id": 1})
@@ -146,3 +165,15 @@ class TestCoreNewFunctions(BaseShotGridTest):
     def test_register_pysg_class__errors_on_invalid_class(self):
         with self.assertRaises(TypeError):
             pysg.register_pysg_class("Project", str)  # type: ignore
+
+    def test_register_sg_site_class__add_custom_class(self):
+        pysg.register_sg_site_class(CustomSGSite)
+        sg_entity_a = pysg.new_site(self.sg)
+
+        result = sg_entity_a.__class__
+
+        self.assertTrue(CustomSGSite == result)
+
+    def test_register_sg_site_class__errors_on_invalid_class(self):
+        with self.assertRaises(TypeError):
+            pysg.register_sg_site_class(str)  # type: ignore
