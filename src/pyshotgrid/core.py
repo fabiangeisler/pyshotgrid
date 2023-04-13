@@ -60,7 +60,7 @@ class SGEntity(object):
 
     @property
     def site(self):
-        # type: () -> Union[Type[SGSite], SGSite]
+        # type: () -> SGSite
         """
         :return: The pyshotgrid site for this entity.
         """
@@ -298,7 +298,7 @@ class SGEntity(object):
         latest=False,  # type: bool
         additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
-        # type: (...) ->  List[Union[Type[SGEntity], SGEntity]]
+        # type: (...) ->  List[SGEntity]
         """
         This function is meant as a base for a "publishes" function on a sub class. Publishes
         are stored in different fields for each entity and not every entity has a published file.
@@ -427,7 +427,7 @@ class SGSite(object):
         include_archived_projects=True,  # type: bool
         additional_filter_presets=None,  # type: Optional[str]
     ):
-        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (...) -> List[SGEntity]
         """
         The same function as
         :py:meth:`Shotgun.find <shotgun_api3:shotgun_api3.shotgun.Shotgun.find>`, but it
@@ -473,7 +473,7 @@ class SGSite(object):
         include_archived_projects=True,  # type: bool
         additional_filter_presets=None,  # type: Optional[str]
     ):
-        # type: (...) -> Optional[Union[Type[SGEntity], SGEntity]]
+        # type: (...) -> Optional[SGEntity]
         """
         The same function as
         :py:meth:`Shotgun.find_one <shotgun_api3:shotgun_api3.shotgun.Shotgun.find_one>` ,
@@ -508,7 +508,7 @@ class SGSite(object):
         return result
 
     def project(self, name_or_id):
-        # type: (Union[str,int]) -> Optional[Union[Type[SGEntity], SGEntity]]
+        # type: (Union[str,int]) -> Optional[SGEntity]
         """
         :param name_or_id: The name or id of the project to return.
                            The name can either match the "tank_name" (recommended)
@@ -523,7 +523,7 @@ class SGSite(object):
     def projects(
         self, names_or_ids=None, include_archived=False, template_projects=False
     ):
-        # type: (Optional[List[Union[str,int]]],bool,bool) ->  List[Union[Type[SGEntity], SGEntity]]
+        # type: (Optional[List[Union[str,int]]],bool,bool) ->  List[SGEntity]
         """
         :param names_or_ids: List of names or ids of the projects to return. The
                              names can either match the "tank_name" (recommended)
@@ -561,9 +561,9 @@ class SGSite(object):
     def pipeline_configuration(
         self,
         name_or_id=None,  # type: Optional[Union[str,int]]
-        project=None,  # type: Optional[Union[Dict[str,Any],Type[SGEntity]]]
+        project=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
     ):
-        # type: (...) ->  Optional[Union[Type[SGEntity], SGEntity]]
+        # type: (...) ->  Optional[SGEntity]
         """
         :param name_or_id: Name or ID of the PipelineConfiguration.
         :param project: The project that the PipelineConfiguration is attached to.
@@ -595,7 +595,7 @@ class SGSite(object):
         return None
 
     def people(self, additional_sg_filter=None):
-        # type: (Optional[List[Dict[str,Any]]]) ->  List[Union[Type[SGEntity], SGEntity]]
+        # type: (Optional[List[Dict[str,Any]]]) ->  List[SGEntity]
         """
         :param additional_sg_filter:
         :return: All HumanUsers of this ShotGrid site.
@@ -708,7 +708,7 @@ class Field(object):
         )
 
     def upload(self, path, display_name=None):
-        # type: (str, Optional[str]) -> Union[Type[SGEntity],SGEntity]
+        # type: (str, Optional[str]) -> SGEntity
         """
         Upload a file to this field.
 
