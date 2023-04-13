@@ -115,9 +115,8 @@ class SGEntity(object):
         :param other: The other python object to compare to.
         :return: Whether the 2 instances represent the same entity in ShotGrid.
         """
-        return all(
+        return isinstance(other, SGEntity) and all(
             (
-                isinstance(other, SGEntity),
                 self._id == other.id,
                 self._type == other.type,
                 self._sg.base_url == other.sg.base_url,
