@@ -1,3 +1,14 @@
+## v0.12.0 (2023-04-13)
+
+### Feat
+
+- **SGSite**: Make SGSite comparable
+- **all**: Refactor pysg for maximum mypy compilance
+
+### Fix
+
+- **SGSite**: Fix comparison against other types
+
 ## v0.11.0 (2023-03-07)
 
 ### Feat
