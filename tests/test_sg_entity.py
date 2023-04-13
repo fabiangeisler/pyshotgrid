@@ -267,3 +267,10 @@ class TestSGEntity(BaseShotGridTest):
         result = sg_entity_a != sg_entity_b
 
         self.assertTrue(result)
+
+    def test_compare_entities__not_a_sg_entity(self):
+        sg_entity_a = pysg.SGEntity(self.sg, "Project", 1)
+
+        result = sg_entity_a != 1
+
+        self.assertTrue(result)
