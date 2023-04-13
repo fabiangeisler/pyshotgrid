@@ -393,8 +393,21 @@ class SGSite(object):
         """
         return self._sg
 
+    def __eq__(self, other):
+        # type: (Any) -> bool
+        """
+        Compare SGSites against each other.
+        We consider the Site equal if all these are true:
+          - the other instance is a (sub-)class of SGSite
+          - the base URL of the Shotgun instances is the same.
+
+        :param other: The other python object to compare to.
+        :return: Whether the 2 instances represent the same ShotGrid site.
+        """
+        return isinstance(other, SGSite) and self._sg.base_url == other.sg.base_url
+
     def create(self, entity_type, data):
-        # type: (str,Dict[str,Any]) ->  Union[Type[SGEntity], SGEntity]
+        # type: (str,Dict[str,Any]) -> SGEntity
         """
         The same function as
         :py:meth:`Shotgun.create <shotgun_api3:shotgun_api3.shotgun.Shotgun.create>`,
