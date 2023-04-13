@@ -1,4 +1,6 @@
 """Tests for `pyshotgrid` SGSite class."""
+from shotgun_api3.lib import mockgun
+
 import pyshotgrid as pysg
 import pyshotgrid.sg_default_entities as sde
 
@@ -60,3 +62,31 @@ class TestSGSite(BaseShotGridTest):
         result = sg_site.entity_field_schemas()
 
         self.assertTrue(isinstance(result["Project"]["code"], pysg.FieldSchema))
+
+    def test_comparison(self):
+        sg_site_a = pysg.SGSite(self.sg)
+        sg_site_b = pysg.SGSite(self.sg)
+
+        result = sg_site_a == sg_site_b
+
+        self.assertTrue(result)
+
+    def test_comparison__inequality(self):
+        sg_site_a = pysg.SGSite(self.sg)
+        other_sg = mockgun.Shotgun(
+            base_url="https://other.shotgunstudio.com",
+            script_name="Unittest User",
+            api_key="$ome_password",
+        )
+        sg_site_b = pysg.SGSite(other_sg)
+
+        result = sg_site_a != sg_site_b
+
+        self.assertTrue(result)
+
+    def test_comparison__wrong_type(self):
+        sg_site_a = pysg.SGSite(self.sg)
+
+        result = sg_site_a != 1
+
+        self.assertTrue(result)
