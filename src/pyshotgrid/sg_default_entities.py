@@ -26,7 +26,7 @@ class SGProject(SGEntity):
     """
 
     def shots(self, glob_pattern=None):
-        # type: (Optional[str]) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (Optional[str]) -> List[SGEntity]
         """
         :param glob_pattern: A glob to match the shots to return. For example
                              `TEST_01_*` would return all shots that start with `TEST_01_`.
@@ -43,7 +43,7 @@ class SGProject(SGEntity):
             return [new_entity(self._sg, sg_shot) for sg_shot in sg_shots]
 
     def assets(self, glob_pattern=None):
-        # type: (Optional[str]) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (Optional[str]) -> List[SGEntity]
         """
         :param glob_pattern: A glob to match the assets to return. For example
                             `TEST_*` would return all assets that start with `TEST_`.
@@ -65,7 +65,7 @@ class SGProject(SGEntity):
         latest=False,  # type: bool
         additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
-        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (...) -> List[SGEntity]
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -86,7 +86,7 @@ class SGProject(SGEntity):
         )
 
     def people(self, additional_sg_filter=None):
-        # type: (Optional[List[Any]]) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (Optional[List[Any]]) -> List[SGEntity]
         """
         :param additional_sg_filter:
         :return: All HumanUsers assigned to this project.
@@ -101,7 +101,7 @@ class SGProject(SGEntity):
         ]
 
     def playlists(self):
-        # type: () -> List[Union[Type[SGEntity], SGEntity]]
+        # type: () -> List[SGEntity]
         """
         :return: All playlists attached to this project.
         """
@@ -131,7 +131,7 @@ class SGShot(SGEntity):
         latest=False,  # type: bool
         additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
-        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (...) -> List[SGEntity]
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -154,9 +154,9 @@ class SGShot(SGEntity):
     def tasks(
         self,
         names=None,  # type: Optional[List[str]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
     ):
-        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (...) -> List[SGEntity]
         """
         :param names: The names of Tasks to return.
         :param pipeline_step: Name, short name or entity object
@@ -220,7 +220,7 @@ class SGAsset(SGEntity):
         latest=False,  # type: bool
         additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
-        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (...) -> List[SGEntity]
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -243,9 +243,9 @@ class SGAsset(SGEntity):
     def tasks(
         self,
         names=None,  # type: Optional[List[str]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
     ):
-        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (...) -> List[SGEntity]
         """
         :param names: The names of Tasks to return.
         :param pipeline_step: Name, short name or entity object
@@ -317,7 +317,7 @@ class SGTask(SGEntity):
         latest=False,  # type: bool
         additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
-        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (...) -> List[SGEntity]
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -419,10 +419,10 @@ class SGHumanUser(SGEntity):
     def tasks(
         self,
         names=None,  # type: Optional[List[str]]
-        project=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],Type[SGEntity]]]
+        project=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
     ):
-        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (...) -> List[SGEntity]
         """
         :param list[str]|None names: The names of Tasks to return.
         :param str|dict|SGEntity|None project: Name, tank_name or entity object
@@ -508,7 +508,7 @@ class SGHumanUser(SGEntity):
         latest=False,  # type: bool
         additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
-        # type: (...) -> List[Union[Type[SGEntity], SGEntity]]
+        # type: (...) -> List[SGEntity]
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
