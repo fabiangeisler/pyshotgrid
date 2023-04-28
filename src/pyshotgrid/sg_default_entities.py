@@ -350,12 +350,61 @@ class SGPublishedFile(SGEntity):
         entity class to work with.
     """
 
-    # TODO is_latest
-    # TODO get_first_publish
-    # TODO get_previous_publishes
-    # TODO get_next_publishes
-    # TODO get_latest_publish
-    # TODO get_all_publish_versions
+    def is_latest(self):
+        # type: () -> bool
+        """
+        :return: Whether this published file is the latest of its kind.
+        """
+        return self.get_latest_publish() == self
+
+    def get_latest_publish(self):
+        # type: () -> SGEntity
+        """
+        :return: The latest published file of its kind (which might be this same entity).
+        """
+        return self.get_all_publishes()[-1]
+
+    def get_next_publishes(self):
+        # type: () -> List[SGEntity]
+        """
+        :return: The next publishes after this publish.
+        """
+        all_publishes = self.get_all_publishes()
+        index = all_publishes.index(self)
+        return all_publishes[index + 1 :]
+
+    def get_previous_publishes(self):
+        # type: () -> List[SGEntity]
+        """
+        :return: The previous publishes before this publish.
+        """
+        all_publishes = self.get_all_publishes()
+        index = all_publishes.index(self)
+        return all_publishes[:index]
+
+    def get_all_publishes(self):
+        # type: () -> List[SGEntity]
+        """
+        :return: A list of all the published file versions from lowest to highest version number.
+        """
+        this_publish = self.get(
+            ["entity", "published_file_type", "name"], raw_values=True
+        )
+        sg_publishes = self.sg.find(
+            "PublishedFile",
+            [
+                ["entity", "is", this_publish["entity"]],
+                ["published_file_type", "is", this_publish["published_file_type"]],
+                ["name", "is", this_publish["name"]],
+            ],
+            ["name", "version_number", "created_at"],
+        )
+
+        # sort them by date and than by version_number which sorts the latest publish to the
+        # last position.
+        sg_publishes.sort(key=lambda pub: (pub["created_at"], pub["version_number"]))
+
+        return [new_entity(self._sg, sg_publish) for sg_publish in sg_publishes]
 
 
 class SGVersion(SGEntity):
