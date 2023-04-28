@@ -23,8 +23,6 @@ class TestSGEntity(BaseShotGridTest):
     def setUpClass(cls):
         super(TestSGEntity, cls).setUpClass()
 
-        cls.add_default_entities()
-
     def test_string_representation(self):
         sg_entity = pysg.SGEntity(self.sg, "Project", 1)
 

@@ -14,8 +14,6 @@ class TestSGSite(BaseShotGridTest):
     def setUpClass(cls):
         super(TestSGSite, cls).setUpClass()
 
-        cls.add_default_entities()
-
     def test_people(self):
         sg_site = pysg.SGSite(self.sg)
 
