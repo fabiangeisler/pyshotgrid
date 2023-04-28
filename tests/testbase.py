@@ -75,11 +75,18 @@ class BaseShotGridTest(unittest.TestCase):
         )
 
         # Pipeline Steps
-        pipeline_step_a = cls.sg.create(
+        pipeline_step_cmp = cls.sg.create(
             "Step",
             {
                 "code": "Compositing",
                 "short_name": "CMP",
+            },
+        )
+        pipeline_step_lgt = cls.sg.create(
+            "Step",
+            {
+                "code": "Lighting",
+                "short_name": "LGT",
             },
         )
 
@@ -125,27 +132,66 @@ class BaseShotGridTest(unittest.TestCase):
         )
 
         # Tasks
-        cls.sg.create(
+        task_a = cls.sg.create(
             "Task",
             {
                 "content": "comp",
                 "project": project_a,
                 "entity": shot_a,
-                "step": pipeline_step_a,
+                "step": pipeline_step_cmp,
                 "task_assignees": [person_a],
             },
         )
-
-        # PublishedFiles
-        cls.sg.create(
-            "PublishedFile",
+        task_b = cls.sg.create(
+            "Task",
             {
-                "code": "0010_v001.%04d.exr",
+                "content": "lighting",
                 "project": project_a,
-                "path_cache": "tp/sequences/0010_v001.%04d.exr",
-                "path_cache_storage": local_storage,
+                "entity": shot_a,
+                "step": pipeline_step_lgt,
+                "task_assignees": [person_b],
             },
         )
+
+        # PublishedFileTypes
+        pub_type_alembic = cls.sg.create("PublishedFileType", {"code": "Alembic Cache"})
+        pub_type_render = cls.sg.create("PublishedFileType", {"code": "Rendered Image"})
+
+        # PublishedFiles
+        for i in range(1, 6):
+            cls.sg.create(
+                "PublishedFile",
+                {
+                    "code": "sh1111_city_v{:03d}.%04d.exr".format(i),
+                    "name": "sh1111_city",
+                    "version_number": i,
+                    "published_file_type": pub_type_render,
+                    "project": project_a,
+                    "task": task_a,
+                    "entity": shot_a,
+                    "path_cache": "tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(
+                        i
+                    ),
+                    "path_cache_storage": local_storage,
+                },
+            )
+        for i in range(1, 6):
+            cls.sg.create(
+                "PublishedFile",
+                {
+                    "code": "sh1111_city_v{:03d}.abc".format(i),
+                    "name": "sh1111_city",
+                    "version_number": i,
+                    "published_file_type": pub_type_alembic,
+                    "project": project_a,
+                    "task": task_b,
+                    "entity": shot_a,
+                    "path_cache": "tp/sequences/sq111/sh1111_city_v{:03d}.abc".format(
+                        i
+                    ),
+                    "path_cache_storage": local_storage,
+                },
+            )
 
         # Playlists
         cls.sg.create("Playlist", {"code": "Playlist A", "project": project_a})
