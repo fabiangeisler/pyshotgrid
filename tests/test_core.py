@@ -10,8 +10,6 @@ class TestCoreConvertFunctions(BaseShotGridTest):
     def setUpClass(cls):
         super(TestCoreConvertFunctions, cls).setUpClass()
 
-        cls.add_default_entities()
-
     def test_convert_filters_to_dict(self):
         person = pysg.SGEntity(self.sg, entity_type="HumanUser", entity_id=2)
 
@@ -99,8 +97,6 @@ class TestCoreNewFunctions(BaseShotGridTest):
     def setUpClass(cls):
         super(TestCoreNewFunctions, cls).setUpClass()
 
-        cls.add_default_entities()
-
     def setUp(self):
         pysg.core.__ENTITY_PLUGINS = {}
 
@@ -143,8 +139,6 @@ class TestCorePluginFunctions(BaseShotGridTest):
     @classmethod
     def setUpClass(cls):
         super(TestCorePluginFunctions, cls).setUpClass()
-
-        cls.add_default_entities()
 
     def test_register_pysg_class__add_custom_sg_class(self):
         pysg.register_pysg_class("Note", SGNote)

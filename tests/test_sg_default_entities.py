@@ -5,13 +5,11 @@ from .testbase import BaseShotGridTest
 
 
 class TestSGProject(BaseShotGridTest):
-    """Tests for `pyshotgrid` package."""
+    """Tests for `SGProject` class."""
 
     @classmethod
     def setUpClass(cls):
         super(TestSGProject, cls).setUpClass()
-
-        cls.add_default_entities()
 
     def test_shots(self):
         sg_project = sde.SGProject(self.sg, "Project", 1)

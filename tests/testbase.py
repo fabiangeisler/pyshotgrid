@@ -29,6 +29,8 @@ class BaseShotGridTest(unittest.TestCase):
             api_key="$ome_password",
         )
 
+        cls.add_default_entities()
+
     @classmethod
     def add_default_entities(cls):
         # HumanUsers
