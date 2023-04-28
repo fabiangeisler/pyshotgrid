@@ -52,3 +52,69 @@ class TestSGProject(BaseShotGridTest):
 
         self.assertEqual(1, len(result))
         self.assertTrue(isinstance(result[0], sde.SGPlaylist))
+
+
+class TestSGPublishedFile(BaseShotGridTest):
+    """Tests for `SGPublishedFile` class."""
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestSGPublishedFile, cls).setUpClass()
+
+    def test_is_latest__false(self):
+        sg_publish = sde.SGPublishedFile(self.sg, "PublishedFile", 1)
+
+        result = sg_publish.is_latest()
+
+        self.assertFalse(result)
+
+    def test_is_latest__true(self):
+        sg_publish = sde.SGPublishedFile(self.sg, "PublishedFile", 5)
+
+        result = sg_publish.is_latest()
+
+        self.assertTrue(result)
+
+    def test_get_latest_publish__is_already_latest(self):
+        sg_publish = sde.SGPublishedFile(self.sg, "PublishedFile", 5)
+
+        result = sg_publish.get_latest_publish()
+
+        self.assertEqual(sg_publish, result)
+
+    def test_get_latest_publish(self):
+        sg_publish = sde.SGPublishedFile(self.sg, "PublishedFile", 1)
+        latest_sg_publish = sde.SGPublishedFile(self.sg, "PublishedFile", 5)
+
+        result = sg_publish.get_latest_publish()
+
+        self.assertEqual(latest_sg_publish, result)
+
+    def test_get_all_publishes(self):
+        sg_publishes = [
+            sde.SGPublishedFile(self.sg, "PublishedFile", i) for i in range(1, 6)
+        ]
+
+        result = sg_publishes[0].get_all_publishes()
+
+        self.assertEqual(sg_publishes, result)
+
+    def test_get_next_publishes(self):
+        sg_publish = sde.SGPublishedFile(self.sg, "PublishedFile", 3)
+        result_sg_publishes = [
+            sde.SGPublishedFile(self.sg, "PublishedFile", i) for i in range(4, 6)
+        ]
+
+        result = sg_publish.get_next_publishes()
+
+        self.assertEqual(result_sg_publishes, result)
+
+    def test_get_previous_publishes(self):
+        sg_publish = sde.SGPublishedFile(self.sg, "PublishedFile", 3)
+        result_sg_publishes = [
+            sde.SGPublishedFile(self.sg, "PublishedFile", i) for i in range(1, 3)
+        ]
+
+        result = sg_publish.get_previous_publishes()
+
+        self.assertEqual(result_sg_publishes, result)
