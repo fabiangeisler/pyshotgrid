@@ -10,10 +10,6 @@ from .testbase import BaseShotGridTest
 class TestSGSite(BaseShotGridTest):
     """Tests for `pyshotgrid` package."""
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestSGSite, cls).setUpClass()
-
     def test_people(self):
         sg_site = pysg.SGSite(self.sg)
 

@@ -17,12 +17,6 @@ from .testbase import BaseShotGridTest
 
 
 class TestSGEntity(BaseShotGridTest):
-    """Tests for `pyshotgrid` package."""
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestSGEntity, cls).setUpClass()
-
     def test_string_representation(self):
         sg_entity = pysg.SGEntity(self.sg, "Project", 1)
 
