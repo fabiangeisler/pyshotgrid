@@ -1,3 +1,9 @@
+## v0.13.0 (2023-04-29)
+
+### Feat
+
+- **SGPublishedFile**: add methods to query publish versions
+
 ## v0.12.0 (2023-04-13)
 
 ### Feat
