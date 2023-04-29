@@ -6,10 +6,6 @@ from .testbase import BaseShotGridTest
 
 
 class TestCoreConvertFunctions(BaseShotGridTest):
-    @classmethod
-    def setUpClass(cls):
-        super(TestCoreConvertFunctions, cls).setUpClass()
-
     def test_convert_filters_to_dict(self):
         person = pysg.SGEntity(self.sg, entity_type="HumanUser", entity_id=2)
 
@@ -93,10 +89,6 @@ class TestCoreConvertFunctions(BaseShotGridTest):
 
 
 class TestCoreNewFunctions(BaseShotGridTest):
-    @classmethod
-    def setUpClass(cls):
-        super(TestCoreNewFunctions, cls).setUpClass()
-
     def setUp(self):
         pysg.core.__ENTITY_PLUGINS = {}
 
@@ -136,10 +128,6 @@ class CustomSGSite(pysg.SGSite):
 
 
 class TestCorePluginFunctions(BaseShotGridTest):
-    @classmethod
-    def setUpClass(cls):
-        super(TestCorePluginFunctions, cls).setUpClass()
-
     def test_register_pysg_class__add_custom_sg_class(self):
         pysg.register_pysg_class("Note", SGNote)
         sg_entity_a = pysg.new_entity(self.sg, {"type": "Note", "id": 1})

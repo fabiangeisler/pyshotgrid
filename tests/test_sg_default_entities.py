@@ -7,10 +7,6 @@ from .testbase import BaseShotGridTest
 class TestSGProject(BaseShotGridTest):
     """Tests for `SGProject` class."""
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestSGProject, cls).setUpClass()
-
     def test_shots(self):
         sg_project = sde.SGProject(self.sg, "Project", 1)
 
@@ -56,10 +52,6 @@ class TestSGProject(BaseShotGridTest):
 
 class TestSGPublishedFile(BaseShotGridTest):
     """Tests for `SGPublishedFile` class."""
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestSGPublishedFile, cls).setUpClass()
 
     def test_is_latest__false(self):
         sg_publish = sde.SGPublishedFile(self.sg, "PublishedFile", 1)
