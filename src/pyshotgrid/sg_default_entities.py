@@ -5,7 +5,7 @@ import fnmatch
 import typing
 from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     import shotgun_api3  # noqa: F401
 
     from .core import Field  # noqa: F401

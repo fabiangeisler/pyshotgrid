@@ -357,7 +357,7 @@ class SGEntity(object):
         )
         if latest:
             # group publishes by "name"
-            tmp = {}  # type: Dict[str,List[SGEntity]]
+            tmp = {}  # type: Dict[str,List[Dict[str,Any]]]
             for sg_publish in sg_publishes:
                 if sg_publish["name"] in tmp:
                     tmp[sg_publish["name"]].append(sg_publish)
