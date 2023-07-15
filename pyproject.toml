@@ -11,15 +11,13 @@ description = "A pythonic and object oriented way to talk to Autodesk ShotGrid."
 readme.file = "README.md"
 readme.content-type = "text/markdown"
 license.text="MIT"
-requires-python = ">=2.7"
+requires-python = ">=3.7"
 keywords = ['shotgrid']
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
-    "Programming Language :: Python :: 2",
-    "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
@@ -41,15 +39,19 @@ where = ["src"]
 [tool.setuptools.dynamic]
 version = {attr = "pyshotgrid.VERSION"}
 
+[tool.pytest.ini_options]
+pythonpath = "src"
+testpaths = "tests/"
+addopts = "--cov=pyshotgrid"
+
 [tool.tox]
 legacy_tox_ini = """
 [tox]
 skip_missing_interpreters = true
-envlist = py27, py37, py38, py39, py310
+envlist = py37, py38, py39, py310
 
 [gh-actions]
 python =
-    2.7: py27
     3.7: py37
     3.8: py38
     3.9: py39
@@ -66,11 +68,11 @@ commands=
 [testenv]
 deps =
     -rrequirements.txt
-commands = nose2 -v --with-coverage --coverage ./src --coverage-report term
+commands = pytest
 """
 
 [tool.mypy]
-python_version = "2.7"
+python_version = "3.7"
 strict = true
 warn_return_any = false
 pretty = true
@@ -94,6 +96,7 @@ version_files = [
 
 [tool.ruff]
 line-length = 100
+exclude = ["tasks.py"]
 select = [
     "E",  # pycodestyle
     "W",

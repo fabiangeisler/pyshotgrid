@@ -1,13 +1,13 @@
 git+https://github.com/shotgunsoftware/python-api.git@v3.3.1
-commitizen;python_version > "2.7"
+commitizen
 wheel
 build
 twine
-ruff;python_version > "2.7"
-invoke;python_version > "2.7"
-black;python_version > "2.7"
-pre-commit;python_version > "2.7"
-coverage
-nose2
+ruff
+mypy
+invoke
+black
+pre-commit
+pytest-cov
+pytest
 tox
-mock==3.0.5;python_version < "3.6"

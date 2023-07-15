@@ -21,6 +21,8 @@ DOC_DIR = ROOT_DIR / "docs"
 DOCS_BUILD_DIR = DOC_DIR / "_builds"
 DOCS_INDEX = DOCS_BUILD_DIR / "index.html"
 
+COVERAGE_INDEX = ROOT_DIR / "htmlcov" / "index.html"
+
 BUILD_FROM = ROOT_DIR / "."
 DIST_SOURCE = ROOT_DIR / "dist" / "*"
 
@@ -112,7 +114,7 @@ def _clean_ruff():
         _finder(ROOT_DIR, pattern)
 
 
-@task
+@task()
 def clean(c):
     """Removes all test, build, log and lint artifacts from the environment."""
     _clean_mypy()
@@ -183,6 +185,18 @@ def tox(c, env=""):
 
 
 @task(
+    aliases=("cov",),
+    help={
+        "open_browser": "Open the docs in the web browser",
+    },
+)
+def coverage(c, open_browser=False):
+    c.run("pytest --cov-report html --cov-report term", warn=True)
+    if open_browser:
+        webbrowser.open(str(COVERAGE_INDEX))
+
+
+@task(
     help={
         "open_browser": "Open the docs in the web browser",
     },
@@ -195,7 +209,7 @@ def docs(c, open_browser=False):
         webbrowser.open(str(DOCS_INDEX))
 
 
-@task
+@task()
 def build(c):
     """Creates a new sdist & wheel build using the PyPI tool."""
     _clean_build()
@@ -217,16 +231,16 @@ def pypi(c):
     c.run(f'python -m twine upload "{DIST_SOURCE}"')
 
 
+@task()
+def pre_commit_update(c):
+    """Updates the pre-commit development environment"""
+    c.run("pre-commit clean")
+    c.run("pre-commit gc")
+    c.run("pre-commit autoupdate")
+
+
 # @task
 # def psr(c):
 #     """Runs semantic-release publish."""
 #     _clean_build()
 #     c.run("semantic-release publish")
-
-
-# @task
-# def update(c):
-#     """Updates the development environment"""
-#     c.run("pre-commit clean")
-#     c.run("pre-commit gc")
-#     c.run("pre-commit autoupdate")
