@@ -34,6 +34,8 @@ Here is an example python script to illustrate what you have to do:
         An instance of this class represents a single Episode entity in ShotGrid.
         """
 
+        DEFAULT_SG_ENTITY_TYPE = 'CustomProjectEntity01'
+
         # This is an example implementation of how to retrieve shots from an episode.
         def shots(self, glob_pattern=None):
             """
@@ -63,6 +65,8 @@ Here is an example python script to illustrate what you have to do:
         Custom extension of the default SGProject class to provide additional functionality.
         """
 
+        DEFAULT_SG_ENTITY_TYPE = 'Project'
+
         def episodes(self):
             """
             :return: All episodes of this project.
@@ -76,11 +80,11 @@ Here is an example python script to illustrate what you have to do:
     # To let pyshotgrid know about your custom classes you need to register them like so:
     # This will let pyshotgrid return a SGEpisode instance whenever it encounters
     # a "CustomProjectEntity01" entity.
-    pysg.register_pysg_class('CustomProjectEntity01', SGEpisode)
+    pysg.register_pysg_class(SGEpisode)
 
     # This will let pyshotgrid return a CustomSGProject instance whenever it encounters
     # "Project" entity and therefore we overwrite the default behaviour for all new Project instances.
-    pysg.register_pysg_class('Project', CustomSGProject)
+    pysg.register_pysg_class(CustomSGProject)
 
 
     # Here is a small example of the above implementations.

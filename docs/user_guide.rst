@@ -23,9 +23,9 @@ The method accepts 3 ways of passing arguments to it:
     import pyshotgrid as pysg
 
     # These 3 lines all do the same thing: Initializing an entity instance of the Project with ID 1.
-    sg_project = pysg.new_entity(sg, {'type': 'Project', 'id': 1})
-    sg_project = pysg.new_entity(sg, 'Project', 1)
-    sg_project = pysg.new_entity(sg, entity_type='Project', entity_id=1)
+    sg_project = pysg.new_entity(sg, {'id': 1, 'type': 'Project'})
+    sg_project = pysg.new_entity(sg, 1, 'Project')
+    sg_project = pysg.new_entity(sg, entity_id=1, entity_type='Project')
 
 
 Using `pyshotgrid` in a standalone application
