@@ -374,11 +374,95 @@ class SGEntity(object):
                 result.append(publishes[-1])
 
             # Sort one more time by name.
-            result.sort(key=lambda pub: pub["name"].get())
+            result.sort(key=lambda pub: pub["name"])
 
             sg_publishes = result
 
         return [new_entity(self._sg, sg_publish) for sg_publish in sg_publishes]
+
+    def _tasks(
+        self,
+        names=None,  # type: Optional[List[str]]
+        entity=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
+        assignee=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
+    ):
+        # type: (...) -> List[SGEntity]
+        """
+        :param names: The names of Tasks to return.
+        :param entity: entity to filter by eg. (Shot, Asset, Project,...).
+        :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
+        :returns: A list of Tasks
+        """
+        sg_filter = []  # type: List[Union[List[Any],Dict[str,Any]]]
+
+        if assignee is not None:
+            if isinstance(assignee, SGEntity):
+                assignee = assignee.to_dict()
+            sg_filter.append(
+                {
+                    "filter_operator": "any",
+                    "filters": [
+                        ["task_assignees", "is", assignee],
+                        ["task_assignees.Group.users", "is", assignee],
+                    ],
+                }
+            )
+
+        if names is not None:
+            if len(names) == 1:
+                names_filter = [
+                    "content",
+                    "is",
+                    names[0],
+                ]  # type: Union[List[Any],Dict[str,Any]]
+            else:
+                names_filter = {"filter_operator": "any", "filters": []}
+                for name in names:
+                    names_filter["filters"].append(["content", "is", name])
+            sg_filter.append(names_filter)
+
+        if entity is not None:
+            if isinstance(entity, dict):
+                entity_dict = entity
+            elif isinstance(entity, SGEntity):
+                entity_dict = entity.to_dict()
+            else:
+                raise TypeError(
+                    'The "entity" parameter needs to be one of '
+                    "type dict, SGEntity or None."
+                )
+
+            if entity_dict["type"] == "Project":
+                sg_filter.append(["project", "is", entity_dict])
+            else:
+                sg_filter.append(["entity", "is", entity_dict])
+
+        if pipeline_step is not None:
+            if isinstance(pipeline_step, dict):
+                sg_filter.append(["step", "is", pipeline_step])
+            elif isinstance(pipeline_step, SGEntity):
+                sg_filter.append(["step", "is", pipeline_step.to_dict()])
+            elif isinstance(pipeline_step, str):
+                sg_filter.append(
+                    {
+                        "filter_operator": "any",
+                        "filters": [
+                            ["step.Step.code", "is", pipeline_step],
+                            ["step.Step.short_name", "is", pipeline_step],
+                        ],
+                    }
+                )
+            else:
+                raise TypeError(
+                    'The "pipeline_step" parameter needs to be one of '
+                    "type str, dict, SGEntity or None."
+                )
+
+        return [
+            new_entity(self._sg, sg_task)
+            for sg_task in self._sg.find("Task", sg_filter)
+        ]
 
 
 class SGSite(object):

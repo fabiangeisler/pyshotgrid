@@ -158,52 +158,23 @@ class SGShot(SGEntity):
     def tasks(
         self,
         names=None,  # type: Optional[List[str]]
+        assignee=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
         pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
     ):
         # type: (...) -> List[SGEntity]
         """
         :param names: The names of Tasks to return.
+        :param assignee: The assignee of the Tasks to return.
         :param pipeline_step: Name, short name or entity object
                               or the Pipeline Step to filter by.
-        :returns: A list of Tasks
+        :returns: A list of Tasks.
         """
-        sg_filter = [
-            ["entity", "is", self.to_dict()]
-        ]  # type: List[Union[List[Any],Dict[str,Any]]]
-
-        if names is not None:
-            if len(names) == 1:
-                names_filter = [
-                    "code",
-                    "is",
-                    names[0],
-                ]  # type: Union[List[Any],Dict[str,Any]]
-            else:
-                names_filter = {"filter_operator": "any", "filters": []}
-                for name in names:
-                    names_filter["filters"].append(["code", "is", name])
-            sg_filter.append(names_filter)
-
-        if pipeline_step is not None:
-            if isinstance(pipeline_step, dict):
-                sg_filter.append(["step", "is", pipeline_step])
-            elif isinstance(pipeline_step, SGEntity):
-                sg_filter.append(["step", "is", pipeline_step.to_dict()])
-            else:
-                sg_filter.append(
-                    {
-                        "filter_operator": "any",
-                        "filters": [
-                            ["step.Step.code", "is", pipeline_step],
-                            ["step.Step.short_name", "is", pipeline_step],
-                        ],
-                    }
-                )
-
-        return [
-            new_entity(self._sg, sg_task)
-            for sg_task in self._sg.find("Task", sg_filter)
-        ]
+        return self._tasks(
+            names=names,
+            entity=self.to_dict(),
+            assignee=assignee,
+            pipeline_step=pipeline_step,
+        )
 
 
 class SGAsset(SGEntity):
@@ -249,52 +220,23 @@ class SGAsset(SGEntity):
     def tasks(
         self,
         names=None,  # type: Optional[List[str]]
+        assignee=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
         pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
     ):
         # type: (...) -> List[SGEntity]
         """
         :param names: The names of Tasks to return.
+        :param assignee: The assignee of the tasks to return.
         :param pipeline_step: Name, short name or entity object
                               or the Pipeline Step to filter by.
         :returns: A list of Tasks.
         """
-        sg_filter = [
-            ["entity", "is", self.to_dict()]
-        ]  # type: List[Union[List[Any],Dict[str,Any]]]
-
-        if names is not None:
-            if len(names) == 1:
-                names_filter = [
-                    "code",
-                    "is",
-                    names[0],
-                ]  # type: Union[List[Any],Dict[str,Any]]
-            else:
-                names_filter = {"filter_operator": "any", "filters": list()}
-                for name in names:
-                    names_filter["filters"].append(["code", "is", name])
-            sg_filter.append(names_filter)
-
-        if pipeline_step is not None:
-            if isinstance(pipeline_step, dict):
-                sg_filter.append(["step", "is", pipeline_step])
-            elif isinstance(pipeline_step, SGEntity):
-                sg_filter.append(["step", "is", pipeline_step.to_dict()])
-            else:
-                sg_filter.append(
-                    {
-                        "filter_operator": "any",
-                        "filters": [
-                            ["step.Step.code", "is", pipeline_step],
-                            ["step.Step.short_name", "is", pipeline_step],
-                        ],
-                    }
-                )
-
-        return [
-            new_entity(self._sg, sg_task)
-            for sg_task in self._sg.find("Task", sg_filter)
-        ]
+        return self._tasks(
+            names=names,
+            entity=self.to_dict(),
+            assignee=assignee,
+            pipeline_step=pipeline_step,
+        )
 
 
 class SGTask(SGEntity):
