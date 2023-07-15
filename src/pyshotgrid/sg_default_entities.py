@@ -93,7 +93,7 @@ class SGProject(SGEntity):
         :param additional_sg_filter:
         :return: All HumanUsers assigned to this project.
         """
-        sg_filter = [["projects", "contains", self.to_dict()]]
+        sg_filter = [["projects", "is", self.to_dict()]]
         if additional_sg_filter is not None:
             sg_filter += additional_sg_filter
 
