@@ -23,11 +23,11 @@ from .core import (
 VERSION = "0.13.0"
 
 # Register default pysg plugins
-register_pysg_class("Project", sde.SGProject)
-register_pysg_class("Shot", sde.SGShot)
-register_pysg_class("Asset", sde.SGAsset)
-register_pysg_class("Task", sde.SGTask)
-register_pysg_class("PublishedFile", sde.SGPublishedFile)
-register_pysg_class("Playlist", sde.SGPlaylist)
-register_pysg_class("Version", sde.SGVersion)
-register_pysg_class("HumanUser", sde.SGHumanUser)
+register_pysg_class(sde.SGProject)
+register_pysg_class(sde.SGShot)
+register_pysg_class(sde.SGAsset)
+register_pysg_class(sde.SGTask)
+register_pysg_class(sde.SGPublishedFile)
+register_pysg_class(sde.SGPlaylist)
+register_pysg_class(sde.SGVersion)
+register_pysg_class(sde.SGHumanUser)

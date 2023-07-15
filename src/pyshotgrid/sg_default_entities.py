@@ -25,6 +25,8 @@ class SGProject(SGEntity):
         entity class to work with.
     """
 
+    DEFAULT_SG_ENTITY_TYPE = "Project"
+
     def shots(self, glob_pattern=None):
         # type: (Optional[str]) -> List[SGEntity]
         """
@@ -125,6 +127,8 @@ class SGShot(SGEntity):
         entity class to work with.
     """
 
+    DEFAULT_SG_ENTITY_TYPE = "Shot"
+
     def publishes(
         self,
         pub_types=None,  # type: Optional[Union[str,List[str]]]
@@ -213,6 +217,8 @@ class SGAsset(SGEntity):
         method instead. This will make sure that you always get the correct
         entity class to work with.
     """
+
+    DEFAULT_SG_ENTITY_TYPE = "Asset"
 
     def publishes(
         self,
@@ -303,6 +309,8 @@ class SGTask(SGEntity):
         entity class to work with.
     """
 
+    DEFAULT_SG_ENTITY_TYPE = "Task"
+
     @property
     def name(self):
         # type: () -> Field
@@ -349,6 +357,8 @@ class SGPublishedFile(SGEntity):
         method instead. This will make sure that you always get the correct
         entity class to work with.
     """
+
+    DEFAULT_SG_ENTITY_TYPE = "PublishedFile"
 
     def is_latest(self):
         # type: () -> bool
@@ -419,6 +429,10 @@ class SGVersion(SGEntity):
         entity class to work with.
     """
 
+    DEFAULT_SG_ENTITY_TYPE = "Version"
+
+    # TODO get note threads
+
 
 class SGPlaylist(SGEntity):
     """
@@ -431,6 +445,8 @@ class SGPlaylist(SGEntity):
         method instead. This will make sure that you always get the correct
         entity class to work with.
     """
+
+    DEFAULT_SG_ENTITY_TYPE = "Playlist"
 
     @property
     def media_url(self):
@@ -465,91 +481,30 @@ class SGHumanUser(SGEntity):
         entity class to work with.
     """
 
+    DEFAULT_SG_ENTITY_TYPE = "HumanUser"
+
+    # TODO versions
+    # TODO time logs
+
     def tasks(
         self,
         names=None,  # type: Optional[List[str]]
-        project=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
+        entity=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
         pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
     ):
         # type: (...) -> List[SGEntity]
         """
-        :param list[str]|None names: The names of Tasks to return.
-        :param str|dict|SGEntity|None project: Name, tank_name or entity object
-                                               or the Project to filter by.
-        :param str|dict|SGEntity|None pipeline_step: Name, short name or entity object
-                                                     or the Pipeline Step to filter by.
+        :param names: The names of Tasks to return.
+        :param entity: entity to filter by eg. (Shot, Asset, Project,...).
+        :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
         :returns: A list of Tasks
-        :rtype: list[SGTask]
         """
-        sg_filter = [
-            {
-                "filter_operator": "any",
-                "filters": [
-                    ["task_assignees", "contains", self.to_dict()],
-                    ["task_assignees.Group.users", "contains", self.to_dict()],
-                ],
-            }
-        ]  # type: List[Union[List[Any],Dict[str,Any]]]
-
-        if names is not None:
-            if len(names) == 1:
-                names_filter = [
-                    "code",
-                    "is",
-                    names[0],
-                ]  # type: Union[List[Any],Dict[str,Any]]
-            else:
-                names_filter = {"filter_operator": "any", "filters": []}
-                for name in names:
-                    names_filter["filters"].append(["code", "is", name])
-            sg_filter.append(names_filter)
-
-        if project is not None:
-            if isinstance(project, dict):
-                sg_filter.append(["project", "is", project])
-            elif isinstance(project, SGEntity):
-                sg_filter.append(["project", "is", project.to_dict()])
-            elif isinstance(project, str):
-                sg_filter.append(
-                    {
-                        "filter_operator": "any",
-                        "filters": [
-                            ["project.Project.code", "is", project],
-                            ["project.Project.tank_name", "is", project],
-                        ],
-                    }
-                )
-            else:
-                raise TypeError(
-                    'The "project" parameter needs to be one of '
-                    "type str, dict, SGEntity or None."
-                )
-
-        if pipeline_step is not None:
-            if isinstance(pipeline_step, dict):
-                sg_filter.append(["step", "is", pipeline_step])
-            elif isinstance(pipeline_step, SGEntity):
-                sg_filter.append(["step", "is", pipeline_step.to_dict()])
-            elif isinstance(pipeline_step, str):
-                sg_filter.append(
-                    {
-                        "filter_operator": "any",
-                        "filters": [
-                            ["step.Step.code", "is", pipeline_step],
-                            ["step.Step.short_name", "is", pipeline_step],
-                        ],
-                    }
-                )
-            else:
-                raise TypeError(
-                    'The "pipeline_step" parameter needs to be one of '
-                    "type str, dict, SGEntity or None."
-                )
-
-        return [
-            new_entity(self._sg, sg_task)
-            for sg_task in self._sg.find("Task", sg_filter)
-        ]
+        return self._tasks(
+            names=names,
+            assignee=self.to_dict(),
+            entity=entity,
+            pipeline_step=pipeline_step,
+        )
 
     def publishes(
         self,

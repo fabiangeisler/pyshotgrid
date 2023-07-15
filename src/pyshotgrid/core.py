@@ -17,16 +17,32 @@ class SGEntity(object):
         entity class to work with.
     """
 
-    def __init__(self, sg, entity_type, entity_id):
-        # type: (shotgun_api3.shotgun.Shotgun, str, int) -> None
+    #: The SG entity type that will be used when you do not specify it in the
+    #: init arguments. For the base SGEntity this should always be None, but
+    #: for sub classes this should be set to the SG entity type that the
+    #: class should represent.
+    DEFAULT_SG_ENTITY_TYPE = None  # type: Optional[str]
+
+    def __init__(self, sg, entity_id, entity_type=None):
+        # type: (shotgun_api3.shotgun.Shotgun, int, Optional[str]) -> None
         """
         :param sg: A fully initialized instance of shotgun_api3.Shotgun.
-        :param entity_type: The ShotGrid type of the entity.
         :param entity_id: The ID of the ShotGrid entity.
+        :param entity_type: The ShotGrid type of the entity.
         """
         self._sg = sg
-        self._type = entity_type
         self._id = entity_id
+        if entity_type is None:
+            if self.DEFAULT_SG_ENTITY_TYPE is None:
+                raise ValueError(
+                    "Cannot construct an instance of {}. "
+                    "DEFAULT_SG_ENTITY_TYPE of the class is None and"
+                    "no entity_type argument was given."
+                    "".format(self.__class__.__name__)
+                )
+            else:
+                entity_type = self.DEFAULT_SG_ENTITY_TYPE
+        self._type = entity_type
 
     def __str__(self):
         # type: () -> str
@@ -1040,9 +1056,9 @@ def new_entity(sg, *args, **kwargs):
 
     The function can be used in 3 ways which all do the same thing::
 
-        sg_entity = pyshotgrid.new_entity(sg, {'type': 'Project', 'id': 1})
-        sg_entity = pyshotgrid.new_entity(sg, 'Project', 1)
-        sg_entity = pyshotgrid.new_entity(sg, entity_type='Project', entity_id=1)
+        sg_entity = pyshotgrid.new_entity(sg, {"id": 1, "type": "Project"})
+        sg_entity = pyshotgrid.new_entity(sg, 1, "Project")
+        sg_entity = pyshotgrid.new_entity(sg, entity_id=1, entity_type="Project")
 
     :param sg: A fully initialized Shotgun instance.
     :return: The pyshotgrid object or None if it could not be converted.
@@ -1053,23 +1069,23 @@ def new_entity(sg, *args, **kwargs):
     entity_id = None
     if args:
         if isinstance(args[0], dict):
-            # new_entity(sg, {'type': 'Project', 'id': 1})
+            # new_entity(sg, {'id': 1, 'type': 'Project'})
             entity_type = args[0]["type"]
             entity_id = args[0]["id"]
-        elif len(args) == 2 and isinstance(args[0], str) and isinstance(args[1], int):
-            # new_entity(sg, 'Project', 1)
-            entity_type = args[0]
-            entity_id = args[1]
+        elif len(args) == 2 and isinstance(args[0], int) and isinstance(args[1], str):
+            # new_entity(sg, 1, 'Project')
+            entity_id = args[0]
+            entity_type = args[1]
     elif kwargs:
+        # new_entity(sg, entity_id=1, entity_type='Project')
         if "entity_type" in kwargs and "entity_id" in kwargs:
             entity_type = kwargs["entity_type"]
             entity_id = kwargs["entity_id"]
 
     if entity_type is not None and entity_id is not None:
-
         if entity_type in __ENTITY_PLUGINS:
-            return __ENTITY_PLUGINS[entity_type](sg, entity_type, entity_id)
-        return SGEntity(sg, entity_type, entity_id)
+            return __ENTITY_PLUGINS[entity_type](sg, entity_id, entity_type)
+        return SGEntity(sg, entity_id, entity_type)
     raise ValueError("Entity type and ID could not be extracted from the given values.")
 
 
@@ -1104,23 +1120,27 @@ def new_site(*args, **kwargs):
     return __SG_SITE_CLASS(sg)
 
 
-def register_pysg_class(shotgrid_type, pysg_class):
-    # type: (str, Type[SGEntity]) -> None
+def register_pysg_class(pysg_class, shotgrid_type=None):
+    # type: (Type[SGEntity], Optional[str]) -> None
     """
     Register a class for a ShotGrid type to pyshotgrid.
     This is best illustrated as by an example: Suppose you have a custom entity setup where you
     have an Episode in each project that collects some sequences of shots. It would be nice to have
     some additional functionality on the ShotGridEntity for episode objects (like a "sequences"
     function that returns all the sequences belonging to that episode). What you would do is to
-    create a class SGEpisode that inherits from ShotGridEntity and add all the functionality you
+    create a class SGEpisode that inherits from SGEntity and add all the functionality you
     like to it. After that you call::
 
-        register_plugin(shotgrid_type="CustomProjectEntity01",
-                        pysg_class=SGEpisode)
+        register_plugin(SGEpisode)
+
+    or if you like it more explicitly::
+
+        register_plugin(pysg_class=SGEpisode,
+                        shotgrid_type="CustomProjectEntity01")
 
     This will register the class to pyshotgrid and the `new_entity` function will automatically
     create an "SGEpisode" instance as soon as it encounters an Episode entity. This is also
-    true for all queries that happen from a ShotGridEntity. So `sg_project['sg_episodes']` would
+    true for all queries that happen from a SGEntity. So `sg_project['sg_episodes']` would
     return "SGEpisode" instances as well.
 
     .. Note::
@@ -1128,8 +1148,9 @@ def register_pysg_class(shotgrid_type, pysg_class):
         Registering a class for an existing entity will overwrite the existing entity class.
         This way you can add/overwrite functionality for the classes that are shipped by default.
 
-    :param shotgrid_type: The ShotGrid entity type to register for.
     :param pysg_class: The class to use for this entity type.
+    :param shotgrid_type: The ShotGrid entity type to register for. If this is None it will be
+                          taken from the _DEFAULT_SG_ENTITY_TYPE variable from the given pysg_class.
     """
     global __ENTITY_PLUGINS
 
@@ -1138,6 +1159,13 @@ def register_pysg_class(shotgrid_type, pysg_class):
             'The given class "{}" needs to inherit from pyshotgrid.SGEntity.'
             "".format(pysg_class)
         )
+
+    if shotgrid_type is None:
+        if pysg_class.DEFAULT_SG_ENTITY_TYPE is None:
+            raise ValueError("No entity type specified to register for.")
+        else:
+            shotgrid_type = pysg_class.DEFAULT_SG_ENTITY_TYPE
+
     __ENTITY_PLUGINS[shotgrid_type] = pysg_class
 
 
