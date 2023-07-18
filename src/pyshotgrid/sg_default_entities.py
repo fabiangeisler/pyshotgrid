@@ -111,6 +111,26 @@ class SGProject(SGEntity):
             )
         ]
 
+    def versions(
+        self,
+        user=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
+        latest=False,  # type: bool
+    ):
+        # type: (...) -> List[SGEntity]
+        """
+        :param user: The artist assigned to the Versions.
+        :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
+        :param latest: Whether to return only the latest Version per link/entity.
+        :returns: A list of Versions
+        """
+        return self._versions(
+            entity=self,
+            user=user,
+            pipeline_step=pipeline_step,
+            latest=latest,
+        )
+
 
 class SGShot(SGEntity):
     """
@@ -168,6 +188,26 @@ class SGShot(SGEntity):
             entity=self.to_dict(),
             assignee=assignee,
             pipeline_step=pipeline_step,
+        )
+
+    def versions(
+        self,
+        user=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
+        latest=False,  # type: bool
+    ):
+        # type: (...) -> List[SGEntity]
+        """
+        :param user: The artist assigned to the Versions.
+        :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
+        :param latest: Whether to return only the latest Version per link/entity.
+        :returns: A list of Versions
+        """
+        return self._versions(
+            entity=self,
+            user=user,
+            pipeline_step=pipeline_step,
+            latest=latest,
         )
 
 
@@ -229,6 +269,26 @@ class SGAsset(SGEntity):
             pipeline_step=pipeline_step,
         )
 
+    def versions(
+        self,
+        user=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
+        latest=False,  # type: bool
+    ):
+        # type: (...) -> List[SGEntity]
+        """
+        :param user: The artist assigned to the Versions.
+        :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
+        :param latest: Whether to return only the latest Version per link/entity.
+        :returns: A list of Versions
+        """
+        return self._versions(
+            entity=self,
+            user=user,
+            pipeline_step=pipeline_step,
+            latest=latest,
+        )
+
 
 class SGTask(SGEntity):
     """
@@ -272,6 +332,26 @@ class SGTask(SGEntity):
         return self._publishes(
             base_filter=[["task", "is", self.to_dict()]],
             pub_types=pub_types,
+            latest=latest,
+        )
+
+    def versions(
+        self,
+        user=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
+        latest=False,  # type: bool
+    ):
+        # type: (...) -> List[SGEntity]
+        """
+        :param user: The artist assigned to the Versions.
+        :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
+        :param latest: Whether to return only the latest Version per link/entity.
+        :returns: A list of Versions
+        """
+        return self._versions(
+            entity=self,
+            user=user,
+            pipeline_step=pipeline_step,
             latest=latest,
         )
 
@@ -413,8 +493,27 @@ class SGHumanUser(SGEntity):
 
     DEFAULT_SG_ENTITY_TYPE = "HumanUser"
 
-    # TODO versions
     # TODO time logs
+
+    def versions(
+        self,
+        entity=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
+        latest=False,  # type: bool
+    ):
+        # type: (...) -> List[SGEntity]
+        """
+        :param entity: entity to filter by eg. (Shot, Asset, Project, Task...).
+        :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
+        :param latest: Whether to return only the latest Version per link/entity.
+        :returns: A list of Versions
+        """
+        return self._versions(
+            entity=entity,
+            user=self,
+            pipeline_step=pipeline_step,
+            latest=latest,
+        )
 
     def tasks(
         self,
