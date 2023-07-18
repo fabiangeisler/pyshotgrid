@@ -459,6 +459,95 @@ class SGEntity(object):
             for sg_task in self._sg.find("Task", sg_filter)
         ]
 
+    def _versions(
+        self,
+        entity=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
+        user=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
+        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
+        latest=False,  # type: bool
+    ):
+        # type: (...) -> List[SGEntity]
+        """
+        This function is meant as a base for a "versions" function on a sub class.
+        Not every entity has tasks. This is why this function is hidden by default.
+
+        :param entity: entity to filter by eg. (Shot, Asset, Project, Task...).
+        :param user: The artist assigned to the Versions.
+        :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
+        :param latest: Whether to return only the latest Version per link/entity.
+        :returns: A list of Versions
+        """
+        sg_filter = []  # type: List[Union[List[Any],Dict[str,Any]]]
+
+        if user is not None:
+            if isinstance(user, SGEntity):
+                user = user.to_dict()
+            sg_filter.append(["user", "is", user])
+
+        if entity is not None:
+            if isinstance(entity, dict):
+                entity_dict = entity
+            elif isinstance(entity, SGEntity):
+                entity_dict = entity.to_dict()
+            else:
+                raise TypeError(
+                    'The "entity" parameter needs to be one of '
+                    "type dict, SGEntity or None."
+                )
+
+            if entity_dict["type"] == "Project":
+                sg_filter.append(["project", "is", entity_dict])
+            elif entity_dict["type"] == "Task":
+                sg_filter.append(["sg_task", "is", entity_dict])
+            else:
+                sg_filter.append(["entity", "is", entity_dict])
+
+        if pipeline_step is not None:
+            if isinstance(pipeline_step, dict):
+                sg_filter.append(["step", "is", pipeline_step])
+            elif isinstance(pipeline_step, SGEntity):
+                sg_filter.append(["step", "is", pipeline_step.to_dict()])
+            elif isinstance(pipeline_step, str):
+                sg_filter.append(
+                    {
+                        "filter_operator": "any",
+                        "filters": [
+                            ["sg_task.Task.step.Step.code", "is", pipeline_step],
+                            ["sg_task.Task.step.Step.short_name", "is", pipeline_step],
+                        ],
+                    }
+                )
+            else:
+                raise TypeError(
+                    'The "pipeline_step" parameter needs to be one of '
+                    "type str, dict, SGEntity or None."
+                )
+
+        sg_versions = self._sg.find(
+            "Version",
+            sg_filter,
+            ["entity", "created_at"],
+        )
+
+        # Sort one more time by name.
+        sg_versions.sort(key=lambda pub: pub["entity"]["id"])
+        # sort them by date and than by version_number which sorts the latest publish to the
+        # last position.
+        sg_versions.sort(key=lambda pub: pub["created_at"], reverse=True)
+
+        if latest:
+            tmp_list = []
+            last_entity = {}  # type: Dict[str,Any]
+            for sg_version in sg_versions:
+                if sg_version["entity"] == last_entity:
+                    continue
+                else:
+                    last_entity = sg_version["entity"]
+                    tmp_list.append(sg_version)
+            sg_versions = tmp_list
+
+        return [new_entity(self._sg, sg_version) for sg_version in sg_versions]
+
 
 class SGSite(object):
     """

@@ -5,7 +5,6 @@ import pytest
 from shotgun_api3.lib import mockgun
 
 import pyshotgrid as pysg
-import pyshotgrid.sg_default_entities as sde
 
 
 def test_project(sg):
@@ -162,7 +161,7 @@ def test_pipeline_configuration(sg):
 
     result = sg_site.pipeline_configuration()
 
-    assert isinstance(result, sde.SGEntity)
+    assert result.type == "PipelineConfiguration"
 
 
 def test_pipeline_configuration__by_name(sg):
@@ -170,11 +169,11 @@ def test_pipeline_configuration__by_name(sg):
 
     result = sg_site.pipeline_configuration(name_or_id="Primary")
 
-    assert isinstance(result, sde.SGEntity)
+    assert result.type == "PipelineConfiguration"
     assert "Primary" == result["code"].get()
 
 
-def test_pipeline_configuration__returns_none_when_nothing_found(sg):
+def test_pipeline_configuration__returns_none_when_name_does_not_match(sg):
     sg_site = pysg.SGSite(sg)
 
     result = sg_site.pipeline_configuration(name_or_id="Not existent config")
@@ -187,11 +186,11 @@ def test_pipeline_configuration__by_id(sg):
 
     result = sg_site.pipeline_configuration(name_or_id=1)
 
-    assert isinstance(result, sde.SGEntity)
+    assert result.type == "PipelineConfiguration"
     assert 1 == result.id
 
 
-def test_pipeline_configuration__returns_none_when_nothing_matches(sg):
+def test_pipeline_configuration__returns_none_when_id_does_not_match(sg):
     sg_site = pysg.SGSite(sg)
 
     result = sg_site.pipeline_configuration(name_or_id=11111)
@@ -205,7 +204,7 @@ def test_pipeline_configuration__by_project(sg):
 
     result = sg_site.pipeline_configuration(project=sg_project)
 
-    assert isinstance(result, sde.SGEntity)
+    assert result.type == "PipelineConfiguration"
     assert sg_project == result["project"].get()
 
 
