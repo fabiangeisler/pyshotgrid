@@ -384,8 +384,12 @@ class SGEntity(object):
     ):
         # type: (...) -> List[SGEntity]
         """
+        This function is meant as a base for a "tasks" function on a sub class.
+        Not every entity has tasks. This is why this function is hidden by default.
+
         :param names: The names of Tasks to return.
         :param entity: entity to filter by eg. (Shot, Asset, Project,...).
+        :param assignee: The assignee of the Tasks to return.
         :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
         :returns: A list of Tasks
         """
@@ -763,7 +767,7 @@ class SGSite(object):
         """
         :param name_or_id: Name or ID of the PipelineConfiguration.
         :param project: The project that the PipelineConfiguration is attached to.
-        :return: The PipelineConfiguration.
+        :return: A PipelineConfiguration or None.
         """
         base_filter = []  # type: List[List[Any]]
         if name_or_id is not None:
