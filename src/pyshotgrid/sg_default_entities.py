@@ -375,9 +375,9 @@ class SGPublishedFile(SGEntity):
         """
         :return: Whether this published file is the latest of its kind.
         """
-        return self.get_latest_publish() == self
+        return self.get_latest() == self
 
-    def get_latest_publish(self):
+    def get_latest(self):
         # type: () -> SGEntity
         """
         :return: The latest published file of its kind (which might be this same entity).
