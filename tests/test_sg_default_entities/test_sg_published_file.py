@@ -20,7 +20,7 @@ def test_is_latest__true(sg):
 def test_get_latest_publish__is_already_latest(sg):
     sg_publish = sde.SGPublishedFile(sg, 5)
 
-    result = sg_publish.get_latest_publish()
+    result = sg_publish.get_latest()
 
     assert sg_publish == result
 
@@ -29,7 +29,7 @@ def test_get_latest_publish(sg):
     sg_publish = sde.SGPublishedFile(sg, 1)
     latest_sg_publish = sde.SGPublishedFile(sg, 5)
 
-    result = sg_publish.get_latest_publish()
+    result = sg_publish.get_latest()
 
     assert latest_sg_publish == result
 
