@@ -65,7 +65,6 @@ class SGProject(SGEntity):
         self,
         pub_types=None,  # type: Optional[Union[str,List[str]]]
         latest=False,  # type: bool
-        additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
         # type: (...) -> List[SGEntity]
         """
@@ -77,25 +76,23 @@ class SGProject(SGEntity):
             - from these get the publishes with the highest "version_number" field
             - if there are publishes with the same "name" and "version_number" the
               newest one wins.
-        :param additional_sg_filter:
         :return: All published files from this project.
         """
         return self._publishes(
             base_filter=[["project", "is", self.to_dict()]],
             pub_types=pub_types,
             latest=latest,
-            additional_sg_filter=additional_sg_filter,
         )
 
-    def people(self, additional_sg_filter=None):
-        # type: (Optional[List[Any]]) -> List[SGEntity]
+    def people(self, only_active=True):
+        # type: (bool) -> List[SGEntity]
         """
-        :param additional_sg_filter:
+        :param only_active: Whether to list only active people or all the people.
         :return: All HumanUsers assigned to this project.
         """
         sg_filter = [["projects", "is", self.to_dict()]]
-        if additional_sg_filter is not None:
-            sg_filter += additional_sg_filter
+        if only_active:
+            sg_filter.append(["sg_status_list", "is", "act"])
 
         return [
             new_entity(self._sg, sg_user)
@@ -133,7 +130,6 @@ class SGShot(SGEntity):
         self,
         pub_types=None,  # type: Optional[Union[str,List[str]]]
         latest=False,  # type: bool
-        additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
         # type: (...) -> List[SGEntity]
         """
@@ -145,14 +141,12 @@ class SGShot(SGEntity):
                          - from these get the publishes with the highest "version_number" field
                          - if there are publishes with the same "name" and "version_number" the
                            newest one wins.
-        :param additional_sg_filter:
         :return: All published files from this shot.
         """
         return self._publishes(
             base_filter=[["entity", "is", self.to_dict()]],
             pub_types=pub_types,
             latest=latest,
-            additional_sg_filter=additional_sg_filter,
         )
 
     def tasks(
@@ -195,7 +189,6 @@ class SGAsset(SGEntity):
         self,
         pub_types=None,  # type: Optional[Union[str,List[str]]]
         latest=False,  # type: bool
-        additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
         # type: (...) -> List[SGEntity]
         """
@@ -207,14 +200,12 @@ class SGAsset(SGEntity):
                          - from these get the publishes with the highest "version_number" field
                          - if there are publishes with the same "name" and "version_number" the
                            newest one wins.
-        :param additional_sg_filter:
         :return: All published files from this asset.
         """
         return self._publishes(
             base_filter=[["entity", "is", self.to_dict()]],
             pub_types=pub_types,
             latest=latest,
-            additional_sg_filter=additional_sg_filter,
         )
 
     def tasks(
@@ -265,7 +256,6 @@ class SGTask(SGEntity):
         self,
         pub_types=None,  # type: Optional[Union[str,List[str]]]
         latest=False,  # type: bool
-        additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
         # type: (...) -> List[SGEntity]
         """
@@ -277,14 +267,12 @@ class SGTask(SGEntity):
                         - from these get the publishes with the highest "version_number" field
                         - if there are publishes with the same "name" and "version_number" the
                           newest one wins.
-        :param additional_sg_filter:
         :return: All published files from this shot.
         """
         return self._publishes(
             base_filter=[["task", "is", self.to_dict()]],
             pub_types=pub_types,
             latest=latest,
-            additional_sg_filter=additional_sg_filter,
         )
 
 
@@ -452,7 +440,6 @@ class SGHumanUser(SGEntity):
         self,
         pub_types=None,  # type: Optional[Union[str,List[str]]]
         latest=False,  # type: bool
-        additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
         # type: (...) -> List[SGEntity]
         """
@@ -464,12 +451,10 @@ class SGHumanUser(SGEntity):
                         - from these get the publishes with the highest "version_number" field
                         - if there are publishes with the same "name" and "version_number" the
                           newest one wins.
-        :param additional_sg_filter:
         :return: All published files from this shot.
         """
         return self._publishes(
             base_filter=[["created_by", "is", self.to_dict()]],
             pub_types=pub_types,
             latest=latest,
-            additional_sg_filter=additional_sg_filter,
         )

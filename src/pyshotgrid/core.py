@@ -311,7 +311,6 @@ class SGEntity(object):
         base_filter=None,  # type: Optional[List[Any]]
         pub_types=None,  # type: Optional[Union[str,List[str]]]
         latest=False,  # type: bool
-        additional_sg_filter=None,  # type: Optional[List[Any]]
     ):
         # type: (...) ->  List[SGEntity]
         """
@@ -328,10 +327,9 @@ class SGEntity(object):
                         - from these get the publishes with the highest "version_number" field
                         - if there are publishes with the same "name" and "version_number" the
                           newest one wins.
-        :param additional_sg_filter:
         :return: All published files from this shot.
         """
-        base_filter = base_filter or []
+        result_filter = base_filter or []
         if pub_types is not None:
             if isinstance(pub_types, list):
                 pub_types_filter = {
@@ -347,10 +345,7 @@ class SGEntity(object):
                     "is",
                     pub_types,
                 ]
-            base_filter.append(pub_types_filter)
-
-        additional_sg_filter = additional_sg_filter or []
-        result_filter = base_filter + additional_sg_filter
+            result_filter.append(pub_types_filter)
 
         sg_publishes = self.sg.find(
             "PublishedFile", result_filter, ["name", "version_number", "created_at"]
@@ -710,16 +705,19 @@ class SGSite(object):
             return new_entity(self._sg, sg_pipe_config)
         return None
 
-    def people(self, additional_sg_filter=None):
-        # type: (Optional[List[Dict[str,Any]]]) ->  List[SGEntity]
+    def people(self, only_active=True):
+        # type: (bool) ->  List[SGEntity]
         """
-        :param additional_sg_filter:
+        :param only_active: Whether to list only active people or all the people.
         :return: All HumanUsers of this ShotGrid site.
         """
-        # TODO add "only_active" and "name_or_id" parameter
+        sg_filter = []
+        if only_active:
+            sg_filter.append(["sg_status_list", "is", "act"])
+
         return [
             new_entity(self._sg, sg_user)
-            for sg_user in self._sg.find("HumanUser", additional_sg_filter or [])
+            for sg_user in self._sg.find("HumanUser", sg_filter)
         ]
 
 

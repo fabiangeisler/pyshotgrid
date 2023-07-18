@@ -139,8 +139,22 @@ def test_people(sg):
 
     result = sg_site.people()
 
-    assert 3 == len(result)
-    assert isinstance(result[0], sde.SGHumanUser)
+    for person in result:
+        assert person["sg_status_list"].get() == "act"
+        assert person.type == "HumanUser"
+
+
+def test_people__all_people(sg):
+    sg_site = pysg.SGSite(sg)
+
+    result = sg_site.people(only_active=False)
+
+    tmp_status = set()
+    for person in result:
+        tmp_status.add(person["sg_status_list"].get())
+        assert person.type == "HumanUser"
+    # We asset that the returned people include active and deactivated users.
+    assert tmp_status == {"act", "dis"}
 
 
 def test_pipeline_configuration(sg):
