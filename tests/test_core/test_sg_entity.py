@@ -536,3 +536,77 @@ def test_tasks__all_arguments(sg):
         assert sg_user in task["task_assignees"].get()
         assert pipeline_step == task["step"].get()
         assert "comp" == task.name.get()
+
+
+def test_versions__entity_takes_dict(sg):
+    sg_shot = pysg.SGEntity(sg, 1, "Shot")
+
+    result = sg_shot._versions(entity={"id": 1, "type": "Shot"})
+
+    assert len(result) > 1
+    for version in result:
+        assert "Version" == version.type
+        assert sg_shot == version["entity"].get()
+
+
+def test_versions__latest(sg):
+    sg_shot = pysg.SGEntity(sg, 1, "Shot")
+
+    result = sg_shot._versions(entity={"id": 1, "type": "Shot"}, latest=True)
+
+    assert len(result) == 1
+    version = result[0]
+    assert "Version" == version.type
+    assert sg_shot == version["entity"].get()
+
+
+def test_versions__entity_errors_with_wrong_type(sg):
+    sg_shot = pysg.SGEntity(sg, 1, "Shot")
+
+    with pytest.raises(TypeError):
+        # noinspection PyTypeChecker
+        sg_shot._versions(entity=1)
+
+
+def test_versions__pipeline_step_takes_dict(sg):
+    sg_shot = pysg.SGEntity(sg, 1, "Shot")
+    pipeline_step = {"id": 1, "type": "Step"}
+
+    result = sg_shot._versions(pipeline_step=pipeline_step)
+
+    assert len(result) > 1
+    for version in result:
+        assert "Version" == version.type
+        assert pipeline_step == version["sg_task"].get()["step"].get().to_dict()
+
+
+def test_versions__pipeline_step_takes_sgentity(sg):
+    sg_shot = pysg.SGEntity(sg, 1, "Shot")
+    pipeline_step = pysg.SGEntity(sg, 1, "Step")
+
+    result = sg_shot._versions(pipeline_step=pipeline_step)
+
+    assert len(result) > 1
+    for version in result:
+        assert "Version" == version.type
+        assert pipeline_step == version["sg_task"].get()["step"].get()
+
+
+def test_versions__pipeline_step_takes_name(sg):
+    sg_shot = pysg.SGEntity(sg, 1, "Shot")
+    pipeline_step = pysg.SGEntity(sg, 1, "Step")
+
+    result = sg_shot._versions(pipeline_step="Compositing")
+
+    assert len(result) > 1
+    for version in result:
+        assert "Version" == version.type
+        assert pipeline_step == version["sg_task"].get()["step"].get()
+
+
+def test_versions__pipeline_step_errors_with_wrong_type(sg):
+    sg_shot = pysg.SGEntity(sg, 1, "Shot")
+
+    with pytest.raises(TypeError):
+        # noinspection PyTypeChecker
+        sg_shot._versions(pipeline_step=1)
