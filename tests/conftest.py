@@ -1,6 +1,5 @@
 import datetime
 import os
-import sys
 
 import pytest
 from shotgun_api3.lib import mockgun
@@ -10,9 +9,7 @@ from shotgun_api3.lib import mockgun
 def sg():
     resources_dir = os.path.join(os.path.dirname(__file__), "resources")
 
-    mockgun_schema_dir = os.path.join(
-        resources_dir, "mockgun_schemas", "py{}".format(sys.version_info.major)
-    )
+    mockgun_schema_dir = os.path.join(resources_dir, "mockgun_schemas")
     mockgun.Shotgun.set_schema_paths(
         os.path.join(mockgun_schema_dir, "schema.db"),
         os.path.join(mockgun_schema_dir, "entity_schema.db"),
