@@ -1,3 +1,20 @@
+## v0.14.0 (2023-07-26)
+
+### Feat
+
+- **SGPublishedFile**: Rename "get_latest_publish" to "get_latest"
+- **default-entities**: add "versions" function to all relevant entities
+- **core**: Remove "additional_sg_filter" argument from various functions
+- **Default-entities**: Add "tasks" function to various entities
+- **SGEntity**: Add DEFAULT_SG_ENTITY_TYPE var to make entity_type optional
+
+### Fix
+
+- **Field**: remove all field property setter methods
+- **SGEntity**: fix pipeline_step argument in _version function
+- **SGProject.people**: fix shotgrid query
+- **SGSite.pipeline_configuration**: fix various issues with the function
+
 ## v0.13.0 (2023-04-29)
 
 ### Feat
