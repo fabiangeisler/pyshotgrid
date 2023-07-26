@@ -508,9 +508,9 @@ class SGEntity(object):
 
         if pipeline_step is not None:
             if isinstance(pipeline_step, dict):
-                sg_filter.append(["step", "is", pipeline_step])
+                sg_filter.append(["sg_task.Task.step", "is", pipeline_step])
             elif isinstance(pipeline_step, SGEntity):
-                sg_filter.append(["step", "is", pipeline_step.to_dict()])
+                sg_filter.append(["sg_task.Task.step", "is", pipeline_step.to_dict()])
             elif isinstance(pipeline_step, str):
                 sg_filter.append(
                     {
