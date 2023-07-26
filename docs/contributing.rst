@@ -120,7 +120,12 @@ Tips
 
 To run a subset of tests::
 
-    $ python -m unittest tests.test_pyshotgrid
+    $ pytest ./tests/test_core
+
+Run the pre-commit tests before doing your commits::
+
+    $ git add /path/to/your/files
+    $ pre-commit run
 
 Deploying
 ---------
