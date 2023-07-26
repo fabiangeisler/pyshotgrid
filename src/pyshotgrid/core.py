@@ -981,11 +981,6 @@ class Field(object):
         """
         return self._schema.data_type
 
-    @data_type.setter
-    def data_type(self, value):
-        # type: (str) -> None
-        self._schema.data_type = value
-
     @property
     def description(self):
         # type: () -> str
@@ -993,11 +988,6 @@ class Field(object):
         :return: The description of the field.
         """
         return self._schema.description
-
-    @description.setter
-    def description(self, value):
-        # type: (str) -> None
-        self._schema.description = value
 
     @property
     def display_name(self):
@@ -1007,24 +997,6 @@ class Field(object):
         """
         return self._schema.display_name
 
-    @display_name.setter
-    def display_name(self, value):
-        # type: (str) -> None
-        self._schema.display_name = value
-
-    @property
-    def custom_metadata(self):
-        # type: () -> str
-        """
-        :return: Custom metadata attached to this field.
-        """
-        return self._schema.custom_metadata
-
-    @custom_metadata.setter
-    def custom_metadata(self, value):
-        # type: (str) -> None
-        self._schema.custom_metadata = value
-
     @property
     def properties(self):
         # type: () -> Dict[str,Dict[str,Any]]
@@ -1033,11 +1005,6 @@ class Field(object):
                  This can for example give you all the possible values of a status field.
         """
         return self._schema.properties
-
-    @properties.setter
-    def properties(self, value):
-        # type: (Any) -> None
-        self._schema.properties = value
 
     @property
     def valid_types(self):
