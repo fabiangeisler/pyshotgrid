@@ -65,7 +65,7 @@ Ready to contribute? Here's how to set up `pyshotgrid` for local development.
 
     $ git clone git@github.com:your_name_here/pyshotgrid.git
 
-3. Setup your virtual environment with Python 3.7::
+3. Setup your virtual environment with Python 3.8::
 
     $ python -m venv venv
     $ source venv/bin/activate
@@ -111,7 +111,7 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and update the documentation
    where applicable.
-3. The pull request should work for Python 2.7, 3.7, 3.8 and 3.9. Check
+3. The pull request should work for Python 3.8+. Check
    the test-actions attached to your pull request
    and make sure that all or them pass for the supported Python versions.
 
