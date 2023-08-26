@@ -94,10 +94,7 @@ class SGProject(SGEntity):
         if only_active:
             sg_filter.append(["sg_status_list", "is", "act"])
 
-        return [
-            new_entity(self._sg, sg_user)
-            for sg_user in self._sg.find("HumanUser", sg_filter)
-        ]
+        return [new_entity(self._sg, sg_user) for sg_user in self._sg.find("HumanUser", sg_filter)]
 
     def playlists(self):
         # type: () -> List[SGEntity]
@@ -106,9 +103,7 @@ class SGProject(SGEntity):
         """
         return [
             new_entity(self._sg, sg_playlist)
-            for sg_playlist in self._sg.find(
-                "Playlist", [["project", "is", self.to_dict()]]
-            )
+            for sg_playlist in self._sg.find("Playlist", [["project", "is", self.to_dict()]])
         ]
 
     def versions(
@@ -407,9 +402,7 @@ class SGPublishedFile(SGEntity):
         """
         :return: A list of all the published file versions from lowest to highest version number.
         """
-        this_publish = self.get(
-            ["entity", "published_file_type", "name"], raw_values=True
-        )
+        this_publish = self.get(["entity", "published_file_type", "name"], raw_values=True)
         sg_publishes = self.sg.find(
             "PublishedFile",
             [

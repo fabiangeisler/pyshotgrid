@@ -31,9 +31,7 @@ def test_query_field_dict_notation(sg):
 def test_get(sg):
     sg_entity = pysg.SGEntity(sg, 1, "Project")
 
-    assert {"name": "Test Project A", "tank_name": "tpa"} == sg_entity.get(
-        ["name", "tank_name"]
-    )
+    assert {"name": "Test Project A", "tank_name": "tpa"} == sg_entity.get(["name", "tank_name"])
 
 
 def test_name(sg):

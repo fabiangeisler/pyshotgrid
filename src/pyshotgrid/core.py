@@ -1,4 +1,8 @@
+import http.cookiejar
 import os
+import sys
+import urllib.parse
+import urllib.request
 from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
 
 import shotgun_api3
@@ -104,9 +108,7 @@ class SGEntity(object):
         :raises:
             :RuntimeError: When the current entity does not have a "name" or "code" field.
         """
-        sg_entity = self._sg.find_one(
-            self._type, [["id", "is", self._id]], ["name", "code"]
-        )
+        sg_entity = self._sg.find_one(self._type, [["id", "is", self._id]], ["name", "code"])
         if "name" in sg_entity and sg_entity["name"] is not None:
             return self["name"]
         elif "code" in sg_entity and sg_entity["code"] is not None:
@@ -114,9 +116,25 @@ class SGEntity(object):
         else:
             raise RuntimeError(
                 "Cannot find a field for the name. "
-                '"{}" entities has neither a "name" nor a "code" field.'
+                '"{}" entities have neither a "name" nor a "code" field.'
                 "".format(self._type)
             )
+
+    @property
+    def thumbnail(self):
+        # type: () -> Field
+        """
+        :return: Shortcut for the thumbnail field.
+        """
+        return self["image"]
+
+    @property
+    def filmstrip(self):
+        # type: () -> Field
+        """
+        :return: Shortcut for the filmstrip thumbnail field.
+        """
+        return self["filmstrip_image"]
 
     def __eq__(self, other):
         # type: (Any) -> bool
@@ -160,14 +178,8 @@ class SGEntity(object):
         if project_entity is not None and not isinstance(project_entity, dict):
             project_entity = project_entity.to_dict()
 
-        sg_entity_fields = self.sg.schema_field_read(
-            self._type, project_entity=project_entity
-        )
-        fields = [
-            field
-            for field, schema in sg_entity_fields.items()
-            if schema["visible"]["value"]
-        ]
+        sg_entity_fields = self.sg.schema_field_read(self._type, project_entity=project_entity)
+        fields = [field for field, schema in sg_entity_fields.items() if schema["visible"]["value"]]
 
         return [Field(name=field, entity=self) for field in fields]
 
@@ -182,14 +194,8 @@ class SGEntity(object):
         if project_entity is not None and not isinstance(project_entity, dict):
             project_entity = project_entity.to_dict()
 
-        sg_entity_fields = self.sg.schema_field_read(
-            self._type, project_entity=project_entity
-        )
-        fields = [
-            field
-            for field, schema in sg_entity_fields.items()
-            if schema["visible"]["value"]
-        ]
+        sg_entity_fields = self.sg.schema_field_read(self._type, project_entity=project_entity)
+        fields = [field for field, schema in sg_entity_fields.items() if schema["visible"]["value"]]
         all_fields = self.sg.find_one(self._type, [["id", "is", self._id]], fields)
 
         if raw_values:
@@ -363,9 +369,7 @@ class SGEntity(object):
             # last position.
             result = []
             for publishes in tmp.values():
-                publishes.sort(
-                    key=lambda pub: (pub["created_at"], pub["version_number"])
-                )
+                publishes.sort(key=lambda pub: (pub["created_at"], pub["version_number"]))
                 result.append(publishes[-1])
 
             # Sort one more time by name.
@@ -428,8 +432,7 @@ class SGEntity(object):
                 entity_dict = entity.to_dict()
             else:
                 raise TypeError(
-                    'The "entity" parameter needs to be one of '
-                    "type dict, SGEntity or None."
+                    'The "entity" parameter needs to be one of ' "type dict, SGEntity or None."
                 )
 
             if entity_dict["type"] == "Project":
@@ -454,14 +457,11 @@ class SGEntity(object):
                 )
             else:
                 raise TypeError(
-                    'The "pipeline_step" parameter needs to be one of '
+                    'The "pipeline_step" parameter needs to be of '
                     "type str, dict, SGEntity or None."
                 )
 
-        return [
-            new_entity(self._sg, sg_task)
-            for sg_task in self._sg.find("Task", sg_filter)
-        ]
+        return [new_entity(self._sg, sg_task) for sg_task in self._sg.find("Task", sg_filter)]
 
     def _versions(
         self,
@@ -495,8 +495,7 @@ class SGEntity(object):
                 entity_dict = entity.to_dict()
             else:
                 raise TypeError(
-                    'The "entity" parameter needs to be one of '
-                    "type dict, SGEntity or None."
+                    'The "entity" parameter needs to be of type dict, SGEntity or None.'
                 )
 
             if entity_dict["type"] == "Project":
@@ -523,7 +522,7 @@ class SGEntity(object):
                 )
             else:
                 raise TypeError(
-                    'The "pipeline_step" parameter needs to be one of '
+                    'The "pipeline_step" parameter needs to be of '
                     "type str, dict, SGEntity or None."
                 )
 
@@ -720,9 +719,7 @@ class SGSite(object):
             return sg_projects[0]
         return None
 
-    def projects(
-        self, names_or_ids=None, include_archived=False, template_projects=False
-    ):
+    def projects(self, names_or_ids=None, include_archived=False, template_projects=False):
         # type: (Optional[List[Union[str,int]]],bool,bool) ->  List[SGEntity]
         """
         :param names_or_ids: List of names or ids of the projects to return. The
@@ -742,9 +739,7 @@ class SGSite(object):
         if names_or_ids is not None:
             if isinstance(names_or_ids[0], int):
                 sg_projects = [
-                    sg_project
-                    for sg_project in sg_projects
-                    if sg_project["id"] in names_or_ids
+                    sg_project for sg_project in sg_projects if sg_project["id"] in names_or_ids
                 ]
             else:
                 sg_projects = [
@@ -789,8 +784,7 @@ class SGSite(object):
                 base_filter.append(["project", "is", project.to_dict()])
             else:
                 raise ValueError(
-                    'The "project" parameter needs to be '
-                    "either a dictionary or a SGEntity."
+                    'The "project" parameter needs to be either a dictionary or a SGEntity.'
                 )
         sg_pipe_config = self._sg.find_one("PipelineConfiguration", base_filter)
 
@@ -808,10 +802,7 @@ class SGSite(object):
         if only_active:
             sg_filter.append(["sg_status_list", "is", "act"])
 
-        return [
-            new_entity(self._sg, sg_user)
-            for sg_user in self._sg.find("HumanUser", sg_filter)
-        ]
+        return [new_entity(self._sg, sg_user) for sg_user in self._sg.find("HumanUser", sg_filter)]
 
 
 class Field(object):
@@ -897,7 +888,7 @@ class Field(object):
             self._entity.type,
             self._entity.id,
             data={self._name: convert_value_to_dict(values)},
-            multi_entity_update_modes="add",
+            multi_entity_update_modes={self._name: "add"},
         )
 
     def remove(self, values):
@@ -911,8 +902,132 @@ class Field(object):
             self._entity.type,
             self._entity.id,
             data={self._name: convert_value_to_dict(values)},
-            multi_entity_update_modes="remove",
+            multi_entity_update_modes={self._name: "remove"},
         )
+
+    # This function was shamelessly stolen from sgtk.util.download_url
+    # This also the reason why we exclude it from test coverage.
+    def _download_url(self, url, location, use_url_extension=False):  # pragma: no cover
+        # type: (str, str, bool) -> str
+        """
+        Convenience method that downloads a file from a given url.
+        This method will take into account any proxy settings which have
+        been defined in the Shotgun connection parameters.
+
+        In some cases, the target content of the url is not known beforehand.
+        For example, the url ``https://my-site.shotgunstudio.com/thumbnail/full/Asset/1227``
+        may redirect into ``https://some-site/path/to/a/thumbnail.png``. In
+        such cases, you can set the optional use_url_extension parameter to True - this
+        will cause the method to append the file extension of the resolved url to
+        the filename passed in via the location parameter. So for the urls given
+        above, you would get the following results:
+
+        - location="/path/to/file" and use_url_extension=False would return "/path/to/file"
+        - location="/path/to/file" and use_url_extension=True would return "/path/to/file.png"
+
+        :param url: url to download
+        :param location: path on disk where the payload should be written.
+                         this path needs to exists and the current user needs
+                         to have write permissions
+        :param bool use_url_extension: Optionally append the file extension of the
+                                       resolved URL's path to the input ``location``
+                                       to construct the full path name to the downloaded
+                                       contents. The newly constructed full path name
+                                       will be returned.
+
+        :returns: Full filepath to the downloaded file. This may have been altered from
+                  the input ``location`` if ``use_url_extension`` is True and a file extension
+                  could be determined from the resolved url.
+        :raises: :class:`RuntimeError` on failure.
+        """
+        sg = self._entity.sg
+        # We only need to set the auth cookie for downloads from Shotgun server,
+        # input URLs like: https://my-site.shotgunstudio.com/thumbnail/full/Asset/1227
+        if sg.config.server in url:
+            # this method also handles proxy server settings from the shotgun API
+            self._setup_sg_auth_and_proxy()
+        elif sg.config.proxy_handler:
+            # These input URLs have generally already been authenticated and are
+            # in the form: https://sg-media-staging-usor-01.s3.amazonaws.com/9d93f...
+            # %3D&response-content-disposition=filename%3D%22jackpot_icon.png%22.
+            # Grab proxy server settings from the shotgun API
+            opener = urllib.request.build_opener(sg.config.proxy_handler)
+
+            urllib.request.install_opener(opener)
+
+        # inherit the timeout value from the sg API
+        timeout = sg.config.timeout_secs
+
+        # download the given url
+        try:
+            request = urllib.request.Request(url)
+            if timeout and sys.version_info >= (2, 6):
+                # timeout parameter only available in python 2.6+
+                response = urllib.request.urlopen(request, timeout=timeout)
+            else:
+                # use system default
+                response = urllib.request.urlopen(request)
+
+            if use_url_extension:
+                # Make sure the disk location has the same extension as the url path.
+                # Would be nice to see this functionality moved to back into Shotgun
+                # API and removed from here.
+                url_ext = os.path.splitext(urllib.parse.urlparse(response.geturl()).path)[-1]
+                if url_ext:
+                    location = "{}{}".format(location, url_ext)
+
+            f = open(location, "wb")
+            try:
+                f.write(response.read())
+            finally:
+                f.close()
+        except Exception as e:
+            raise RuntimeError(
+                "Could not download contents of url '{}'. Error reported: {}".format(url, e)
+            )
+
+        return location
+
+    # This function was shamelessly stolen from sgtk.util.download_url
+    # This also the reason why we exclude it from test coverage.
+    def _setup_sg_auth_and_proxy(self):  # pragma: no cover
+        # type: () -> None
+        """
+        Borrowed from the Shotgun Python API, setup urllib2 with a cookie for authentication on
+        Shotgun instance.
+
+        Looks up session token and sets that in a cookie in the :mod:`urllib2` handler. This is
+        used internally for downloading attachments from the Shotgun server.
+        """
+        sg = self._entity.sg
+
+        sid = sg.get_session_token()
+        cj = http.cookiejar.LWPCookieJar()
+        c = http.cookiejar.Cookie(
+            0,
+            "_session_id",
+            sid,
+            None,
+            False,
+            sg.config.server,
+            False,
+            False,
+            "/",
+            True,
+            False,
+            None,
+            True,
+            None,
+            None,
+            {},
+        )
+        cj.set_cookie(c)
+        cookie_handler = urllib.request.HTTPCookieProcessor(cj)
+        if sg.config.proxy_handler:
+            opener = urllib.request.build_opener(sg.config.proxy_handler, cookie_handler)
+        else:
+            opener = urllib.request.build_opener(cookie_handler)
+        urllib.request.install_opener(opener)
 
     def upload(self, path, display_name=None):
         # type: (str, Optional[str]) -> SGEntity
@@ -930,40 +1045,75 @@ class Field(object):
             field_name=self._name,
             display_name=display_name,
         )
-        return new_entity(self._entity.sg, "Attachment", sg_attachment_id)
+        return new_entity(self._entity.sg, sg_attachment_id, "Attachment")
 
-    def download(self, path):
-        # type: (str) -> None
+    def download(self, path, create_folders=True):
+        # type: (str, bool) -> str
         """
         Download a file from a field.
 
-        :param path: The path to download to.
+        :param path: The path to download to. If you only provide a folder a file name will be
+                     auto-generated.
+        :param create_folders: Create any folders from "path" that do not exist.
         :raises:
+            :RuntimeError: When the field is not a "url" or "image" field.
             :RuntimeError: When nothing was uploaded to this field.
+        :returns: The full path of the downloaded file.
         """
-        sg_attachment = self._entity.sg.find_one(
+        field_type = self.data_type
+
+        if field_type not in ["url", "image"]:
+            raise RuntimeError(
+                'The "{}" field is neither a "url" nor an "image" field. '
+                "Nothing can be downloaded from it.".format(self._name)
+            )
+
+        pay_load = self._entity.sg.find_one(
             self._entity.type, [["id", "is", self._entity.id]], [self._name]
         )[self._name]
 
-        if sg_attachment is None:
+        if pay_load is None:
             raise RuntimeError(
-                'Cannot download file from field "{}" on entity "{}", because there'
-                "is nothing uploaded.".format(self.name, self.entity.to_dict())
+                'Cannot download file from field "{}" on entity "{}", because there '
+                "is nothing uploaded.".format(self._name, self._entity.to_dict())
             )
 
-        # if we can split of a file extension from the given path we assume that the path is the
-        # full path with file name to download to. In the other case we assume that the path is
-        # the directory to download to and attach the attachment name as the file name to the
-        # directory path.
-        _, ext = os.path.splitext(path)
-        if ext:
-            local_file_path = os.path.join(path, sg_attachment["name"])
-        else:
-            local_file_path = path
+        if field_type == "url":
+            # if we can split of a file extension from the given path we assume that the path is the
+            # full path with file name to download to. In the other case we assume that the path is
+            # the directory to download to and attach the attachment name as the file name to the
+            # directory path.
+            _, ext = os.path.splitext(path)
+            if ext:
+                if create_folders and not os.path.exists(os.path.dirname(path)):
+                    os.makedirs(os.path.dirname(path))
 
-        self._entity.sg.download_attachment(
-            attachment=sg_attachment, file_path=local_file_path
-        )
+                local_file_path = path
+            else:
+                if create_folders and not os.path.exists(path):
+                    os.makedirs(path)
+
+                local_file_path = os.path.join(path, pay_load["name"])
+
+            self._entity.sg.download_attachment(attachment=pay_load, file_path=local_file_path)
+            downloaded_file_path = local_file_path
+        else:  # field_type == "image"
+            _, ext = os.path.splitext(path)
+            if ext:  # file path with filename and extension
+                if create_folders and not os.path.exists(os.path.dirname(path)):
+                    os.makedirs(os.path.dirname(path))
+
+                local_file_path = path
+            else:  # only an output folder
+                if create_folders and not os.path.exists(path):
+                    os.makedirs(path)
+
+                local_file_path = os.path.join(path, self._entity.name.get() + "_" + self._name)
+
+            downloaded_file_path = self._download_url(
+                pay_load, location=local_file_path, use_url_extension=not bool(ext)
+            )
+        return downloaded_file_path
 
     @property
     def schema(self):
@@ -1084,9 +1234,7 @@ class FieldSchema(object):
                       'unique': {'editable': False, 'value': False},
                       'visible': {'editable': True, 'value': True}}
         """
-        return self.sg.schema_field_read(self.entity_type, self.field_name)[
-            self.field_name
-        ]
+        return self.sg.schema_field_read(self.entity_type, self.field_name)[self.field_name]
 
     def _update_schema(self, prop, value, project_entity=None):
         # type: (str, Any, Optional[Union[Dict[str,Any],SGEntity]]) -> bool
@@ -1202,9 +1350,11 @@ def new_entity(sg, *args, **kwargs):
 
     The function can be used in 3 ways which all do the same thing::
 
-        sg_entity = pyshotgrid.new_entity(sg, {"id": 1, "type": "Project"})
-        sg_entity = pyshotgrid.new_entity(sg, 1, "Project")
-        sg_entity = pyshotgrid.new_entity(sg, entity_id=1, entity_type="Project")
+        >>> import pyshotgrid as pysg
+        >>> sg_entity_a = pysg.new_entity(sg, {"id": 1, "type": "Project"})
+        >>> sg_entity_b = pysg.new_entity(sg, 1, "Project")
+        >>> sg_entity_c = pysg.new_entity(sg, entity_id=1, entity_type="Project")
+        >>> assert sg_entity_a == sg_entity_b == sg_entity_c
 
     :param sg: A fully initialized Shotgun instance.
     :return: The pyshotgrid object or None if it could not be converted.
@@ -1255,14 +1405,12 @@ def new_site(*args, **kwargs):
     :return: A new instance of the pyshotgrid site.
     """
     if args:
-        if isinstance(
-            args[0], (shotgun_api3.Shotgun, shotgun_api3.lib.mockgun.Shotgun)
-        ):
+        if isinstance(args[0], (shotgun_api3.Shotgun, shotgun_api3.lib.mockgun.Shotgun)):
             sg = args[0]
         else:
-            sg = shotgun_api3.Shotgun(*args)
+            sg = shotgun_api3.Shotgun(*args)  # pragma: no cover
     else:
-        sg = shotgun_api3.Shotgun(**kwargs)
+        sg = shotgun_api3.Shotgun(**kwargs)  # pragma: no cover
     return __SG_SITE_CLASS(sg)
 
 
@@ -1302,8 +1450,7 @@ def register_pysg_class(pysg_class, shotgrid_type=None):
 
     if not issubclass(pysg_class, SGEntity):
         raise TypeError(
-            'The given class "{}" needs to inherit from pyshotgrid.SGEntity.'
-            "".format(pysg_class)
+            'The given class "{}" needs to inherit from pyshotgrid.SGEntity.'.format(pysg_class)
         )
 
     if shotgrid_type is None:
