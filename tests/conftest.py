@@ -118,18 +118,10 @@ def add_default_entities(sg):
     sq222 = sg.create("Sequence", {"code": "sq222", "project": project_a})
 
     # Shots
-    shot_a = sg.create(
-        "Shot", {"code": "sq111_sh1111", "project": project_a, "sg_sequence": sq111}
-    )
-    shot_b = sg.create(
-        "Shot", {"code": "sq111_sh2222", "project": project_a, "sg_sequence": sq111}
-    )
-    sg.create(
-        "Shot", {"code": "sq222_sh3333", "project": project_a, "sg_sequence": sq222}
-    )
-    sg.create(
-        "Shot", {"code": "sq222_sh4444", "project": project_a, "sg_sequence": sq222}
-    )
+    shot_a = sg.create("Shot", {"code": "sq111_sh1111", "project": project_a, "sg_sequence": sq111})
+    shot_b = sg.create("Shot", {"code": "sq111_sh2222", "project": project_a, "sg_sequence": sq111})
+    sg.create("Shot", {"code": "sq222_sh3333", "project": project_a, "sg_sequence": sq222})
+    sg.create("Shot", {"code": "sq222_sh4444", "project": project_a, "sg_sequence": sq222})
 
     # Tasks
     task_cmp_a = sg.create(
@@ -189,9 +181,7 @@ def add_default_entities(sg):
                 "project": project_a,
                 "task": task_cmp_a,
                 "entity": shot_a,
-                "path_cache": "tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(
-                    i
-                ),
+                "path_cache": "tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(i),
                 "path_cache_storage": local_storage,
                 "created_by": person_a,
             },
