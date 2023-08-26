@@ -70,6 +70,9 @@ deps =
 commands = pytest
 """
 
+[tool.black]
+line-length = 100
+
 [tool.mypy]
 python_version = "3.8"
 strict = true
