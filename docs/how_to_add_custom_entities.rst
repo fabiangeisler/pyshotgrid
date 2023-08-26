@@ -65,8 +65,6 @@ Here is an example python script to illustrate what you have to do:
         Custom extension of the default SGProject class to provide additional functionality.
         """
 
-        DEFAULT_SG_ENTITY_TYPE = 'Project'
-
         def episodes(self):
             """
             :return: All episodes of this project.
