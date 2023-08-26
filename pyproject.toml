@@ -109,5 +109,8 @@ select = [
     "I",  # isort
     "RUF",  # Bad unicode characters in code
 ]
-
+# B904 - Within an `except` clause, raise exceptions with `raise ... from err` or
+#        `raise ... from None` to distinguish them from errors in exception handling
+# We are ignoring that for now since this is not compatible with Python 2.7.
+ignore = ["B904"]
 src = ["src", "tests"]
