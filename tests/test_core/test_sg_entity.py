@@ -5,6 +5,7 @@ from unittest import mock
 import pytest
 from shotgun_api3.lib import mockgun
 
+import pyshotgrid
 import pyshotgrid as pysg
 
 
@@ -48,6 +49,22 @@ def test_name(sg):
     assert "code" == result_asset_name_field.name
 
 
+def test_thumbnail(sg):
+    sg_task = pysg.new_entity(sg, 1, "Task")
+
+    result_task_thumbnail_field = sg_task.thumbnail
+
+    assert "image" == result_task_thumbnail_field.name
+
+
+def test_filmstrip(sg):
+    sg_task = pysg.new_entity(sg, 1, "Task")
+
+    result_task_filmstrip_field = sg_task.filmstrip
+
+    assert "filmstrip_image" == result_task_filmstrip_field.name
+
+
 def test_name__errors_when_no_name_field_present(sg):
     sg_entity = pysg.new_entity(sg, 1, "Note")
 
@@ -55,20 +72,14 @@ def test_name__errors_when_no_name_field_present(sg):
         _ = sg_entity.name
 
 
-# FIXME Mockgun.update is missing the "multi_entity_update_modes" parameter. We need to patch it
-# FIXME to make this test work.
-# def test_set(sg):
-#     sg_entity = pysg.SGEntity(sg, 'Project', 1)
-#     def patched_update(entity_type, entity_id, data, multi_entity_update_modes=None):
-#         sg.update(entity_type, entity_id, data)
-#
-#     with mock.patch.object(mockgun.Shotgun, "update", new_callable=patched_update):
-#         sg_entity.set({'code': 'Test Name', 'tank_name': 'tn'})
-#
-#     assert ({'code': 'Test Name', 'tank_name': 'tn'},
-#                      sg_entity.get(['code', 'tank_name']))
-#     # Cleanup
-#     sg_entity.set({'code': 'Test Project', 'tank_name': 'tp'})
+def test_set(sg):
+    sg_entity = pysg.SGEntity(sg, 1, "Project")
+
+    sg_entity.set({"code": "Test Name", "tank_name": "tn"})
+
+    assert {"code": "Test Name", "tank_name": "tn"} == sg_entity.get(["code", "tank_name"])
+    # Cleanup
+    sg_entity.set({"code": "Test Project", "tank_name": "tp"})
 
 
 def test_update_field_dict_notation(sg):
@@ -142,6 +153,37 @@ def test_iter_all_field_values(sg):
         ("uuid", None),
         ("code", "primary"),
         ("updated_at", None),
+    } == result
+
+
+def test_iter_all_field_values__raw(sg):
+    sg_entity = pysg.SGEntity(sg, 1, "Reply")
+
+    # Mock Mockgun.schema_field_read - the "project_entity" arg is missing in Mockgun.
+    with mock.patch.object(
+        mockgun.Shotgun,
+        "schema_field_read",
+        return_value={
+            "content": {"visible": {"value": True, "editable": False}},
+            "entity": {"visible": {"value": True, "editable": False}},
+            "user": {"visible": {"value": True, "editable": False}},
+            "publish_status": {"visible": {"value": True, "editable": False}},
+            "cached_display_name": {"visible": {"value": True, "editable": False}},
+            "created_at": {"visible": {"value": True, "editable": False}},
+            "id": {"visible": {"value": True, "editable": False}},
+        },
+    ):
+        result = sg_entity.all_field_values(raw_values=True)
+
+    assert {
+        "cached_display_name": None,
+        "content": "Test reply",
+        "created_at": None,
+        "entity": {"id": 1, "type": "Note"},
+        "id": 1,
+        "publish_status": None,
+        "type": "Reply",
+        "user": {"id": 1, "type": "HumanUser"},
     } == result
 
 
@@ -316,6 +358,89 @@ def test_field_schemas(sg):
 
     assert "Tank Name" == result["tank_name"].display_name
     assert 67 == len(result)
+
+
+def test_upload(sg):
+    sg_entity = pysg.SGEntity(sg, 1, "Version")
+
+    # Mock shotgun_api3.Shotgun.upload()
+    with mock.patch.object(
+        mockgun.Shotgun,
+        "upload",
+        return_value={
+            "type": "Attachment",
+            "id": 1,
+        },
+    ):
+        result = sg_entity["sg_uploaded_movie"].upload("/path/to/somewhere.mov")
+
+    assert result.type == "Attachment"
+
+
+def test_download__errors_on_wrong_field_type(sg):
+    sg_entity = pysg.SGEntity(sg, 1, "Version")
+
+    with pytest.raises(RuntimeError):
+        sg_entity["code"].download("/path/to/somewhere")
+
+
+def test_download__errors_when_nothing_is_uploaded(sg):
+    sg_entity = pysg.SGEntity(sg, 1, "Version")
+
+    with pytest.raises(RuntimeError):
+        sg_entity["sg_uploaded_movie"].download("/path/to/somewhere")
+
+
+def test_download__downloads_to_full_path(sg, tmp_path):
+    sg_entity = pysg.SGEntity(sg, 1, "Version")
+    sg_entity["sg_uploaded_movie"].set({"id": 1, "type": "Attachment", "name": "some_movie.mov"})
+    download_path = tmp_path / "extra_dir" / "somewhere.mov"
+
+    result = sg_entity["sg_uploaded_movie"].download(str(download_path))
+
+    assert result == str(download_path)
+
+
+def test_download__downloads_to_folder(sg, tmp_path):
+    sg_entity = pysg.SGEntity(sg, 1, "Version")
+    sg_entity["sg_uploaded_movie"].set({"id": 1, "type": "Attachment", "name": "some_movie.mov"})
+    download_path = tmp_path / "extra_dir"
+
+    result = sg_entity["sg_uploaded_movie"].download(str(download_path))
+
+    assert result.startswith(str(download_path))
+
+
+def test_download__thumbnail_downloads_to_full_path(sg, tmp_path):
+    sg_entity = pysg.SGEntity(sg, 1, "Shot")
+    sg_entity.thumbnail.set("someVeryLongPayloadString")
+    download_path = tmp_path / "extra_dir" / "somewhere.jpg"
+
+    # Mock Mockgun.schema_field_read - the "project_entity" arg is missing in Mockgun.
+    with mock.patch.object(
+        pyshotgrid.Field,
+        "_download_url",
+        return_value=str(tmp_path / "extra_dir" / "somewhere.jpg"),
+    ):
+        result = sg_entity.thumbnail.download(str(download_path))
+
+    assert result == str(download_path)
+
+
+def test_download__thumbnail_downloads_to_directory_path(sg, tmp_path):
+    sg_entity = pysg.SGEntity(sg, 1, "Shot")
+    sg_entity.thumbnail.set("someVeryLongPayloadString")
+    download_path = tmp_path / "extra_dir"
+
+    # Mock Mockgun.schema_field_read - the "project_entity" arg is missing in Mockgun.
+    with mock.patch.object(
+        pyshotgrid.Field,
+        "_download_url",
+        return_value=str(tmp_path / "extra_dir" / "sq111_sh1111_image.jpg"),
+    ):
+        result = sg_entity.thumbnail.download(str(download_path))
+
+    assert result.startswith(str(download_path))
 
 
 def test_compare_entities(sg):

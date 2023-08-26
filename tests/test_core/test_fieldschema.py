@@ -33,3 +33,11 @@ def test_string_representation(sg):
     result = str(sg_field_schema)
 
     assert "FieldSchema - name - Entity: Project" == result
+
+
+def test_custom_metadata(sg):
+    sg_field_schema = pysg.core.FieldSchema(sg, "Project", "name")
+
+    result = sg_field_schema.custom_metadata
+
+    assert "" == result

@@ -1,5 +1,6 @@
 import datetime
 import os
+import random
 
 import pytest
 from shotgun_api3.lib import mockgun
@@ -21,6 +22,60 @@ def sg():
     )
 
     add_default_entities(sg)
+
+    # mockgun.Shotgun does not have a function "download_attachment()" so
+    # we mock it for the tests.
+    def mock_download_attachment(self, attachment, file_path):
+        return {"type": "Attachment", "id": random.randint(1, 1000)}
+
+    mockgun.Shotgun.download_attachment = mock_download_attachment
+
+    # mockgun.Shotgun.update is missing the "multi_entity_update_modes" parameter.
+    # We need to patch it to make the tests work.
+    def patched_update(self, entity_type, entity_id, data, multi_entity_update_modes=None):
+        self._validate_entity_type(entity_type)
+        if "image" not in data:
+            self._validate_entity_data(entity_type, data)
+        self._validate_entity_exists(entity_type, entity_id)
+
+        row = self._db[entity_type][entity_id]
+
+        if multi_entity_update_modes is not None:
+            new_data = {}
+            for field, value in data.items():
+                mode = multi_entity_update_modes.get(field, "set")
+
+                if mode == "add":
+                    sg_entity = sg.find_one(entity_type, [["id", "is", entity_id]], [field])
+                    tmp_result = sg_entity[field]
+                    for entity in value:
+                        if entity not in tmp_result:
+                            tmp_result.append(entity)
+                    new_data[field] = tmp_result
+
+                elif mode == "remove":
+                    sg_entity = sg.find_one(entity_type, [["id", "is", entity_id]], [field])
+                    tmp_result = sg_entity[field]
+                    for entity in value:
+                        if entity in tmp_result:
+                            tmp_result.remove(entity)
+                    new_data[field] = tmp_result
+
+                else:  # "set"
+                    new_data[field] = value
+            data = new_data
+
+        self._update_row(entity_type, row, data)
+
+        return [
+            dict(
+                (field, item)
+                for field, item in row.items()
+                if field in data or field in ("type", "id")
+            )
+        ]
+
+    mockgun.Shotgun.update = patched_update
 
     return sg
 
@@ -229,11 +284,8 @@ def add_default_entities(sg):
     sg.create("PipelineConfiguration", {"code": "Primary", "project": project_a})
     sg.create("PipelineConfiguration", {"code": "Develop", "project": project_a})
 
-    # Notes
-    sg.create("Note", {"subject": "Test note"})
-
     # Versions
-    sg.create(
+    sg_version_a = sg.create(
         "Version",
         {
             "code": "sh1111_city_v001",
@@ -269,3 +321,9 @@ def add_default_entities(sg):
             "playlists": [playlist_b],
         },
     )
+
+    # Notes
+    sg_note_a = sg.create("Note", {"subject": "Test note", "note_links": [sg_version_a]})
+
+    # Replies
+    sg.create("Reply", {"content": "Test reply", "entity": sg_note_a, "user": person_a})
