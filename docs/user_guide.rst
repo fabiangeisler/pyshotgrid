@@ -11,11 +11,11 @@ After you made `pyshotgrid` accessible in ShotGrid Toolkit the best way to use i
 any entity to a `pyshotgrid` object instance. What you need for this is:
 
 - a shotgun_api3.Shotgun instance (which conveniently is present almost everywhere in SGTK)
-- the type of the entity
-- the id of the entity
+- type of the entity
+- ID of the entity
 
-These parameters will be passed to the `pyshotgrid.new_entity` method, which returns the
-object you want to work with.
+These parameters will be passed to the :py:meth:`pyshotgrid.new_entity <pyshotgrid.core.new_entity>`
+method, which returns the object you want to work with.
 The method accepts 3 ways of passing arguments to it:
 
 .. code-block:: python
@@ -38,7 +38,8 @@ through it.
 
 .. Note::
 
-    You should always use the `pyshotgrid.new_site` function to create a new SGSite instance.
+    You should always use the :py:meth:`pyshotgrid.new_site <pyshotgrid.core.new_site>`
+    function to create a new SGSite instance.
     This ensures the plugin system works correctly and you do not get an instances of a
     wrong class at some point.
 

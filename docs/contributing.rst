@@ -83,7 +83,7 @@ Ready to contribute? Here's how to set up `pyshotgrid` for local development.
 
    Now you can make your changes locally.
 
-6. When you're done making changes, check that your changes pass flake8 and the
+6. When you're done making changes, check that your changes pass the
    tests by running tox::
 
     $ tox
@@ -91,16 +91,20 @@ Ready to contribute? Here's how to set up `pyshotgrid` for local development.
    To run the tests against other Python versions you need to have them installed on
    your machine.
 
-7. Commit your changes with `Commitizen <https://commitizen-tools.github.io/commitizen/#usage>`_::
+7. Run black, mypy and ruff against your changes::
+
+    $ invoke lint
+
+8. Commit your changes with `Commitizen <https://commitizen-tools.github.io/commitizen/#usage>`_::
 
     $ git add .
     $ cz commit
 
-8. Push your branch to GitHub::
+9. Push your branch to GitHub::
 
     $ git push origin name-of-your-bugfix-or-feature
 
-9. Submit a pull request through the GitHub website.
+10. Submit a pull request through the GitHub website.
 
 Pull Request Guidelines
 -----------------------

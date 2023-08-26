@@ -39,26 +39,25 @@ site = pysg.new_site(base_url='https://example.shotgunstudio.com',
                      api_key='$ome_password')
 
 for project in site.projects():
-    print(project)
+    print(project["name"].get())
     for shot in project.shots():
-        print(shot)
         print(shot["code"].get())
 ```
 
 # Features
 
-In `pyshotgrid` you are working with `SGEntity` instances which each represent exactly one entity
+In `pyshotgrid` you are working with [SGEntity][SGEntity] instances which each represent exactly one entity
 in ShotGrid. Any operation on it is reflected to ShotGrid.
 So for example you can :
 
-* Get fields from ShotGrid
+* Get entity fields in ShotGrid
   ```python
   # Get the value of a field ...
-  print(sg_project["code"].get())  # "foobar"
+  print(sg_project["name"].get())  # "foobar"
   # ... or get multiple fields at once.
-  print(sg_project.get(["code", "tank_name"]))  # {"code": "foobar", "tank_name": "fb"}
+  print(sg_project.get(["name", "tank_name"]))  # {"name": "foobar", "tank_name": "fb"}
   ```
-* Update fields in ShotGrid
+* Update entity fields in ShotGrid
   ```python
   # Set the value of a field ...
   sg_project["name"].set("foobar")
@@ -68,7 +67,8 @@ So for example you can :
 * Values are automatically converted to `pyshotgrid` objects which makes it
   possible to chain queries together.
   ```python
-  print(sg_playlist["versions"].get()[0]["code"].get())  # Name of the first Version in the Playlist.
+  # Name of the first Version in a Playlist.
+  print(sg_playlist["versions"].get()[0]["code"].get())
   ```
 * Get information about a field
   ```python
@@ -85,7 +85,7 @@ So for example you can :
   ```python
   print(sg_project.url)  # https://example.shotgunstudio.com/detail/Project/1
   ```
-* Convert it to a regular dict, to use it in Autodesk's `shotgun_api3`.
+* Convert it to a regular dict, to use it in Autodesk [shotgun_api3][shotgun_api3].
   ```python
   sg_project.to_dict()  # {"type": "Project", "id": 1}
   ```
@@ -98,15 +98,15 @@ So for example you can :
   for field_name, value in sg_project.all_field_values().items():
        print(field_name, value)
   ```
-* You keep forgetting which field is the "name" of an entity? (was it "code" or "name"?)
+* Do you keep forgetting which field is the "name" of an entity? (was it "code" or "name"?)
   Just use the "SGEntity.name" property:
   ```python
-  sg_project.name  # returns the "name" field.    Same as sg_project["name"]
-  sg_shot.name     # returns the "code" field.    Same as sg_shot["code"]
-  sg_task.name     # returns the "content" field. Same as sg_task["content"]
+  sg_project.name  # returns the "name" field.    Same as:  sg_project["name"]
+  sg_shot.name     # returns the "code" field.    Same as:  sg_shot["code"]
+  sg_task.name     # returns the "content" field. Same as:  sg_task["content"]
   ```
 
-Each SGEntity can have special functionality assigned to it. For example the
+Each [SGEntity][SGEntity] can have special functionality assigned to it. For example the
 default implementation for the Project entity gives you functions to easily query shots, assets
 or publishes.
   ```python
@@ -119,22 +119,31 @@ You can also customize the classes to fit your workflow needs.
 
 # FAQ
 
-## Is it faster than `shotgun_api3`?
-No, and since it is build on top of `shotgun_api3`, it never will be.
+## Is it faster than [shotgun_api3][shotgun_api3]?
+No, and since it is build on top of [shotgun_api3][shotgun_api3], it never will be.
 `pyshotgrid` is syntactic sugar that hopefully enables you to develop better and faster. :)
 
-## Is `pyshotgrid` replacing `shotgun_api3`?
-No, quite the opposite. It is meant to be used in conjunction with `shotgun_api3` and
+## Is `pyshotgrid` replacing [shotgun_api3][shotgun_api3]?
+No, quite the opposite. It is meant to be used in conjunction with [shotgun_api3][shotgun_api3] and
 improve handling and writing code with it. Its main goal is to make it easier to write
-code for common scenarios and leave the special cases for the `shotgun_api3`. That said,
-it is totally possible to write `pyshotgrid` code without using `shotgun_api3`.
+code for common scenarios and leave the special cases for the [shotgun_api3][shotgun_api3]. That said,
+it is totally possible to write `pyshotgrid` code without using [shotgun_api3][shotgun_api3].
 
 ## I have some custom entity setup in ShotGrid. Can this be reflected in `pyshotgrid`?
-Yes, it can! By default `pyshotgrid` returns any entity as `SGEntity` to provide
-A minimum of functionality in all cases. However you can write your own class
-that inherits from `SGEntity` and register that to `pyshotgrid`. After that,
-pyshotgrid will use your custom entity whenever you ask for it. With this method
+Yes, it can! By default `pyshotgrid` returns any entity as [SGEntity][SGEntity] to provide
+a minimum of functionality in all cases. However you can write your own class
+that inherits from [SGEntity][SGEntity] and register that to `pyshotgrid`. After that,
+`pyshotgrid` will use your custom entity whenever you ask for it. With this method
 you can even overwrite default classes that ship with `pyshotgrid`.
+
+## Why is `pyshotgrid` supporting Python 3.8+, when [shotgun_api3][shotgun_api3] only has support for Python 2.7/3.7?
+A couple of reasons:
+- Python 2.7 and 3.7 reached EOL and are no longer maintained.
+- [shotgun_api3][shotgun_api3] does work for Python 3.8+ and it is only a matter of time till
+  Autodesk will label it as such.
+- `pyshotgrid` is using a lot of modern tools and libraries which are super hard to maintain for
+  Python 2.7/3.7 and since this is a "free time project" I cannot afford to waist my time on
+  these kind of compatibility issues.
 
 ## Is this an official project from Autodesk?
 No, just a brainchild from me, [Fabian Geisler](https://github.com/fabiangeisler).
@@ -146,3 +155,6 @@ Feel free to follow me on GitHub. :)
 This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and
 the [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage) project template
 (but was heavily modified in the meantime).
+
+[SGEntity]: https://fabiangeisler.github.io/pyshotgrid/modules/core.html#pyshotgrid.core.SGEntity
+[shotgun_api3]: https://github.com/shotgunsoftware/python-api
