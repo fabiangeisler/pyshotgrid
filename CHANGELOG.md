@@ -1,3 +1,10 @@
+## v0.15.0 (2023-08-27)
+
+### Feat
+
+- **Field**: Make Field inherit FieldSchema
+- **SGEntity**: Add thumbnail and filmstrip properties
+
 ## v0.14.0 (2023-07-26)
 
 ### Feat
