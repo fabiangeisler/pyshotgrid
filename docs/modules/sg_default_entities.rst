@@ -4,4 +4,5 @@ SG default entities
 ===================
 
 .. automodule:: pyshotgrid.sg_default_entities
+    :show-inheritance:
     :members:

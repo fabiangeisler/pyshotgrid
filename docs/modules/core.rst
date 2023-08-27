@@ -4,4 +4,5 @@ Core
 ====
 
 .. automodule:: pyshotgrid.core
+    :show-inheritance:
     :members:
