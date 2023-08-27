@@ -91,7 +91,6 @@ version = "0.15.0"
 tag_format = "v$version"
 update_changelog_on_bump = true
 annotated_tag = true
-major_version_zero = true
 version_files = [
     "src/pyshotgrid/__init__.py:VERSION",
 ]
