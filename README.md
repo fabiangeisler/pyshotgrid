@@ -14,10 +14,6 @@
 `pyshotgrid` is a python package that gives you a pythonic and
 object oriented way to talk to [Autodesk ShotGrid](https://www.autodesk.com/products/shotgrid/overview).
 
-> **Warning**
-> This python library is still in early development and the API is not yet stable.
-> Please be cautious in a production environment.
-
 # Quickstart
 
 Install `pyshotgrid` via pip:
