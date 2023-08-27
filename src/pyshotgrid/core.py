@@ -805,33 +805,33 @@ class SGSite(object):
         return [new_entity(self._sg, sg_user) for sg_user in self._sg.find("HumanUser", sg_filter)]
 
 
-class Field(object):
+class FieldSchema(object):
     """
-    This class represents a field on a ShotGrid entity.
-    It provides an interface to manage various aspects of a field.
+    This class represents the schema of a field.
     """
 
-    # Note to developers:
-    # The naming convention of this class intentionally leaves out the "SG" in front,
-    # since there is a ShotGrid entity that is called "Field".
-
-    def __init__(self, name, entity):
-        # type: (str, SGEntity) -> None
+    def __init__(self, sg, entity_type, name):
+        # type: (shotgun_api3.shotgun.Shotgun, str, str) -> None
         """
-        :param name: The name of the field.
-        :param entity: The entity that this field is attached to.
+        :param sg: The current Shotgun instance this instance uses.
+        :param entity_type: The type of the SG entity.
+        :param name: The name of the Field.
         """
+        self._sg = sg
+        self._entity_type = entity_type
         self._name = name
-        self._entity = entity
-        self._schema = FieldSchema(
-            sg=self._entity.sg, entity_type=self._entity.type, field_name=self._name
-        )
 
     def __str__(self):
         # type: () -> str
-        return "{} - {} - Entity: {} Entity ID: {}".format(
-            self.__class__.__name__, self._name, self.entity.type, self._entity.id
-        )
+        return "{} - {} - Entity: {}".format(self.__class__.__name__, self._name, self._entity_type)
+
+    @property
+    def sg(self):
+        # type: () -> shotgun_api3.shotgun.Shotgun
+        """
+        :return: The Shotgun instance that the field belongs to.
+        """
+        return self._sg
 
     @property
     def name(self):
@@ -842,365 +842,12 @@ class Field(object):
         return self._name
 
     @property
-    def entity(self):
-        # type: () -> SGEntity
-        """
-        :return: The entity that this field is attached to.
-        """
-        return self._entity
-
-    def get(self, raw_values=False):
-        # type: (bool) -> Any
-        """
-        :param raw_values: Whether to return the raw dict values or the values converted to
-                           pyshotgrid objects.
-        :return: The value of the field. Any entities will be automatically converted to
-                 pyshotgrid objects.
-        """
-        value = self._entity.sg.find_one(
-            entity_type=self._entity.type,
-            filters=[["id", "is", self._entity.id]],
-            fields=[self._name],
-        ).get(self._name)
-        return value if raw_values else convert_value_to_pysg(self._entity.sg, value)
-
-    def set(self, value):
-        # type: (Any) -> None
-        """
-        Set the field to the given value in ShotGrid.
-
-        :param value: The value to set the field to.
-        """
-        self._entity.sg.update(
-            self._entity.type,
-            self._entity.id,
-            data={self._name: convert_value_to_dict(value)},
-        )
-
-    def add(self, values):
-        # type: (List[Any]) -> None
-        """
-        Add some values to this field
-
-        :param values: The value to add to this field.
-        """
-        self._entity.sg.update(
-            self._entity.type,
-            self._entity.id,
-            data={self._name: convert_value_to_dict(values)},
-            multi_entity_update_modes={self._name: "add"},
-        )
-
-    def remove(self, values):
-        # type: (List[Any]) -> None
-        """
-        Remove some values from this field.
-
-        :param values: The values to remove from this field.
-        """
-        self._entity.sg.update(
-            self._entity.type,
-            self._entity.id,
-            data={self._name: convert_value_to_dict(values)},
-            multi_entity_update_modes={self._name: "remove"},
-        )
-
-    # This function was shamelessly stolen from sgtk.util.download_url
-    # This also the reason why we exclude it from test coverage.
-    def _download_url(self, url, location, use_url_extension=False):  # pragma: no cover
-        # type: (str, str, bool) -> str
-        """
-        Convenience method that downloads a file from a given url.
-        This method will take into account any proxy settings which have
-        been defined in the Shotgun connection parameters.
-
-        In some cases, the target content of the url is not known beforehand.
-        For example, the url ``https://my-site.shotgunstudio.com/thumbnail/full/Asset/1227``
-        may redirect into ``https://some-site/path/to/a/thumbnail.png``. In
-        such cases, you can set the optional use_url_extension parameter to True - this
-        will cause the method to append the file extension of the resolved url to
-        the filename passed in via the location parameter. So for the urls given
-        above, you would get the following results:
-
-        - location="/path/to/file" and use_url_extension=False would return "/path/to/file"
-        - location="/path/to/file" and use_url_extension=True would return "/path/to/file.png"
-
-        :param url: url to download
-        :param location: path on disk where the payload should be written.
-                         this path needs to exists and the current user needs
-                         to have write permissions
-        :param bool use_url_extension: Optionally append the file extension of the
-                                       resolved URL's path to the input ``location``
-                                       to construct the full path name to the downloaded
-                                       contents. The newly constructed full path name
-                                       will be returned.
-
-        :returns: Full filepath to the downloaded file. This may have been altered from
-                  the input ``location`` if ``use_url_extension`` is True and a file extension
-                  could be determined from the resolved url.
-        :raises: :class:`RuntimeError` on failure.
-        """
-        sg = self._entity.sg
-        # We only need to set the auth cookie for downloads from Shotgun server,
-        # input URLs like: https://my-site.shotgunstudio.com/thumbnail/full/Asset/1227
-        if sg.config.server in url:
-            # this method also handles proxy server settings from the shotgun API
-            self._setup_sg_auth_and_proxy()
-        elif sg.config.proxy_handler:
-            # These input URLs have generally already been authenticated and are
-            # in the form: https://sg-media-staging-usor-01.s3.amazonaws.com/9d93f...
-            # %3D&response-content-disposition=filename%3D%22jackpot_icon.png%22.
-            # Grab proxy server settings from the shotgun API
-            opener = urllib.request.build_opener(sg.config.proxy_handler)
-
-            urllib.request.install_opener(opener)
-
-        # inherit the timeout value from the sg API
-        timeout = sg.config.timeout_secs
-
-        # download the given url
-        try:
-            request = urllib.request.Request(url)
-            if timeout and sys.version_info >= (2, 6):
-                # timeout parameter only available in python 2.6+
-                response = urllib.request.urlopen(request, timeout=timeout)
-            else:
-                # use system default
-                response = urllib.request.urlopen(request)
-
-            if use_url_extension:
-                # Make sure the disk location has the same extension as the url path.
-                # Would be nice to see this functionality moved to back into Shotgun
-                # API and removed from here.
-                url_ext = os.path.splitext(urllib.parse.urlparse(response.geturl()).path)[-1]
-                if url_ext:
-                    location = "{}{}".format(location, url_ext)
-
-            f = open(location, "wb")
-            try:
-                f.write(response.read())
-            finally:
-                f.close()
-        except Exception as e:
-            raise RuntimeError(
-                "Could not download contents of url '{}'. Error reported: {}".format(url, e)
-            )
-
-        return location
-
-    # This function was shamelessly stolen from sgtk.util.download_url
-    # This also the reason why we exclude it from test coverage.
-    def _setup_sg_auth_and_proxy(self):  # pragma: no cover
-        # type: () -> None
-        """
-        Borrowed from the Shotgun Python API, setup urllib2 with a cookie for authentication on
-        Shotgun instance.
-
-        Looks up session token and sets that in a cookie in the :mod:`urllib2` handler. This is
-        used internally for downloading attachments from the Shotgun server.
-        """
-        sg = self._entity.sg
-
-        sid = sg.get_session_token()
-        cj = http.cookiejar.LWPCookieJar()
-        c = http.cookiejar.Cookie(
-            0,
-            "_session_id",
-            sid,
-            None,
-            False,
-            sg.config.server,
-            False,
-            False,
-            "/",
-            True,
-            False,
-            None,
-            True,
-            None,
-            None,
-            {},
-        )
-        cj.set_cookie(c)
-        cookie_handler = urllib.request.HTTPCookieProcessor(cj)
-        if sg.config.proxy_handler:
-            opener = urllib.request.build_opener(sg.config.proxy_handler, cookie_handler)
-        else:
-            opener = urllib.request.build_opener(cookie_handler)
-        urllib.request.install_opener(opener)
-
-    def upload(self, path, display_name=None):
-        # type: (str, Optional[str]) -> SGEntity
-        """
-        Upload a file to this field.
-
-        :param path: The path to the file to upload.
-        :param display_name: The display name of the file in ShotGrid.
-        :return: The Attachment entity that was created for the uploaded file.
-        """
-        sg_attachment_id = self._entity.sg.upload(
-            entity_type=self._entity.type,
-            entity_id=self._entity.id,
-            path=path,
-            field_name=self._name,
-            display_name=display_name,
-        )
-        return new_entity(self._entity.sg, sg_attachment_id, "Attachment")
-
-    def download(self, path, create_folders=True):
-        # type: (str, bool) -> str
-        """
-        Download a file from a field.
-
-        :param path: The path to download to. If you only provide a folder a file name will be
-                     auto-generated.
-        :param create_folders: Create any folders from "path" that do not exist.
-        :raises:
-            :RuntimeError: When the field is not a "url" or "image" field.
-            :RuntimeError: When nothing was uploaded to this field.
-        :returns: The full path of the downloaded file.
-        """
-        field_type = self.data_type
-
-        if field_type not in ["url", "image"]:
-            raise RuntimeError(
-                'The "{}" field is neither a "url" nor an "image" field. '
-                "Nothing can be downloaded from it.".format(self._name)
-            )
-
-        pay_load = self._entity.sg.find_one(
-            self._entity.type, [["id", "is", self._entity.id]], [self._name]
-        )[self._name]
-
-        if pay_load is None:
-            raise RuntimeError(
-                'Cannot download file from field "{}" on entity "{}", because there '
-                "is nothing uploaded.".format(self._name, self._entity.to_dict())
-            )
-
-        if field_type == "url":
-            # if we can split of a file extension from the given path we assume that the path is the
-            # full path with file name to download to. In the other case we assume that the path is
-            # the directory to download to and attach the attachment name as the file name to the
-            # directory path.
-            _, ext = os.path.splitext(path)
-            if ext:
-                if create_folders and not os.path.exists(os.path.dirname(path)):
-                    os.makedirs(os.path.dirname(path))
-
-                local_file_path = path
-            else:
-                if create_folders and not os.path.exists(path):
-                    os.makedirs(path)
-
-                local_file_path = os.path.join(path, pay_load["name"])
-
-            self._entity.sg.download_attachment(attachment=pay_load, file_path=local_file_path)
-            downloaded_file_path = local_file_path
-        else:  # field_type == "image"
-            _, ext = os.path.splitext(path)
-            if ext:  # file path with filename and extension
-                if create_folders and not os.path.exists(os.path.dirname(path)):
-                    os.makedirs(os.path.dirname(path))
-
-                local_file_path = path
-            else:  # only an output folder
-                if create_folders and not os.path.exists(path):
-                    os.makedirs(path)
-
-                local_file_path = os.path.join(path, self._entity.name.get() + "_" + self._name)
-
-            downloaded_file_path = self._download_url(
-                pay_load, location=local_file_path, use_url_extension=not bool(ext)
-            )
-        return downloaded_file_path
-
-    @property
-    def schema(self):
-        # type: () -> FieldSchema
-        """
-        :return: The schema of this field.
-        """
-        return self._schema
-
-    @property
-    def data_type(self):
+    def entity_type(self):
         # type: () -> str
         """
-        :return: The data type of the field.
+        :return: The type of the SG entity that this Field belongs to.
         """
-        return self._schema.data_type
-
-    @property
-    def description(self):
-        # type: () -> str
-        """
-        :return: The description of the field.
-        """
-        return self._schema.description
-
-    @property
-    def display_name(self):
-        # type: () -> str
-        """
-        :return: The display name of the field.
-        """
-        return self._schema.display_name
-
-    @property
-    def properties(self):
-        # type: () -> Dict[str,Dict[str,Any]]
-        """
-        :return: The properties of the field. This strongly depends on the data type of the field.
-                 This can for example give you all the possible values of a status field.
-        """
-        return self._schema.properties
-
-    @property
-    def valid_types(self):
-        # type: () -> List[str]
-        """
-        :return: The valid SG entity types for entity- and multi-entity-fields.
-        """
-        return self._schema.valid_types
-
-    def batch_update_dict(self, value):
-        # type: (Any) -> Dict[str,Any]
-        """
-        :param value: The value to set.
-        :returns: A dict that can be used in a shotgun.batch() call to update this field.
-                  Useful when you want to collect field changes and set them in one go.
-        """
-        value = convert_value_to_dict(value)
-        return {
-            "request_type": "update",
-            "entity_type": self._entity.type,
-            "entity_id": self._entity.id,
-            "data": {self._name: value},
-        }
-
-
-class FieldSchema(object):
-    """
-    This class represents the schema of a field.
-    """
-
-    def __init__(self, sg, entity_type, field_name):
-        # type: (shotgun_api3.shotgun.Shotgun, str, str) -> None
-        """
-        :param sg: The current Shotgun instance this instance uses.
-        :param entity_type: The type of the SG entity.
-        :param field_name: The name of the Field.
-        """
-        self.sg = sg
-        self.entity_type = entity_type
-        self.field_name = field_name
-
-    def __str__(self):
-        # type: () -> str
-        return "{} - {} - Entity: {}".format(
-            self.__class__.__name__, self.field_name, self.entity_type
-        )
+        return self._entity_type
 
     def _get_schema(self):
         # type: () -> Dict[str,Dict[str,Any]]
@@ -1234,7 +881,7 @@ class FieldSchema(object):
                       'unique': {'editable': False, 'value': False},
                       'visible': {'editable': True, 'value': True}}
         """
-        return self.sg.schema_field_read(self.entity_type, self.field_name)[self.field_name]
+        return self.sg.schema_field_read(self._entity_type, self._name)[self._name]
 
     def _update_schema(self, prop, value, project_entity=None):
         # type: (str, Any, Optional[Union[Dict[str,Any],SGEntity]]) -> bool
@@ -1244,8 +891,8 @@ class FieldSchema(object):
         :return: True when the update succeeded.
         """
         return self.sg.schema_field_update(
-            self.entity_type,
-            self.field_name,
+            self._entity_type,
+            self._name,
             {prop: value},
             project_entity=convert_value_to_dict(project_entity),
         )
@@ -1328,6 +975,329 @@ class FieldSchema(object):
         :return: The valid SG entity types for entity- and multi-entity-fields.
         """
         return self._get_schema()["properties"]["valid_types"]["value"]
+
+
+class Field(FieldSchema):
+    """
+    This class represents a field on a ShotGrid entity.
+    It provides an interface to manage various aspects of a field.
+    """
+
+    # Note to developers:
+    # The naming convention of this class intentionally leaves out the "SG" in front,
+    # since there is a ShotGrid entity that is called "Field".
+
+    def __init__(self, name, entity):
+        # type: (str, SGEntity) -> None
+        """
+        :param name: The name of the field.
+        :param entity: The entity that this field is attached to.
+        """
+        super().__init__(sg=entity.sg, entity_type=entity.type, name=name)
+        self._entity = entity
+
+    def __str__(self):
+        # type: () -> str
+        return "{} - {} - Entity: {} ID: {}".format(
+            self.__class__.__name__, self._name, self._entity.type, self._entity.id
+        )
+
+    @property
+    def entity(self):
+        # type: () -> SGEntity
+        """
+        :return: The entity that this field is attached to.
+        """
+        return self._entity
+
+    def get(self, raw_values=False):
+        # type: (bool) -> Any
+        """
+        :param raw_values: Whether to return the raw dict values or the values converted to
+                           pyshotgrid objects.
+        :return: The value of the field. Any entities will be automatically converted to
+                 pyshotgrid objects.
+        """
+        value = self.sg.find_one(
+            entity_type=self._entity.type,
+            filters=[["id", "is", self._entity.id]],
+            fields=[self._name],
+        ).get(self._name)
+        return value if raw_values else convert_value_to_pysg(self.sg, value)
+
+    def set(self, value):
+        # type: (Any) -> None
+        """
+        Set the field to the given value in ShotGrid.
+
+        :param value: The value to set the field to.
+        """
+        self.sg.update(
+            self._entity.type,
+            self._entity.id,
+            data={self._name: convert_value_to_dict(value)},
+        )
+
+    def add(self, values):
+        # type: (List[Any]) -> None
+        """
+        Add some values to this field
+
+        :param values: The value to add to this field.
+        """
+        self.sg.update(
+            self._entity.type,
+            self._entity.id,
+            data={self._name: convert_value_to_dict(values)},
+            multi_entity_update_modes={self._name: "add"},
+        )
+
+    def remove(self, values):
+        # type: (List[Any]) -> None
+        """
+        Remove some values from this field.
+
+        :param values: The values to remove from this field.
+        """
+        self.sg.update(
+            self._entity.type,
+            self._entity.id,
+            data={self._name: convert_value_to_dict(values)},
+            multi_entity_update_modes={self._name: "remove"},
+        )
+
+    # This function was shamelessly stolen from sgtk.util.download_url
+    # This also the reason why we exclude it from test coverage.
+    def _download_url(self, url, location, use_url_extension=False):  # pragma: no cover
+        # type: (str, str, bool) -> str
+        """
+        Convenience method that downloads a file from a given url.
+        This method will take into account any proxy settings which have
+        been defined in the Shotgun connection parameters.
+
+        In some cases, the target content of the url is not known beforehand.
+        For example, the url ``https://my-site.shotgunstudio.com/thumbnail/full/Asset/1227``
+        may redirect into ``https://some-site/path/to/a/thumbnail.png``. In
+        such cases, you can set the optional use_url_extension parameter to True - this
+        will cause the method to append the file extension of the resolved url to
+        the filename passed in via the location parameter. So for the urls given
+        above, you would get the following results:
+
+        - location="/path/to/file" and use_url_extension=False would return "/path/to/file"
+        - location="/path/to/file" and use_url_extension=True would return "/path/to/file.png"
+
+        :param url: url to download
+        :param location: path on disk where the payload should be written.
+                         this path needs to exists and the current user needs
+                         to have write permissions
+        :param bool use_url_extension: Optionally append the file extension of the
+                                       resolved URL's path to the input ``location``
+                                       to construct the full path name to the downloaded
+                                       contents. The newly constructed full path name
+                                       will be returned.
+
+        :returns: Full filepath to the downloaded file. This may have been altered from
+                  the input ``location`` if ``use_url_extension`` is True and a file extension
+                  could be determined from the resolved url.
+        :raises: :class:`RuntimeError` on failure.
+        """
+        sg = self.sg
+        # We only need to set the auth cookie for downloads from Shotgun server,
+        # input URLs like: https://my-site.shotgunstudio.com/thumbnail/full/Asset/1227
+        if sg.config.server in url:
+            # this method also handles proxy server settings from the shotgun API
+            self._setup_sg_auth_and_proxy()
+        elif sg.config.proxy_handler:
+            # These input URLs have generally already been authenticated and are
+            # in the form: https://sg-media-staging-usor-01.s3.amazonaws.com/9d93f...
+            # %3D&response-content-disposition=filename%3D%22jackpot_icon.png%22.
+            # Grab proxy server settings from the shotgun API
+            opener = urllib.request.build_opener(sg.config.proxy_handler)
+
+            urllib.request.install_opener(opener)
+
+        # inherit the timeout value from the sg API
+        timeout = sg.config.timeout_secs
+
+        # download the given url
+        try:
+            request = urllib.request.Request(url)
+            if timeout and sys.version_info >= (2, 6):
+                # timeout parameter only available in python 2.6+
+                response = urllib.request.urlopen(request, timeout=timeout)
+            else:
+                # use system default
+                response = urllib.request.urlopen(request)
+
+            if use_url_extension:
+                # Make sure the disk location has the same extension as the url path.
+                # Would be nice to see this functionality moved to back into Shotgun
+                # API and removed from here.
+                url_ext = os.path.splitext(urllib.parse.urlparse(response.geturl()).path)[-1]
+                if url_ext:
+                    location = "{}{}".format(location, url_ext)
+
+            f = open(location, "wb")
+            try:
+                f.write(response.read())
+            finally:
+                f.close()
+        except Exception as e:
+            raise RuntimeError(
+                "Could not download contents of url '{}'. Error reported: {}".format(url, e)
+            )
+
+        return location
+
+    # This function was shamelessly stolen from sgtk.util.download_url
+    # This also the reason why we exclude it from test coverage.
+    def _setup_sg_auth_and_proxy(self):  # pragma: no cover
+        # type: () -> None
+        """
+        Borrowed from the Shotgun Python API, setup urllib2 with a cookie for authentication on
+        Shotgun instance.
+
+        Looks up session token and sets that in a cookie in the :mod:`urllib2` handler. This is
+        used internally for downloading attachments from the Shotgun server.
+        """
+        sg = self.sg
+
+        sid = sg.get_session_token()
+        cj = http.cookiejar.LWPCookieJar()
+        c = http.cookiejar.Cookie(
+            0,
+            "_session_id",
+            sid,
+            None,
+            False,
+            sg.config.server,
+            False,
+            False,
+            "/",
+            True,
+            False,
+            None,
+            True,
+            None,
+            None,
+            {},
+        )
+        cj.set_cookie(c)
+        cookie_handler = urllib.request.HTTPCookieProcessor(cj)
+        if sg.config.proxy_handler:
+            opener = urllib.request.build_opener(sg.config.proxy_handler, cookie_handler)
+        else:
+            opener = urllib.request.build_opener(cookie_handler)
+        urllib.request.install_opener(opener)
+
+    def upload(self, path, display_name=None):
+        # type: (str, Optional[str]) -> SGEntity
+        """
+        Upload a file to this field.
+
+        :param path: The path to the file to upload.
+        :param display_name: The display name of the file in ShotGrid.
+        :return: The Attachment entity that was created for the uploaded file.
+        """
+        sg_attachment_id = self.sg.upload(
+            entity_type=self._entity.type,
+            entity_id=self._entity.id,
+            path=path,
+            field_name=self._name,
+            display_name=display_name,
+        )
+        return new_entity(self.sg, sg_attachment_id, "Attachment")
+
+    def download(self, path, create_folders=True):
+        # type: (str, bool) -> str
+        """
+        Download a file from a field.
+
+        :param path: The path to download to. If you only provide a folder a file name will be
+                     auto-generated.
+        :param create_folders: Create any folders from "path" that do not exist.
+        :raises:
+            :RuntimeError: When the field is not a "url" or "image" field.
+            :RuntimeError: When nothing was uploaded to this field.
+        :returns: The full path of the downloaded file.
+        """
+        field_type = self.data_type
+
+        if field_type not in ["url", "image"]:
+            raise RuntimeError(
+                'The "{}" field is neither a "url" nor an "image" field. '
+                "Nothing can be downloaded from it.".format(self._name)
+            )
+
+        pay_load = self.sg.find_one(
+            self._entity.type, [["id", "is", self._entity.id]], [self._name]
+        )[self._name]
+
+        if pay_load is None:
+            raise RuntimeError(
+                'Cannot download file from field "{}" on entity "{}", because there '
+                "is nothing uploaded.".format(self._name, self._entity.to_dict())
+            )
+
+        if field_type == "url":
+            # if we can split of a file extension from the given path we assume that the path is the
+            # full path with file name to download to. In the other case we assume that the path is
+            # the directory to download to and attach the attachment name as the file name to the
+            # directory path.
+            _, ext = os.path.splitext(path)
+            if ext:
+                if create_folders and not os.path.exists(os.path.dirname(path)):
+                    os.makedirs(os.path.dirname(path))
+
+                local_file_path = path
+            else:
+                if create_folders and not os.path.exists(path):
+                    os.makedirs(path)
+
+                local_file_path = os.path.join(path, pay_load["name"])
+
+            self.sg.download_attachment(attachment=pay_load, file_path=local_file_path)
+            downloaded_file_path = local_file_path
+        else:  # field_type == "image"
+            _, ext = os.path.splitext(path)
+            if ext:  # file path with filename and extension
+                if create_folders and not os.path.exists(os.path.dirname(path)):
+                    os.makedirs(os.path.dirname(path))
+
+                local_file_path = path
+            else:  # only an output folder
+                if create_folders and not os.path.exists(path):
+                    os.makedirs(path)
+
+                local_file_path = os.path.join(path, self._entity.name.get() + "_" + self._name)
+
+            downloaded_file_path = self._download_url(
+                pay_load, location=local_file_path, use_url_extension=not bool(ext)
+            )
+        return downloaded_file_path
+
+    @property
+    def schema(self):
+        # type: () -> FieldSchema
+        """
+        :return: The schema of this field.
+        """
+        return FieldSchema(sg=self._entity.sg, entity_type=self._entity.type, name=self._name)
+
+    def batch_update_dict(self, value):
+        # type: (Any) -> Dict[str,Any]
+        """
+        :param value: The value to set.
+        :returns: A dict that can be used in a shotgun.batch() call to update this field.
+                  Useful when you want to collect field changes and set them in one go.
+        """
+        value = convert_value_to_dict(value)
+        return {
+            "request_type": "update",
+            "entity_type": self._entity.type,
+            "entity_id": self._entity.id,
+            "data": {self._name: value},
+        }
 
 
 #: Entity plugins that are registered to pyshotgrid.
