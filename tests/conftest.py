@@ -77,6 +77,102 @@ def sg():
 
     mockgun.Shotgun.update = patched_update
 
+    # Patching the mockgun.Shotgun.find method because it is missing 2 arguments "include_archived_projects" and
+    # "additional_filter_presets".
+    def patched_find(
+        self,
+        entity_type,
+        filters,
+        fields=None,
+        order=None,
+        filter_operator=None,
+        limit=0,
+        retired_only=False,
+        page=0,
+        include_archived_projects=True,
+        additional_filter_presets=None,
+    ):
+        if not include_archived_projects:
+            raise NotImplementedError(
+                'The logic for "include_archived_projects" is not implemented.'
+            )
+
+        if additional_filter_presets is not None:
+            raise NotImplementedError(
+                'The logic for "additional_filter_presets" is not implemented.'
+            )
+
+        self.finds += 1
+
+        self._validate_entity_type(entity_type)
+        # do not validate custom fields - this makes it hard to mock up a field quickly
+        # self._validate_entity_fields(entity_type, fields)
+
+        if isinstance(filters, dict):
+            # complex filter style!
+            # {'conditions': [{'path': 'id', 'relation': 'is', 'values': [1]}], 'logical_operator': 'and'}
+
+            resolved_filters = []
+            for f in filters["conditions"]:
+                if f["path"].startswith("$FROM$"):
+                    # special $FROM$Task.step.entity syntax
+                    # skip this for now
+                    continue
+
+                if len(f["values"]) != 1:
+                    # {'path': 'id', 'relation': 'in', 'values': [1,2,3]} --> ["id", "in", [1,2,3]]
+                    resolved_filters.append([f["path"], f["relation"], f["values"]])
+                else:
+                    # {'path': 'id', 'relation': 'is', 'values': [3]} --> ["id", "is", 3]
+                    resolved_filters.append([f["path"], f["relation"], f["values"][0]])
+
+        else:
+            # traditional style sg filters
+            resolved_filters = filters
+
+        results = [
+            # Apply the filters for every single entities for the given entity type.
+            row
+            for row in self._db[entity_type].values()
+            if self._row_matches_filters(
+                entity_type, row, resolved_filters, filter_operator, retired_only
+            )
+        ]
+
+        # handle the ordering of the recordset
+        if order:
+            # order: [{"field_name": "code", "direction": "asc"}, ... ]
+            for order_entry in order:
+                if "field_name" not in order_entry:
+                    raise ValueError(
+                        "Order clauses must be list of dicts with keys 'field_name' and 'direction'!"
+                    )
+
+                order_field = order_entry["field_name"]
+                if order_entry["direction"] == "asc":
+                    desc_order = False
+                elif order_entry["direction"] == "desc":
+                    desc_order = True
+                else:
+                    raise ValueError("Unknown ordering direction")
+
+                results = sorted(results, key=lambda k: k[order_field], reverse=desc_order)
+
+        if fields is None:
+            fields = {"type", "id"}
+        else:
+            fields = set(fields) | {"type", "id"}
+
+        # get the values requested
+        val = [
+            dict((field, self._get_field_from_row(entity_type, row, field)) for field in fields)
+            for row in results
+        ]
+
+        return val
+
+    mockgun.Shotgun.find = patched_find
+
     return sg
 
 
@@ -147,6 +243,7 @@ def add_default_entities(sg):
             "name": "Test Project A",
             "tank_name": "tpa",
             "users": [person_a, person_b, person_c],
+            "is_template": False,
         },
     )
     project_b = sg.create(
@@ -155,6 +252,7 @@ def add_default_entities(sg):
             "name": "Test Project B",
             "tank_name": "tpb",
             "users": [person_a, person_b, person_c],
+            "is_template": False,
         },
     )
 
@@ -165,7 +263,7 @@ def add_default_entities(sg):
 
     # Assets
     asset_tree_a = sg.create("Asset", {"code": "Tree", "project": project_a})
-    sg.create("Asset", {"code": "CarA", "project": project_a})
+    asset_car_a = sg.create("Asset", {"code": "CarA", "project": project_a})
     sg.create("Asset", {"code": "CarB", "project": project_a})
 
     # Sequences
@@ -219,6 +317,16 @@ def add_default_entities(sg):
             "task_assignees": [person_b],
         },
     )
+    task_mdl_b = sg.create(
+        "Task",
+        {
+            "content": "modeling",
+            "project": project_a,
+            "entity": asset_car_a,
+            "step": pipeline_step_mdl,
+            "task_assignees": [person_b],
+        },
+    )
 
     # PublishedFileTypes
     pub_type_alembic = sg.create("PublishedFileType", {"code": "Alembic Cache"})
@@ -236,6 +344,29 @@ def add_default_entities(sg):
                 "project": project_a,
                 "task": task_cmp_a,
                 "entity": shot_a,
+                "path": {
+                    "content_type": "image/exr",
+                    "link_type": "local",
+                    "name": "sh1111_city_v{:03d}.%04d.exr".format(i),
+                    "local_storage": local_storage,
+                    "local_path_mac": "/Volumes/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(
+                        i
+                    ),
+                    "local_path_linux": "/mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(
+                        i
+                    ),
+                    "local_path_windows": "P:\\tp\\sequences\\sq111\\sh1111_city_v{:03d}.%04d.exr".format(
+                        i
+                    ),
+                    "type": "Attachment",
+                    "id": random.randint(1, 1000),
+                    "local_path": "/mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(
+                        i
+                    ),
+                    "url": "file:///mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(
+                        i
+                    ),
+                },
                 "path_cache": "tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(i),
                 "path_cache_storage": local_storage,
                 "created_by": person_a,
@@ -252,27 +383,97 @@ def add_default_entities(sg):
                 "project": project_a,
                 "task": task_lgt_a,
                 "entity": shot_a,
+                "path": {
+                    "content_type": "image/exr",
+                    "link_type": "local",
+                    "name": "sh1111_city_v{:03d}.%04d.abc".format(i),
+                    "local_storage": local_storage,
+                    "local_path_mac": "/Volumes/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.abc".format(
+                        i
+                    ),
+                    "local_path_linux": "/mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.abc".format(
+                        i
+                    ),
+                    "local_path_windows": "P:\\tp\\sequences\\sq111\\sh1111_city_v{:03d}.%04d.abc".format(
+                        i
+                    ),
+                    "type": "Attachment",
+                    "id": random.randint(1, 1000),
+                    "local_path": "/mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.abc".format(
+                        i
+                    ),
+                    "url": "file:///mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.abc".format(
+                        i
+                    ),
+                },
                 "path_cache": "tp/sequences/sq111/sh1111_city_v{:03d}.abc".format(i),
                 "path_cache_storage": local_storage,
                 "created_by": person_b,
             },
         )
-    for i in range(1, 6):
-        sg.create(
-            "PublishedFile",
-            {
-                "code": "Tree_mdl_v{:03d}.abc".format(i),
-                "name": "Tree_mdl",
-                "version_number": i,
-                "published_file_type": pub_type_alembic,
-                "project": project_a,
-                "task": task_mdl_a,
-                "entity": asset_tree_a,
-                "path_cache": "tp/asset/prop/Tree_mdl_v{:03d}.abc".format(i),
-                "path_cache_storage": local_storage,
-                "created_by": person_b,
+
+    sg.create(
+        "PublishedFile",
+        {
+            "code": "CarA_mdl_v001.abc",
+            "name": "CarA_mdl",
+            "version_number": 1,
+            "published_file_type": pub_type_alembic,
+            "project": project_a,
+            "task": task_mdl_b,
+            "entity": asset_car_a,
+            "path": None,
+            "path_cache": "",
+            "path_cache_storage": None,
+            "created_by": person_b,
+        },
+    )
+    sg.create(
+        "PublishedFile",
+        {
+            "code": "CarA_mdl_v002.abc",
+            "name": "CarA_mdl",
+            "version_number": 2,
+            "published_file_type": pub_type_alembic,
+            "project": project_a,
+            "task": task_mdl_b,
+            "entity": asset_car_a,
+            "path": {
+                "content_type": None,
+                "id": 123455,
+                "link_type": "web",
+                "name": "google",
+                "type": "Attachment",
+                "url": "https://www.google.com/",
             },
-        )
+            "path_cache": "",
+            "path_cache_storage": None,
+            "created_by": person_b,
+        },
+    )
+    sg.create(
+        "PublishedFile",
+        {
+            "code": "CarA_mdl_v003.abc",
+            "name": "CarA_mdl",
+            "version_number": 3,
+            "published_file_type": pub_type_alembic,
+            "project": project_a,
+            "task": task_mdl_b,
+            "entity": asset_car_a,
+            "path": {
+                "content_type": None,
+                "id": 123456,
+                "link_type": "upload",
+                "name": "test.txt",
+                "type": "Attachment",
+                "url": "https://sg-media-ireland.s3-accelerate.amazonaws.com/ffeb...",
+            },
+            "path_cache": "",
+            "path_cache_storage": None,
+            "created_by": person_b,
+        },
+    )
 
     # Playlists
     playlist_a = sg.create("Playlist", {"code": "Playlist A", "project": project_a})
@@ -327,3 +528,6 @@ def add_default_entities(sg):
 
     # Replies
     sg.create("Reply", {"content": "Test reply", "entity": sg_note_a, "user": person_a})
+
+    # Tags
+    sg.create("Tag", {"name": "Vegetation"})

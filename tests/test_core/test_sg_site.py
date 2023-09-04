@@ -10,18 +10,7 @@ import pyshotgrid as pysg
 def test_project(sg):
     sg_site = pysg.SGSite(sg)
 
-    # Mock Mockgun.Shotgun.find - the "include_archived_projects" arg is missing in Mockgun.
-    with mock.patch.object(
-        mockgun.Shotgun,
-        "find",
-        return_value=[
-            {
-                "type": "Project",
-                "id": 1,
-            }
-        ],
-    ):
-        result = sg_site.project(1)
+    result = sg_site.project(1)
 
     assert result.type == "Project"
     assert result.id == 1
@@ -81,22 +70,7 @@ def test_create(sg):
 def test_find(sg):
     sg_site = pysg.SGSite(sg)
 
-    # Mock Mockgun.Shotgun.find - the "include_archived_projects" arg is missing in Mockgun.
-    with mock.patch.object(
-        mockgun.Shotgun,
-        "find",
-        return_value=[
-            {
-                "type": "Asset",
-                "id": 2,
-            },
-            {
-                "type": "Asset",
-                "id": 3,
-            },
-        ],
-    ):
-        result = sg_site.find("Asset", [["code", "contains", "Car"]])
+    result = sg_site.find("Asset", [["code", "contains", "Car"]])
 
     for asset in result:
         assert asset.type == "Asset"
@@ -106,18 +80,7 @@ def test_find(sg):
 def test_find_one(sg):
     sg_site = pysg.SGSite(sg)
 
-    # Mock Mockgun.Shotgun.find - the "include_archived_projects" arg is missing in Mockgun.
-    with mock.patch.object(
-        mockgun.Shotgun,
-        "find",
-        return_value=[
-            {
-                "type": "Asset",
-                "id": 1,
-            }
-        ],
-    ):
-        result = sg_site.find_one("Asset", [["code", "contains", "Tree"]])
+    result = sg_site.find_one("Asset", [["code", "contains", "Tree"]])
 
     assert result.type == "Asset"
     assert "Tree" in result["code"].get()
@@ -126,9 +89,7 @@ def test_find_one(sg):
 def test_find_one__returns_none_when_nothing_found(sg):
     sg_site = pysg.SGSite(sg)
 
-    # Mock Mockgun.Shotgun.find - the "include_archived_projects" arg is missing in Mockgun.
-    with mock.patch.object(mockgun.Shotgun, "find", return_value=[]):
-        result = sg_site.find_one("Asset", [["code", "contains", "Not existent name"]])
+    result = sg_site.find_one("Asset", [["code", "contains", "Not existent name"]])
 
     assert result is None
 

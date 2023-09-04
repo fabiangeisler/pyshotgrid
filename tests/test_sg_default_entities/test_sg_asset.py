@@ -13,7 +13,7 @@ def test_tasks(sg):
 
 
 def test_publishes(sg):
-    sg_asset = sde.SGAsset(sg, 1)
+    sg_asset = sde.SGAsset(sg, 2)
 
     result = sg_asset.publishes()
 

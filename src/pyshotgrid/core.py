@@ -270,8 +270,21 @@ class SGEntity(object):
 
         if raw_values:
             return sg_fields
+
         else:
-            return convert_fields_to_pysg(self._sg, sg_fields)
+            result = {}
+            for field_name, value in sg_fields.items():
+                if isinstance(value, dict) and "link_type" in value:
+                    link_type = value["link_type"]
+                    if link_type == "upload":
+                        result[field_name] = value
+                    elif link_type == "web":
+                        result[field_name] = value["url"]
+                    else:  # link_type == "local":
+                        result[field_name] = value["local_path"]
+                else:
+                    result[field_name] = convert_value_to_pysg(self.sg, value)
+            return result
 
     def delete(self):
         # type: () -> bool
@@ -1016,14 +1029,36 @@ class Field(FieldSchema):
         :param raw_values: Whether to return the raw dict values or the values converted to
                            pyshotgrid objects.
         :return: The value of the field. Any entities will be automatically converted to
-                 pyshotgrid objects.
+                 pyshotgrid objects. Fields with type "url" will return their values as
+                 follows:
+
+                 * Uploaded Files:
+                    Will return the dict that describes the uploaded file attachment,
+                    so you can pass it on to Shotgun.download_attachment().
+                 * Link to local files:
+                    Will return the platform dependent absolute path to the linked file.
+                 * Link to a URL:
+                    Will return the URL.
         """
         value = self.sg.find_one(
             entity_type=self._entity.type,
             filters=[["id", "is", self._entity.id]],
             fields=[self._name],
         ).get(self._name)
-        return value if raw_values else convert_value_to_pysg(self.sg, value)
+
+        if raw_values:
+            return value
+
+        if isinstance(value, dict) and "link_type" in value:
+            link_type = value["link_type"]
+            if link_type == "upload":
+                return value
+            elif link_type == "web":
+                return value["url"]
+            else:  # link_type == "local":
+                return value["local_path"]
+        else:
+            return convert_value_to_pysg(self.sg, value)
 
     def set(self, value):
         # type: (Any) -> None

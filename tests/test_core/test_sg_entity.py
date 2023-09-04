@@ -35,18 +35,68 @@ def test_get(sg):
     assert {"name": "Test Project A", "tank_name": "tpa"} == sg_entity.get(["name", "tank_name"])
 
 
+def test_get__url_field_no_value(sg):
+    sg_publish = pysg.new_site(sg).find_one("PublishedFile", [["code", "is", "CarA_mdl_v001.abc"]])
+
+    result = sg_publish.get(["code", "path"])
+
+    assert result == {"code": "CarA_mdl_v001.abc", "path": None}
+
+
+def test_get__url_field_web_url(sg):
+    sg_publish = pysg.new_site(sg).find_one("PublishedFile", [["code", "is", "CarA_mdl_v002.abc"]])
+
+    result = sg_publish.get(["code", "path"])
+
+    assert result == {"code": "CarA_mdl_v002.abc", "path": "https://www.google.com/"}
+
+
+def test_get__url_field_upload_value(sg):
+    sg_publish = pysg.new_site(sg).find_one("PublishedFile", [["code", "is", "CarA_mdl_v003.abc"]])
+
+    result = sg_publish.get(["code", "path"])
+
+    assert result == {
+        "code": "CarA_mdl_v003.abc",
+        "path": {
+            "content_type": None,
+            "id": 123456,
+            "link_type": "upload",
+            "name": "test.txt",
+            "type": "Attachment",
+            "url": "https://sg-media-ireland.s3-accelerate.amazonaws.com/ffeb...",
+        },
+    }
+
+
+def test_get__url_field_local_path_value(sg):
+    sg_publish = pysg.new_site(sg).find_one(
+        "PublishedFile", [["code", "is", "sh1111_city_v001.%04d.exr"]]
+    )
+
+    result = sg_publish.get(["code", "path"])
+
+    assert result == {
+        "code": "sh1111_city_v001.%04d.exr",
+        "path": "/mnt/projects/tp/sequences/sq111/sh1111_city_v001.%04d.exr",
+    }
+
+
 def test_name(sg):
     sg_project = pysg.new_entity(sg, 1, "Project")
     sg_task = pysg.new_entity(sg, 1, "Task")
     sg_asset = pysg.new_entity(sg, 1, "Asset")
+    sg_tag = pysg.new_entity(sg, 1, "Tag")
 
     result_project_name_field = sg_project.name
     result_task_name_field = sg_task.name
     result_asset_name_field = sg_asset.name
+    result_tag_name_field = sg_tag.name
 
     assert "name" == result_project_name_field.name
     assert "content" == result_task_name_field.name
     assert "code" == result_asset_name_field.name
+    assert "name" == result_tag_name_field.name
 
 
 def test_thumbnail(sg):
