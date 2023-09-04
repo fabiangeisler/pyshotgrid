@@ -38,6 +38,51 @@ def test_get(sg):
     assert "Test Project A" == result
 
 
+def test_get__url_field_no_value(sg):
+    sg_publish = pysg.new_site(sg).find_one("PublishedFile", [["code", "is", "CarA_mdl_v001.abc"]])
+    sg_path_field = pysg.core.Field("path", sg_publish)
+
+    result = sg_path_field.get()
+
+    assert result is None
+
+
+def test_get__url_field_web_url(sg):
+    sg_publish = pysg.new_site(sg).find_one("PublishedFile", [["code", "is", "CarA_mdl_v002.abc"]])
+    sg_path_field = pysg.core.Field("path", sg_publish)
+
+    result = sg_path_field.get()
+
+    assert result == "https://www.google.com/"
+
+
+def test_get__url_field_upload_value(sg):
+    sg_publish = pysg.new_site(sg).find_one("PublishedFile", [["code", "is", "CarA_mdl_v003.abc"]])
+    sg_path_field = pysg.core.Field("path", sg_publish)
+
+    result = sg_path_field.get()
+
+    assert result == {
+        "content_type": None,
+        "id": 123456,
+        "link_type": "upload",
+        "name": "test.txt",
+        "type": "Attachment",
+        "url": "https://sg-media-ireland.s3-accelerate.amazonaws.com/ffeb...",
+    }
+
+
+def test_get__url_field_local_path_value(sg):
+    sg_publish = pysg.new_site(sg).find_one(
+        "PublishedFile", [["code", "is", "sh1111_city_v001.%04d.exr"]]
+    )
+    sg_path_field = pysg.core.Field("path", sg_publish)
+
+    result = sg_path_field.get()
+
+    assert result == "/mnt/projects/tp/sequences/sq111/sh1111_city_v001.%04d.exr"
+
+
 def test_get_raw_values(sg):
     sg_project = pysg.new_entity(sg, 1, "Project")
     sg_users_field = pysg.core.Field("users", sg_project)
