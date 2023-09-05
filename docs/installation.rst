@@ -12,7 +12,7 @@ To install pyshotgrid, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install git+https://github.com/shotgunsoftware/python-api.git@v3.3.5
+    $ pip install git+https://github.com/shotgunsoftware/python-api.git@v3.3.6
     $ pip install pyshotgrid
 
 You need to install `shotgun_api3` as a separate step, in case you want to use `pyshotgrid` in
