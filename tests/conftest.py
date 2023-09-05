@@ -77,8 +77,8 @@ def sg():
 
     mockgun.Shotgun.update = patched_update
 
-    # Patching the mockgun.Shotgun.find method because it is missing 2 arguments "include_archived_projects" and
-    # "additional_filter_presets".
+    # Patching the mockgun.Shotgun.find method because it is missing 2 arguments
+    # "include_archived_projects" and "additional_filter_presets".
     def patched_find(
         self,
         entity_type,
@@ -110,7 +110,8 @@ def sg():
 
         if isinstance(filters, dict):
             # complex filter style!
-            # {'conditions': [{'path': 'id', 'relation': 'is', 'values': [1]}], 'logical_operator': 'and'}
+            # {'conditions': [{'path': 'id', 'relation': 'is', 'values': [1]}],
+            #                 'logical_operator': 'and'}
 
             resolved_filters = []
             for f in filters["conditions"]:
@@ -145,7 +146,8 @@ def sg():
             for order_entry in order:
                 if "field_name" not in order_entry:
                     raise ValueError(
-                        "Order clauses must be list of dicts with keys 'field_name' and 'direction'!"
+                        "Order clauses must be list of dicts with keys "
+                        "'field_name' and 'direction'!"
                     )
 
                 order_field = order_entry["field_name"]
@@ -349,25 +351,20 @@ def add_default_entities(sg):
                     "link_type": "local",
                     "name": "sh1111_city_v{:03d}.%04d.exr".format(i),
                     "local_storage": local_storage,
-                    "local_path_mac": "/Volumes/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(
-                        i
-                    ),
-                    "local_path_linux": "/mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(
-                        i
-                    ),
-                    "local_path_windows": "P:\\tp\\sequences\\sq111\\sh1111_city_v{:03d}.%04d.exr".format(
-                        i
-                    ),
+                    "local_path_mac": "/Volumes/projects/tp/sequences/sq111/"
+                    "sh1111_city_v{:03d}.%04d.exr".format(i),
+                    "local_path_linux": "/mnt/projects/tp/sequences/sq111/"
+                    "sh1111_city_v{:03d}.%04d.exr".format(i),
+                    "local_path_windows": "P:\\tp\\sequences\\sq111\\"
+                    "sh1111_city_v{:03d}.%04d.exr".format(i),
                     "type": "Attachment",
                     "id": random.randint(1, 1000),
-                    "local_path": "/mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(
-                        i
-                    ),
-                    "url": "file:///mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(
-                        i
-                    ),
+                    "local_path": "/mnt/projects/tp/sequences/sq111/"
+                    "sh1111_city_v{:03d}.%04d.exr".format(i),
+                    "url": "file:///mnt/projects/tp/sequences/sq111/"
+                    "sh1111_city_v{:03d}.%04d.exr".format(i),
                 },
-                "path_cache": "tp/sequences/sq111/sh1111_city_v{:03d}.%04d.exr".format(i),
+                "path_cache": "tp/sequences/sq111/" "sh1111_city_v{:03d}.%04d.exr".format(i),
                 "path_cache_storage": local_storage,
                 "created_by": person_a,
             },
@@ -388,23 +385,18 @@ def add_default_entities(sg):
                     "link_type": "local",
                     "name": "sh1111_city_v{:03d}.%04d.abc".format(i),
                     "local_storage": local_storage,
-                    "local_path_mac": "/Volumes/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.abc".format(
-                        i
-                    ),
-                    "local_path_linux": "/mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.abc".format(
-                        i
-                    ),
-                    "local_path_windows": "P:\\tp\\sequences\\sq111\\sh1111_city_v{:03d}.%04d.abc".format(
-                        i
-                    ),
+                    "local_path_mac": "/Volumes/projects/tp/sequences/sq111/"
+                    "sh1111_city_v{:03d}.%04d.abc".format(i),
+                    "local_path_linux": "/mnt/projects/tp/sequences/sq111/"
+                    "sh1111_city_v{:03d}.%04d.abc".format(i),
+                    "local_path_windows": "P:\\tp\\sequences\\sq111\\"
+                    "sh1111_city_v{:03d}.%04d.abc".format(i),
                     "type": "Attachment",
                     "id": random.randint(1, 1000),
-                    "local_path": "/mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.abc".format(
-                        i
-                    ),
-                    "url": "file:///mnt/projects/tp/sequences/sq111/sh1111_city_v{:03d}.%04d.abc".format(
-                        i
-                    ),
+                    "local_path": "/mnt/projects/tp/sequences/sq111/"
+                    "sh1111_city_v{:03d}.%04d.abc".format(i),
+                    "url": "file:///mnt/projects/tp/sequences/sq111/"
+                    "sh1111_city_v{:03d}.%04d.abc".format(i),
                 },
                 "path_cache": "tp/sequences/sq111/sh1111_city_v{:03d}.abc".format(i),
                 "path_cache_storage": local_storage,
