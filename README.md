@@ -19,12 +19,12 @@ object oriented way to talk to [Autodesk ShotGrid](https://www.autodesk.com/prod
 Install `pyshotgrid` via pip:
 
 ```shell
-pip install git+https://github.com/shotgunsoftware/python-api.git@v3.3.5
+pip install git+https://github.com/shotgunsoftware/python-api.git@v3.3.6
 pip install pyshotgrid
 ```
 
 You are now ready to use it in your project (For other installation methods see the
-Installation section in the documentation)!
+[Installation](https://fabiangeisler.github.io/pyshotgrid/installation.html) section in the documentation)!
 Here is a quick example to list the "code" (aka. "name") of all shots from all projects:
 
 ```python
@@ -68,9 +68,9 @@ So for example you can :
   ```
 * Get information about a field
   ```python
-  print(sg_project["name"].data_type)
-  print(sg_project["name"].description)
-  print(sg_project["name"].display_name)
+  print(sg_project["name"].data_type)     # "text"
+  print(sg_project["name"].description)   # "The name of the project."
+  print(sg_project["name"].display_name)  # "Project Name"
   ```
 * Upload/Download to/from a field
   ```python
@@ -132,14 +132,15 @@ that inherits from [SGEntity][SGEntity] and register that to `pyshotgrid`. After
 `pyshotgrid` will use your custom entity whenever you ask for it. With this method
 you can even overwrite default classes that ship with `pyshotgrid`.
 
-## Why is `pyshotgrid` supporting Python 3.8+, when [shotgun_api3][shotgun_api3] only has support for Python 2.7/3.7?
+## Why is `pyshotgrid` supporting Python 3.8+, when [shotgun_api3][shotgun_api3] only has support for Python 3.7?
 A couple of reasons:
-- Python 2.7 and 3.7 reached EOL and are no longer maintained.
+- [Python 3.7 reached EOL](https://devguide.python.org/versions/) and is no longer maintained.
+- Python 3.7 is soon off the [VFX Reference Platform](https://vfxplatform.com/).
 - [shotgun_api3][shotgun_api3] does work for Python 3.8+ and it is only a matter of time till
   Autodesk will label it as such.
-- `pyshotgrid` is using a lot of modern tools and libraries which are super hard to maintain for
-  Python 2.7/3.7 and since this is a "free time project" I cannot afford to waist my time on
-  these kind of compatibility issues.
+- `pyshotgrid` is using a lot of modern tools and libraries which are hard to maintain for
+  Python 3.7 and since this is a "free time project" I cannot afford to waist my time on
+  compatibility issues.
 
 ## Is this an official project from Autodesk?
 No, just a brainchild from me, [Fabian Geisler](https://github.com/fabiangeisler).

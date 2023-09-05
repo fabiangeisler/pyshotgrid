@@ -1,4 +1,4 @@
-git+https://github.com/shotgunsoftware/python-api.git@v3.3.5
+git+https://github.com/shotgunsoftware/python-api.git@v3.3.6
 commitizen
 wheel
 build
