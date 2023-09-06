@@ -137,7 +137,7 @@ def black(c, check=False):
     print("Run 'black'")
     black_options = ["--diff", "--check"] if check else []
     # noinspection PyCompatibility
-    c.run(f"black {' '.join(black_options)} {SRC_DIR} {TEST_DIR}")
+    c.run(f"black {' '.join(black_options)} .")
 
 
 @task(

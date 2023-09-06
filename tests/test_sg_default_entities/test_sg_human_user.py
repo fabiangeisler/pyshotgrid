@@ -2,6 +2,14 @@
 import pyshotgrid.sg_default_entities as sde
 
 
+def test_name(sg):
+    sg_user = sde.SGHumanUser(sg, 1)
+
+    result = sg_user.name
+
+    assert result.name == "name"
+
+
 def test_tasks(sg):
     sg_user = sde.SGHumanUser(sg, 1)
 

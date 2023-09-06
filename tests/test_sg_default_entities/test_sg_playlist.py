@@ -3,6 +3,14 @@ import pytest
 import pyshotgrid.sg_default_entities as sde
 
 
+def test_name(sg):
+    sg_playlist = sde.SGPlaylist(sg, 1)
+
+    result = sg_playlist.name
+
+    assert result.name == "code"
+
+
 def test_media_url(sg):
     sg_playlist = sde.SGPlaylist(sg, 1)
 

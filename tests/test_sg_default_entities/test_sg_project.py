@@ -1,6 +1,14 @@
 import pyshotgrid.sg_default_entities as sde
 
 
+def test_name(sg):
+    sg_project = sde.SGProject(sg, 1)
+
+    result = sg_project.name
+
+    assert result.name == "name"
+
+
 def test_shots(sg):
     sg_project = sde.SGProject(sg, 1)
 

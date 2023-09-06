@@ -27,6 +27,14 @@ class SGProject(SGEntity):
 
     DEFAULT_SG_ENTITY_TYPE = "Project"
 
+    @property
+    def name(self):
+        # type: () -> Field
+        """
+        :return: The field that represents the name of the Project.
+        """
+        return self["name"]
+
     def shots(self, glob_pattern=None):
         # type: (Optional[str]) -> List[SGEntity]
         """
@@ -141,6 +149,14 @@ class SGShot(SGEntity):
 
     DEFAULT_SG_ENTITY_TYPE = "Shot"
 
+    @property
+    def name(self):
+        # type: () -> Field
+        """
+        :return: The field that represents the name of the Shot.
+        """
+        return self["code"]
+
     def publishes(
         self,
         pub_types=None,  # type: Optional[Union[str,List[str]]]
@@ -219,6 +235,14 @@ class SGAsset(SGEntity):
     """
 
     DEFAULT_SG_ENTITY_TYPE = "Asset"
+
+    @property
+    def name(self):
+        # type: () -> Field
+        """
+        :return: The field that represents the name of the Asset.
+        """
+        return self["code"]
 
     def publishes(
         self,
@@ -365,6 +389,14 @@ class SGPublishedFile(SGEntity):
 
     DEFAULT_SG_ENTITY_TYPE = "PublishedFile"
 
+    @property
+    def name(self):
+        # type: () -> Field
+        """
+        :return: The field that represents the name of the PublishedFile.
+        """
+        return self["code"]
+
     def is_latest(self):
         # type: () -> bool
         """
@@ -434,6 +466,14 @@ class SGVersion(SGEntity):
 
     DEFAULT_SG_ENTITY_TYPE = "Version"
 
+    @property
+    def name(self):
+        # type: () -> Field
+        """
+        :return: The field that represents the name of the Version.
+        """
+        return self["code"]
+
     # TODO get note threads
 
 
@@ -450,6 +490,14 @@ class SGPlaylist(SGEntity):
     """
 
     DEFAULT_SG_ENTITY_TYPE = "Playlist"
+
+    @property
+    def name(self):
+        # type: () -> Field
+        """
+        :return: The field that represents the name of the Playlist.
+        """
+        return self["code"]
 
     @property
     def media_url(self):
@@ -487,6 +535,14 @@ class SGHumanUser(SGEntity):
     DEFAULT_SG_ENTITY_TYPE = "HumanUser"
 
     # TODO time logs
+
+    @property
+    def name(self):
+        # type: () -> Field
+        """
+        :return: The field that represents the name of the HumanUser.
+        """
+        return self["name"]
 
     def versions(
         self,
