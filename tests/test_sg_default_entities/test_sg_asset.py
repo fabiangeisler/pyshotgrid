@@ -1,6 +1,14 @@
 import pyshotgrid.sg_default_entities as sde
 
 
+def test_name(sg):
+    sg_asset = sde.SGAsset(sg, 1)
+
+    result = sg_asset.name
+
+    assert result.name == "code"
+
+
 def test_tasks(sg):
     sg_asset = sde.SGAsset(sg, 1)
 

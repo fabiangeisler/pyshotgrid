@@ -1,6 +1,14 @@
 import pyshotgrid.sg_default_entities as sde
 
 
+def test_name(sg):
+    sg_publish = sde.SGPublishedFile(sg, 1)
+
+    result = sg_publish.name
+
+    assert result.name == "code"
+
+
 def test_is_latest__false(sg):
     sg_publish = sde.SGPublishedFile(sg, 1)
 
