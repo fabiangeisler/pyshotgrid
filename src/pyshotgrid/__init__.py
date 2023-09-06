@@ -20,7 +20,7 @@ from .core import (
 )
 
 #: The pyshotgrid version number as string
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 
 # Register default pysg plugins
 register_pysg_class(sde.SGProject)

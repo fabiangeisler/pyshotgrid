@@ -1,3 +1,13 @@
+## v1.0.1 (2023-09-06)
+
+### Fix
+
+- **SGEntity**: do not cast url fields to Attachment SGEntities
+
+### Perf
+
+- **sg_default_entities**: Improve performance for ".name" property
+
 ## v1.0.0 (2023-08-28)
 
 ## v0.15.0 (2023-08-27)
