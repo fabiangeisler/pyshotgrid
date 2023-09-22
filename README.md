@@ -132,7 +132,7 @@ that inherits from [SGEntity][SGEntity] and register that to `pyshotgrid`. After
 `pyshotgrid` will use your custom entity whenever you ask for it. With this method
 you can even overwrite default classes that ship with `pyshotgrid`.
 
-## Why is does `pyshotgrid` not support Python 3.7? [shotgun_api3][shotgun_api3] has support it.
+## Why is does `pyshotgrid` not support Python 3.7? [shotgun_api3][shotgun_api3] has support for it.
 A couple of reasons:
 - [Python 3.7 reached EOL](https://devguide.python.org/versions/) and is no longer maintained.
 - Python 3.7 is soon off the [VFX Reference Platform](https://vfxplatform.com/).
