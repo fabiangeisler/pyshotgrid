@@ -19,7 +19,7 @@ object oriented way to talk to [Autodesk ShotGrid](https://www.autodesk.com/prod
 Install `pyshotgrid` via pip:
 
 ```shell
-pip install git+https://github.com/shotgunsoftware/python-api.git@v3.3.6
+pip install git+https://github.com/shotgunsoftware/python-api.git@v3.4.0
 pip install pyshotgrid
 ```
 
@@ -132,12 +132,10 @@ that inherits from [SGEntity][SGEntity] and register that to `pyshotgrid`. After
 `pyshotgrid` will use your custom entity whenever you ask for it. With this method
 you can even overwrite default classes that ship with `pyshotgrid`.
 
-## Why is `pyshotgrid` supporting Python 3.8+, when [shotgun_api3][shotgun_api3] only has support for Python 3.7?
+## Why is does `pyshotgrid` not support Python 3.7? [shotgun_api3][shotgun_api3] has support it.
 A couple of reasons:
 - [Python 3.7 reached EOL](https://devguide.python.org/versions/) and is no longer maintained.
 - Python 3.7 is soon off the [VFX Reference Platform](https://vfxplatform.com/).
-- [shotgun_api3][shotgun_api3] does work for Python 3.8+ and it is only a matter of time till
-  Autodesk will label it as such.
 - `pyshotgrid` is using a lot of modern tools and libraries which are hard to maintain for
   Python 3.7 and since this is a "free time project" I cannot afford to waist my time on
   compatibility issues.
