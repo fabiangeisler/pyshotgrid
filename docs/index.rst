@@ -10,15 +10,10 @@ Welcome to `pyshotgrid`!
 
    installation
    user_guide
-   contributing
-   how_it_works
    how_to_add_custom_entities
+   how_it_works
+   default_entities_overview
    pyshotgrid_vs_shotgun_api3
    api_reference
+   contributing
    changelog
-
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
