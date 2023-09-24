@@ -97,7 +97,7 @@ version_files = [
 
 [tool.ruff]
 line-length = 100
-exclude = ["tasks.py"]
+exclude = ["tasks.py", "conf.py"]
 select = [
     "E",  # pycodestyle
     "W",

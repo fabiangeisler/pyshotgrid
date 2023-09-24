@@ -1,5 +1,5 @@
-Welcome to pyshotgrid's documentation!
-======================================
+Welcome to `pyshotgrid`!
+========================
 
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
