@@ -102,16 +102,19 @@ So for example you can :
   sg_task.name     # returns the "content" field. Same as:  sg_task["content"]
   ```
 
-Each [SGEntity][SGEntity] can have special functionality assigned to it. For example the
-default implementation for the Project entity gives you functions to easily query shots, assets
-or publishes.
+* It is possible to inherit from [SGEntity][SGEntity] and create implementations for specific
+  entity types. `pyshotgrid` ships with a few common entities by default. For example
+  the implementation for the `Project` entity ([SGProject][SGProject]) gives you additional functions
+  to query shots, assets or publishes:
   ```python
   sg_project.shots()
   sg_project.assets()
   sg_project.publishes()
   ```
-Checkout the API documentation for all the extra functionality.
-You can also customize the classes to fit your workflow needs.
+  Checkout the [overview of all the default entities][Overview default entities] and the
+  [API documentation][API sg_default_entities] for all the extra functionality!
+  As an additional bonus: You can customize and extend all these classes to your hearts content.
+  Have a look at [How to add custom entities][How to add custom entities] in the docs.
 
 # FAQ
 
@@ -152,4 +155,8 @@ the [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pyp
 (but was heavily modified in the meantime).
 
 [SGEntity]: https://fabiangeisler.github.io/pyshotgrid/modules/core.html#pyshotgrid.core.SGEntity
+[SGProject]: https://fabiangeisler.github.io/pyshotgrid/modules/sg_default_entities.html#pyshotgrid.sg_default_entities.SGProject
+[Overview default entities]: https://fabiangeisler.github.io/pyshotgrid/docs/default_entities_overview.html
+[API sg_default_entities]: https://fabiangeisler.github.io/pyshotgrid/modules/sg_default_entities.html
+[How to add custom entities]: https://fabiangeisler.github.io/pyshotgrid/how_to_add_custom_entities.html
 [shotgun_api3]: https://github.com/shotgunsoftware/python-api
