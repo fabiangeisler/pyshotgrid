@@ -38,9 +38,8 @@ extensions = [
     "myst_parser",  # Read markdown files
     "sphinx.ext.intersphinx",  # Link to external documentation
     "sphinx.ext.githubpages",  # Github pages friendly documentaion
-    "sphinx.ext.autodoc",  # Generate type hints from regular Python type annotations
+    "sphinx_autodoc_typehints",  # Generate type hints from regular Python type annotations
     "sphinx_copybutton",  # Add a "Copy" button to code examples.
-    "sphinx_autodoc_typehints",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -201,4 +200,11 @@ autodoc_default_options = {
     "special-members": "__init__",
     "undoc-members": True,
     "exclude-members": "__weakref__",
+}
+
+
+# -- Options for myst parser -------------------------
+
+myst_enable_extensions = {
+    "colon_fence": True,
 }

@@ -156,7 +156,7 @@ the [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pyp
 
 [SGEntity]: https://fabiangeisler.github.io/pyshotgrid/modules/core.html#pyshotgrid.core.SGEntity
 [SGProject]: https://fabiangeisler.github.io/pyshotgrid/modules/sg_default_entities.html#pyshotgrid.sg_default_entities.SGProject
-[Overview default entities]: https://fabiangeisler.github.io/pyshotgrid/docs/default_entities_overview.html
+[Overview default entities]: https://fabiangeisler.github.io/pyshotgrid/default_entities_overview.html
 [API sg_default_entities]: https://fabiangeisler.github.io/pyshotgrid/modules/sg_default_entities.html
 [How to add custom entities]: https://fabiangeisler.github.io/pyshotgrid/how_to_add_custom_entities.html
 [shotgun_api3]: https://github.com/shotgunsoftware/python-api
