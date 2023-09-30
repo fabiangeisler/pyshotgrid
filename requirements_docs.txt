@@ -1,4 +1,4 @@
-git+https://github.com/shotgunsoftware/python-api.git@v3.4.0
+shotgun-api3==v3.4.0
 wheel
 build
 Sphinx

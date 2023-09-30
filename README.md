@@ -19,7 +19,6 @@ object oriented way to talk to [Autodesk ShotGrid](https://www.autodesk.com/prod
 Install `pyshotgrid` via pip:
 
 ```shell
-pip install git+https://github.com/shotgunsoftware/python-api.git@v3.4.0
 pip install pyshotgrid
 ```
 
