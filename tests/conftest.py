@@ -1,12 +1,22 @@
 import datetime
 import os
 import random
+import sys
 
 import pytest
 from shotgun_api3.lib import mockgun
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(params=(True, False))
+def use_tank_vendor(request, monkeypatch):
+    if request.param:
+        monkeypatch.setitem(sys.modules, "shotgun_api3", None)
+    else:
+        monkeypatch.setitem(sys.modules, "tank_vendor.shotgun_api3", None)
+    return request.param
+
+
+@pytest.fixture()
 def sg():
     resources_dir = os.path.join(os.path.dirname(__file__), "resources")
 

@@ -5,8 +5,10 @@ import urllib.parse
 import urllib.request
 from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
 
-import shotgun_api3
-import shotgun_api3.lib.mockgun
+try:
+    import shotgun_api3
+except ImportError:
+    from tank_vendor import shotgun_api3
 
 
 class SGEntity(object):
