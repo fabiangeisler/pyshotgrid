@@ -1,4 +1,6 @@
 """Tests for `pyshotgrid.core` module."""
+import unittest.mock
+
 import pytest
 
 import pyshotgrid as pysg
@@ -100,6 +102,28 @@ def test_new_entity__raises_error_on_wrong_inputs(sg):
 
 def test_new_site(sg):
     sg_site_a = pysg.new_site(sg)
+
+    assert isinstance(sg_site_a, pysg.SGSite)
+
+
+def test_new_site__args(sg):
+    with unittest.mock.patch("shotgun_api3.Shotgun"):
+        sg_site_a = pysg.new_site(
+            "https://test.shotgunstudio.com",
+            "Unittest User",
+            "$ome_password",
+        )
+
+    assert isinstance(sg_site_a, pysg.SGSite)
+
+
+def test_new_site__kwargs(sg):
+    with unittest.mock.patch("shotgun_api3.Shotgun"):
+        sg_site_a = pysg.new_site(
+            base_url="https://test.shotgunstudio.com",
+            script_name="Unittest User",
+            api_key="$ome_password",
+        )
 
     assert isinstance(sg_site_a, pysg.SGSite)
 
