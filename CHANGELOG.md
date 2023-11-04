@@ -1,3 +1,13 @@
+## v1.1.0 (2023-11-04)
+
+### Feat
+
+- **PyPI**: Use shotgun-api3 from PyPI
+
+### Fix
+
+- **new_site**: support tk-core and shotgun_api3 environments
+
 ## v1.0.1 (2023-09-06)
 
 ### Fix
