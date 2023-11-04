@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
 try:
     import shotgun_api3
 except ImportError:
-    from tank_vendor import shotgun_api3
+    import tank_vendor.shotgun_api3 as shotgun_api3
 
 
 class SGEntity(object):
