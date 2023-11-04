@@ -8,6 +8,7 @@ authors = [
   { name="Fabian Geisler", email="info@fasbue.com" },
 ]
 description = "A pythonic and object oriented way to talk to Autodesk ShotGrid."
+dependencies = ["shotgun-api3>=3.4.0"]
 readme.file = "README.md"
 readme.content-type = "text/markdown"
 license.text="MIT"

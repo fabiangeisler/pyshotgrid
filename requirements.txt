@@ -1,5 +1,5 @@
--e git+https://github.com/shotgunsoftware/tk-core.git@v0.20.4#egg=sgtk
-git+https://github.com/shotgunsoftware/python-api.git@v3.4.0
+-e git+https://github.com/shotgunsoftware/tk-core.git@v0.20.26#egg=sgtk
+shotgun-api3==v3.4.0
 commitizen
 wheel
 build
