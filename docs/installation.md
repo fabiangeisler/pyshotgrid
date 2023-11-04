@@ -8,14 +8,14 @@ To install pyshotgrid, run this command in your terminal:
 pip install pyshotgrid
 ```
 
-You need to install `shotgun_api3` as a separate step, in case you want to use `pyshotgrid` in
-a standalone application.
 This is the preferred method to install pyshotgrid, as it will always install the most recent stable release.
 
 ## Use pyshotgrid with ShotGrid Toolkit
 
-There are a few ways you can use `pyshotgrid` with ShotGrid Toolkit (SGTK).
-The most straight forward approach would be add to the `sys.path` it in the `tank_init.py`.
+There are a few ways you can use `pyshotgrid` with ShotGrid Toolkit (SGTK) and it will likely
+differ from studio to studio how it should be added to the setup.
+One of the most straight forward approaches would be adding `pyshotgrid` to
+the `sys.path` in the `tank_init.py`.
 
 Here is what you have to do:
 
@@ -26,6 +26,3 @@ Here is what you have to do:
 2. Put it in a central location where everyone can access it
 3. Add the path to the `sys.path` in the `tank_init.py`.
 4. You are done. :) You are now able to use `pyshotgird` throughout your SGTK setup.
-   :::{note}
-   There is no need to install the shotgun_api3 since that is already shipped with SGTK.
-   :::

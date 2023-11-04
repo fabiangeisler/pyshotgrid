@@ -1,3 +1,4 @@
+-e git+https://github.com/shotgunsoftware/tk-core.git@v0.20.26#egg=sgtk
 shotgun-api3==v3.4.0
 commitizen
 wheel

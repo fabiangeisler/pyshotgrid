@@ -5,8 +5,10 @@ import urllib.parse
 import urllib.request
 from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
 
-import shotgun_api3
-import shotgun_api3.lib.mockgun
+try:
+    import shotgun_api3
+except ImportError:
+    import tank_vendor.shotgun_api3 as shotgun_api3
 
 
 class SGEntity(object):
@@ -1410,12 +1412,24 @@ def new_site(*args, **kwargs):
     :return: A new instance of the pyshotgrid site.
     """
     if args:
-        if isinstance(args[0], (shotgun_api3.Shotgun, shotgun_api3.lib.mockgun.Shotgun)):
+        # In theory pyshotgrid could live in an environment where
+        # shotgun_api3 and tk-core are installed at the same time.
+        # In this case there are 4 different Shotgun classes that could
+        # work with pyshotgrid:
+        #   - shotgun_api3.Shotgun
+        #   - shotgun_api3.lib.mockgun.Shotgun
+        #   - tank_vendor.shotgun_api3.Shotgun
+        #   - tank_vendor.shotgun_api3.lib.mockgun.Shotgun
+        # pyshotgrid will load either shotgun_api3 or tk-core (tank_vendor.shotgun_api3)
+        # and therefore we cannot use "isinstance" here ,since the user might
+        # pass in a Shotgun class from the other library. We just check
+        # if the passed in object is a instance of a class named "Shotgun".
+        if args[0].__class__.__name__ == "Shotgun":
             sg = args[0]
         else:
-            sg = shotgun_api3.Shotgun(*args)  # pragma: no cover
+            sg = shotgun_api3.Shotgun(*args)
     else:
-        sg = shotgun_api3.Shotgun(**kwargs)  # pragma: no cover
+        sg = shotgun_api3.Shotgun(**kwargs)
     return __SG_SITE_CLASS(sg)
 
 

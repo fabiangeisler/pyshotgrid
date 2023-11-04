@@ -1,13 +1,34 @@
 import datetime
 import os
 import random
+import sys
 
 import pytest
 from shotgun_api3.lib import mockgun
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(params=(True, False))
+def use_shotgun_api3_from_sgtk(request, monkeypatch):
+    """
+    This is a parametrized fixture which will run any test that requests it once against
+    the "regular" pip installed "shotgun_api3" and another time against
+    the vendor-ed "shotgun_api3" in SGTk to ensure the test works in both scenarios.
+    """
+    if request.param:
+        # noinspection PyTypeChecker
+        monkeypatch.setitem(sys.modules, "shotgun_api3", None)
+    else:
+        # noinspection PyTypeChecker
+        monkeypatch.setitem(sys.modules, "tank_vendor.shotgun_api3", None)
+    return request.param
+
+
+@pytest.fixture()
 def sg():
+    """
+    This fixture sets up a (mockgun.)Shotgun instance with a few useful test entries
+    to test against.
+    """
     resources_dir = os.path.join(os.path.dirname(__file__), "resources")
 
     mockgun_schema_dir = os.path.join(resources_dir, "mockgun_schemas")
