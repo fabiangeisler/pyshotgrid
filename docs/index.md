@@ -8,6 +8,7 @@
 :caption: Contents:
 
 installation
+authentication
 user_guide
 how_to_add_custom_entities
 how_it_works
