@@ -126,27 +126,28 @@ def clean(c):
 
 
 @task(
-    name="black",
-    aliases=("bl",),
+    name="ruff-format",
+    aliases=("bl", "black"),
     help={
-        "check": "Checks if source is formatted without applying changes",
+        "check": "Checks if source would be reformatted without applying changes.",
     },
 )
-def black(c, check=False):
-    """Runs black formatter against selected python files."""
-    print("Run 'black'")
+def ruff_format(c, check=False):
+    """Runs "ruff format" against the code base. Which formats it in black code style."""
+    print("Run 'ruff format'")
     black_options = ["--diff", "--check"] if check else []
     # noinspection PyCompatibility
-    c.run(f"black {' '.join(black_options)} .")
+    c.run(f"ruff format {' '.join(black_options)} .")
 
 
 @task(
-    name="ruff",
+    name="ruff-lint",
+    aliases=("ruff",),
     help={
         "fix": "Attempt to fix found code issues.",
     },
 )
-def ruff(c, fix=False):
+def ruff_lint(c, fix=False):
     """Run ruff against selected files."""
     print("Run 'ruff'")
     c.run(f"ruff {SRC_DIR} {TEST_DIR} {'--fix' if fix else ''}")
@@ -163,7 +164,7 @@ def mypy(c):
         c.run(f"mypy {SRC_DIR}")
 
 
-@task(pre=[black, ruff, mypy])
+@task(pre=[ruff_format, ruff_lint, mypy])
 def lint(c):
     """Run all lint tasks."""
 

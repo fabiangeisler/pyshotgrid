@@ -1497,8 +1497,9 @@ def register_sg_site_class(sg_site_class):
 
     if not issubclass(sg_site_class, SGSite):
         raise TypeError(
-            'The given class "{}" needs to inherit from pyshotgrid.SGEntity.'
-            "".format(sg_site_class)
+            'The given class "{}" needs to inherit from pyshotgrid.SGEntity.' "".format(
+                sg_site_class
+            )
         )
     __SG_SITE_CLASS = sg_site_class
 
