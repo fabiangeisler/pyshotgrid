@@ -125,7 +125,7 @@ No, and since it is build on top of [shotgun_api3][shotgun_api3], it never will 
 ## Is `pyshotgrid` replacing [shotgun_api3][shotgun_api3]?
 No, quite the opposite. It is meant to be used in conjunction with [shotgun_api3][shotgun_api3] and
 improve handling and writing code with it. Its main goal is to make it easier to write
-code for common scenarios and leave the special cases for the [shotgun_api3][shotgun_api3]. That said,
+code for common scenarios and leave the special cases for [shotgun_api3][shotgun_api3]. That said,
 it is totally possible to write `pyshotgrid` code without using [shotgun_api3][shotgun_api3].
 
 ## I have some custom entity setup in ShotGrid. Can this be reflected in `pyshotgrid`?
@@ -139,9 +139,21 @@ you can even overwrite default classes that ship with `pyshotgrid`.
 A couple of reasons:
 - [Python 3.7 reached EOL](https://devguide.python.org/versions/) and is no longer maintained.
 - Python 3.7 is soon off the [VFX Reference Platform](https://vfxplatform.com/).
-- `pyshotgrid` is using a lot of modern tools and libraries which are hard to maintain for
-  Python 3.7 and since this is a "free time project" I cannot afford to waist my time on
-  compatibility issues.
+- The hidden goal of this project is to create a python library that uses the latest
+  innovations in the Python world.
+  In a nutshell I want to create the simplest setup that gives you:
+  - automatic publishing to PyPI
+  - automatic testing with tox, pytest and coverage
+  - automatic [Sphinx](https://www.sphinx-doc.org/en/master/) documentation
+  - [mypy](https://mypy-lang.org/) type hints
+  - [ruff](https://github.com/astral-sh/ruff) linting
+  - [black](https://github.com/psf/black) code formatting (actually done by `ruff format`)
+  - [pre-commit](https://github.com/pre-commit/pre-commit) checks
+  - [invoke](https://www.pyinvoke.org/) setup for common tasks in the repository
+  - streamlined commit messages and changelog with [commitizen](https://github.com/commitizen-tools/commitizen)
+
+  A good chunk of these tools do not support Python 3.7 anymore and I do not have the time to
+  keep up the compatibility.
 
 ## Is this an official project from Autodesk?
 No, just a brainchild from me, [Fabian Geisler](https://github.com/fabiangeisler).
