@@ -12,7 +12,7 @@ dependencies = ["shotgun-api3>=3.4.0"]
 readme.file = "README.md"
 readme.content-type = "text/markdown"
 license.text="MIT"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 keywords = ['shotgrid']
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -20,7 +20,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -48,11 +47,10 @@ addopts = "--cov=pyshotgrid"
 legacy_tox_ini = """
 [tox]
 skip_missing_interpreters = true
-envlist = py38, py39, py310, py311
+envlist = py39, py310, py311
 
 [gh-actions]
 python =
-    3.8: py38
     3.9: py39
     3.10: py310
     3.11: py311
@@ -71,11 +69,8 @@ deps =
 commands = pytest
 """
 
-[tool.black]
-line-length = 100
-
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 strict = true
 warn_return_any = false
 pretty = true
@@ -110,8 +105,4 @@ lint.select = [
     "I",  # isort
     "RUF",  # Bad unicode characters in code
 ]
-# B904 - Within an `except` clause, raise exceptions with `raise ... from err` or
-#        `raise ... from None` to distinguish them from errors in exception handling
-# We are ignoring that for now since this is not compatible with Python 2.7.
-lint.ignore = ["B904"]
 src = ["src", "tests"]

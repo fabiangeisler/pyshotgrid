@@ -1182,14 +1182,13 @@ class Field(FieldSchema):
         except Exception as e:
             raise RuntimeError(
                 "Could not download contents of url '{}'. Error reported: {}".format(url, e)
-            )
+            ) from e
 
         return location
 
     # This function was shamelessly stolen from sgtk.util.download_url
     # This also the reason why we exclude it from test coverage.
-    def _setup_sg_auth_and_proxy(self):  # pragma: no cover
-        # type: () -> None
+    def _setup_sg_auth_and_proxy(self) -> None:  # pragma: no cover
         """
         Borrowed from the Shotgun Python API, setup urllib2 with a cookie for authentication on
         Shotgun instance.

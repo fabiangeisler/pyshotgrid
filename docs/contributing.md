@@ -55,7 +55,7 @@ Ready to contribute? Here's how to set up `pyshotgrid` for local development.
    git clone git@github.com:your_name_here/pyshotgrid.git
    ```
 
-3. Setup your virtual environment with Python 3.8.
+3. Setup your virtual environment with Python 3.9.
    ```shell
    python -m venv venv
    source venv/bin/activate
