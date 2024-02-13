@@ -2,15 +2,9 @@
 This module collects all default pyshotgrid custom entities.
 """
 import fnmatch
-import typing
-from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
+from typing import Any, Dict, List, Optional, Union
 
-if typing.TYPE_CHECKING:  # pragma: no cover
-    import shotgun_api3  # noqa: F401
-
-    from .core import Field  # noqa: F401
-
-from .core import SGEntity, new_entity
+from .core import Field, SGEntity, new_entity
 
 
 class SGProject(SGEntity):
@@ -28,15 +22,13 @@ class SGProject(SGEntity):
     DEFAULT_SG_ENTITY_TYPE = "Project"
 
     @property
-    def name(self):
-        # type: () -> Field
+    def name(self) -> Field:
         """
         :return: The field that represents the name of the Project.
         """
         return self["name"]
 
-    def shots(self, glob_pattern=None):
-        # type: (Optional[str]) -> List[SGEntity]
+    def shots(self, glob_pattern: Optional[str] = None) -> List[SGEntity]:
         """
         :param glob_pattern: A glob to match the shots to return. For example
                              `TEST_01_*` would return all shots that start with `TEST_01_`.
@@ -52,8 +44,7 @@ class SGProject(SGEntity):
         else:
             return [new_entity(self._sg, sg_shot) for sg_shot in sg_shots]
 
-    def assets(self, glob_pattern=None):
-        # type: (Optional[str]) -> List[SGEntity]
+    def assets(self, glob_pattern: Optional[str] = None) -> List[SGEntity]:
         """
         :param glob_pattern: A glob to match the assets to return. For example
                             `TEST_*` would return all assets that start with `TEST_`.
@@ -71,10 +62,9 @@ class SGProject(SGEntity):
 
     def publishes(
         self,
-        pub_types=None,  # type: Optional[Union[str,List[str]]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) -> List[SGEntity]
+        pub_types: Optional[Union[str, List[str]]] = None,
+        latest: bool = False,
+    ) -> List[SGEntity]:
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -92,8 +82,7 @@ class SGProject(SGEntity):
             latest=latest,
         )
 
-    def people(self, only_active=True):
-        # type: (bool) -> List[SGEntity]
+    def people(self, only_active: bool = True) -> List[SGEntity]:
         """
         :param only_active: Whether to list only active people or all the people.
         :return: All HumanUsers assigned to this project.
@@ -104,8 +93,7 @@ class SGProject(SGEntity):
 
         return [new_entity(self._sg, sg_user) for sg_user in self._sg.find("HumanUser", sg_filter)]
 
-    def playlists(self):
-        # type: () -> List[SGEntity]
+    def playlists(self) -> List[SGEntity]:
         """
         :return: All playlists attached to this project.
         """
@@ -116,11 +104,10 @@ class SGProject(SGEntity):
 
     def versions(
         self,
-        user=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) -> List[SGEntity]
+        user: Optional[Union[Dict[str, Any], SGEntity]] = None,
+        pipeline_step: Optional[Union[str, Dict[str, Any], SGEntity]] = None,
+        latest: bool = False,
+    ) -> List[SGEntity]:
         """
         :param user: The artist assigned to the Versions.
         :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
@@ -150,8 +137,7 @@ class SGShot(SGEntity):
     DEFAULT_SG_ENTITY_TYPE = "Shot"
 
     @property
-    def name(self):
-        # type: () -> Field
+    def name(self) -> Field:
         """
         :return: The field that represents the name of the Shot.
         """
@@ -159,10 +145,9 @@ class SGShot(SGEntity):
 
     def publishes(
         self,
-        pub_types=None,  # type: Optional[Union[str,List[str]]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) -> List[SGEntity]
+        pub_types: Optional[Union[str, List[str]]] = None,
+        latest: bool = False,
+    ) -> List[SGEntity]:
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -182,11 +167,10 @@ class SGShot(SGEntity):
 
     def tasks(
         self,
-        names=None,  # type: Optional[List[str]]
-        assignee=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
-    ):
-        # type: (...) -> List[SGEntity]
+        names: Optional[List[str]] = None,
+        assignee: Optional[Union[Dict[str, Any], SGEntity]] = None,
+        pipeline_step: Optional[Union[str, Dict[str, Any], SGEntity]] = None,
+    ) -> List[SGEntity]:
         """
         :param names: The names of Tasks to return.
         :param assignee: The assignee of the Tasks to return.
@@ -203,11 +187,10 @@ class SGShot(SGEntity):
 
     def versions(
         self,
-        user=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) -> List[SGEntity]
+        user: Optional[Union[Dict[str, Any], SGEntity]] = None,
+        pipeline_step: Optional[Union[str, Dict[str, Any], SGEntity]] = None,
+        latest: bool = False,
+    ) -> List[SGEntity]:
         """
         :param user: The artist assigned to the Versions.
         :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
@@ -237,8 +220,7 @@ class SGAsset(SGEntity):
     DEFAULT_SG_ENTITY_TYPE = "Asset"
 
     @property
-    def name(self):
-        # type: () -> Field
+    def name(self) -> Field:
         """
         :return: The field that represents the name of the Asset.
         """
@@ -246,10 +228,9 @@ class SGAsset(SGEntity):
 
     def publishes(
         self,
-        pub_types=None,  # type: Optional[Union[str,List[str]]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) -> List[SGEntity]
+        pub_types: Optional[Union[str, List[str]]] = None,
+        latest: bool = False,
+    ) -> List[SGEntity]:
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -269,11 +250,10 @@ class SGAsset(SGEntity):
 
     def tasks(
         self,
-        names=None,  # type: Optional[List[str]]
-        assignee=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
-    ):
-        # type: (...) -> List[SGEntity]
+        names: Optional[List[str]] = None,
+        assignee: Optional[Union[Dict[str, Any], SGEntity]] = None,
+        pipeline_step: Optional[Union[str, Dict[str, Any], SGEntity]] = None,
+    ) -> List[SGEntity]:
         """
         :param names: The names of Tasks to return.
         :param assignee: The assignee of the tasks to return.
@@ -290,11 +270,10 @@ class SGAsset(SGEntity):
 
     def versions(
         self,
-        user=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) -> List[SGEntity]
+        user: Optional[Union[Dict[str, Any], SGEntity]] = None,
+        pipeline_step: Optional[Union[str, Dict[str, Any], SGEntity]] = None,
+        latest: bool = False,
+    ) -> List[SGEntity]:
         """
         :param user: The artist assigned to the Versions.
         :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
@@ -324,8 +303,7 @@ class SGTask(SGEntity):
     DEFAULT_SG_ENTITY_TYPE = "Task"
 
     @property
-    def name(self):
-        # type: () -> Field
+    def name(self) -> Field:
         """
         :return: The field that represents the name of the Task.
         """
@@ -333,10 +311,9 @@ class SGTask(SGEntity):
 
     def publishes(
         self,
-        pub_types=None,  # type: Optional[Union[str,List[str]]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) -> List[SGEntity]
+        pub_types: Optional[Union[str, List[str]]] = None,
+        latest: bool = False,
+    ) -> List[SGEntity]:
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the
@@ -356,11 +333,10 @@ class SGTask(SGEntity):
 
     def versions(
         self,
-        user=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) -> List[SGEntity]
+        user: Optional[Union[Dict[str, Any], SGEntity]] = None,
+        pipeline_step: Optional[Union[str, Dict[str, Any], SGEntity]] = None,
+        latest: bool = False,
+    ) -> List[SGEntity]:
         """
         :param user: The artist assigned to the Versions.
         :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
@@ -390,29 +366,25 @@ class SGPublishedFile(SGEntity):
     DEFAULT_SG_ENTITY_TYPE = "PublishedFile"
 
     @property
-    def name(self):
-        # type: () -> Field
+    def name(self) -> Field:
         """
         :return: The field that represents the name of the PublishedFile.
         """
         return self["code"]
 
-    def is_latest(self):
-        # type: () -> bool
+    def is_latest(self) -> bool:
         """
         :return: Whether this published file is the latest of its kind.
         """
         return self.get_latest() == self
 
-    def get_latest(self):
-        # type: () -> SGEntity
+    def get_latest(self) -> SGEntity:
         """
         :return: The latest published file of its kind (which might be this same entity).
         """
         return self.get_all_publishes()[-1]
 
-    def get_next_publishes(self):
-        # type: () -> List[SGEntity]
+    def get_next_publishes(self) -> List[SGEntity]:
         """
         :return: The next publishes after this publish.
         """
@@ -420,8 +392,7 @@ class SGPublishedFile(SGEntity):
         index = all_publishes.index(self)
         return all_publishes[index + 1 :]
 
-    def get_previous_publishes(self):
-        # type: () -> List[SGEntity]
+    def get_previous_publishes(self) -> List[SGEntity]:
         """
         :return: The previous publishes before this publish.
         """
@@ -429,8 +400,7 @@ class SGPublishedFile(SGEntity):
         index = all_publishes.index(self)
         return all_publishes[:index]
 
-    def get_all_publishes(self):
-        # type: () -> List[SGEntity]
+    def get_all_publishes(self) -> List[SGEntity]:
         """
         :return: A list of all the published file versions from lowest to highest version number.
         """
@@ -467,8 +437,7 @@ class SGVersion(SGEntity):
     DEFAULT_SG_ENTITY_TYPE = "Version"
 
     @property
-    def name(self):
-        # type: () -> Field
+    def name(self) -> Field:
         """
         :return: The field that represents the name of the Version.
         """
@@ -492,16 +461,14 @@ class SGPlaylist(SGEntity):
     DEFAULT_SG_ENTITY_TYPE = "Playlist"
 
     @property
-    def name(self):
-        # type: () -> Field
+    def name(self) -> Field:
         """
         :return: The field that represents the name of the Playlist.
         """
         return self["code"]
 
     @property
-    def media_url(self):
-        # type: () -> str
+    def media_url(self) -> str:
         """
         :return: The Media center URL for this playlist.
         :raises:
@@ -537,8 +504,7 @@ class SGHumanUser(SGEntity):
     # TODO time logs
 
     @property
-    def name(self):
-        # type: () -> Field
+    def name(self) -> Field:
         """
         :return: The field that represents the name of the HumanUser.
         """
@@ -546,11 +512,10 @@ class SGHumanUser(SGEntity):
 
     def versions(
         self,
-        entity=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) -> List[SGEntity]
+        entity: Optional[Union[Dict[str, Any], SGEntity]] = None,
+        pipeline_step: Optional[Union[str, Dict[str, Any], SGEntity]] = None,
+        latest: bool = False,
+    ) -> List[SGEntity]:
         """
         :param entity: entity to filter by eg. (Shot, Asset, Project, Task...).
         :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
@@ -566,11 +531,10 @@ class SGHumanUser(SGEntity):
 
     def tasks(
         self,
-        names=None,  # type: Optional[List[str]]
-        entity=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
-    ):
-        # type: (...) -> List[SGEntity]
+        names: Optional[List[str]] = None,
+        entity: Optional[Union[Dict[str, Any], SGEntity]] = None,
+        pipeline_step: Optional[Union[str, Dict[str, Any], SGEntity]] = None,
+    ) -> List[SGEntity]:
         """
         :param names: The names of Tasks to return.
         :param entity: entity to filter by eg. (Shot, Asset, Project,...).
@@ -586,10 +550,9 @@ class SGHumanUser(SGEntity):
 
     def publishes(
         self,
-        pub_types=None,  # type: Optional[Union[str,List[str]]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) -> List[SGEntity]
+        pub_types: Optional[Union[str, List[str]]] = None,
+        latest: bool = False,
+    ) -> List[SGEntity]:
         """
         :param pub_types: The names of the Publish File Types to return.
         :param latest: Whether to get the "latest" publishes or not. This uses the

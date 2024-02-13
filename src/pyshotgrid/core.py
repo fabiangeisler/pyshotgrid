@@ -3,7 +3,7 @@ import os
 import sys
 import urllib.parse
 import urllib.request
-from typing import Any, Dict, List, Optional, Type, Union  # noqa: F401
+from typing import Any, Dict, List, Optional, Type, Union
 
 try:
     import shotgun_api3
@@ -11,7 +11,7 @@ except ImportError:
     import tank_vendor.shotgun_api3 as shotgun_api3
 
 
-class SGEntity(object):
+class SGEntity:
     """
     An instance of this class represents a single entity in ShotGrid.
 
@@ -27,10 +27,11 @@ class SGEntity(object):
     #: init arguments. For the base SGEntity this should always be None, but
     #: for sub classes this should be set to the SG entity type that the
     #: class should represent.
-    DEFAULT_SG_ENTITY_TYPE = None  # type: Optional[str]
+    DEFAULT_SG_ENTITY_TYPE: Optional[str] = None
 
-    def __init__(self, sg, entity_id, entity_type=None):
-        # type: (shotgun_api3.shotgun.Shotgun, int, Optional[str]) -> None
+    def __init__(
+        self, sg: shotgun_api3.shotgun.Shotgun, entity_id: int, entity_type: Optional[str] = None
+    ):
         """
         :param sg: A fully initialized instance of shotgun_api3.Shotgun.
         :param entity_id: The ID of the ShotGrid entity.
@@ -50,47 +51,41 @@ class SGEntity(object):
                 entity_type = self.DEFAULT_SG_ENTITY_TYPE
         self._type = entity_type
 
-    def __str__(self):
-        # type: () -> str
+    def __str__(self) -> str:
         return "{} - Type: {} - ID: {} - URL: {}".format(
             self.__class__.__name__, self._type, self._id, self.url
         )
 
     @property
-    def id(self):
-        # type: () -> int
+    def id(self) -> int:
         """
         :return: The ID of the ShotGrid entity.
         """
         return self._id
 
     @property
-    def type(self):
-        # type: () -> str
+    def type(self) -> str:
         """
         :return: The type of the ShotGrid entity.
         """
         return self._type
 
     @property
-    def sg(self):
-        # type: () -> shotgun_api3.shotgun.Shotgun
+    def sg(self) -> shotgun_api3.shotgun.Shotgun:
         """
         :return: The Shotgun instance that the entity belongs to.
         """
         return self._sg
 
     @property
-    def site(self):
-        # type: () -> SGSite
+    def site(self) -> "SGSite":
         """
         :return: The pyshotgrid site for this entity.
         """
         return new_site(self._sg)
 
     @property
-    def url(self):
-        # type: () -> str
+    def url(self) -> str:
         """
         :return: The ShotGrid URL for this entity.
 
@@ -102,8 +97,7 @@ class SGEntity(object):
         return "{}/detail/{}/{}".format(self.sg.base_url, self._type, self._id)
 
     @property
-    def name(self):
-        # type: () -> Field
+    def name(self) -> "Field":
         """
         :return: The field that represents the name of the entity.
                  Usually either the "code" or "name" field.
@@ -123,23 +117,20 @@ class SGEntity(object):
             )
 
     @property
-    def thumbnail(self):
-        # type: () -> Field
+    def thumbnail(self) -> "Field":
         """
         :return: Shortcut for the thumbnail field.
         """
         return self["image"]
 
     @property
-    def filmstrip(self):
-        # type: () -> Field
+    def filmstrip(self) -> "Field":
         """
         :return: Shortcut for the filmstrip thumbnail field.
         """
         return self["filmstrip_image"]
 
-    def __eq__(self, other):
-        # type: (Any) -> bool
+    def __eq__(self, other: Any) -> bool:
         """
         Compare SGEntities against each other.
         We consider the entities equal if all these are true:
@@ -159,8 +150,7 @@ class SGEntity(object):
             )
         )
 
-    def __getitem__(self, field):
-        # type: (str) -> Field
+    def __getitem__(self, field: str) -> "Field":
         """
         Enabling dict notation to query fields of the entity from ShotGrid.
 
@@ -170,8 +160,9 @@ class SGEntity(object):
         """
         return Field(name=field, entity=self)
 
-    def fields(self, project_entity=None):
-        # type: (Union[Dict[str,Any],SGEntity,None]) -> List[Field]
+    def fields(
+        self, project_entity: Union[Dict[str, Any], "SGEntity", None] = None
+    ) -> List["Field"]:
         """
         :param project_entity: A project entity to filter by.
         :return: All fields from this entity. If a project entity is given
@@ -185,8 +176,11 @@ class SGEntity(object):
 
         return [Field(name=field, entity=self) for field in fields]
 
-    def all_field_values(self, project_entity=None, raw_values=False):
-        # type: (Optional[Union[Dict[str,Any],SGEntity]],bool) -> Dict[str,Any]
+    def all_field_values(
+        self,
+        project_entity: Optional[Union[Dict[str, Any], "SGEntity"]] = None,
+        raw_values: bool = False,
+    ) -> Dict[str, Any]:
         """
         :param project_entity: A project entity to filter by.
         :param raw_values: Whether to convert entities to pysg objects or not.
@@ -205,8 +199,7 @@ class SGEntity(object):
         else:
             return convert_fields_to_pysg(self._sg, all_fields)
 
-    def to_dict(self):
-        # type: () -> Dict[str,Any]
+    def to_dict(self) -> Dict[str, Any]:
         # noinspection PyUnresolvedReferences
         """
         Creates a dict with just "type" and "id" (and does not call SG).
@@ -220,8 +213,7 @@ class SGEntity(object):
         """
         return {"id": self._id, "type": self._type}
 
-    def batch_update_dict(self, data):
-        # type: (Dict[str,Any]) -> Dict[str,Any]
+    def batch_update_dict(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         :param data: A dict with the fields and values to set.
         :returns: A dict that can be used in a shotgun.batch() call to update some fields.
@@ -234,8 +226,9 @@ class SGEntity(object):
             "data": convert_fields_to_dicts(data),
         }
 
-    def set(self, data, multi_entity_update_modes=None):
-        # type: (Dict[str,Any],Optional[Dict[str,Any]]) -> None
+    def set(
+        self, data: Dict[str, Any], multi_entity_update_modes: Optional[Dict[str, Any]] = None
+    ) -> None:
         """
         Set many fields at once on this entity.
 
@@ -255,8 +248,7 @@ class SGEntity(object):
             multi_entity_update_modes=multi_entity_update_modes,
         )
 
-    def get(self, fields, raw_values=False):
-        # type: (List[str],bool) -> Dict[str,Any]
+    def get(self, fields: List[str], raw_values: bool = False) -> Dict[str, Any]:
         """
         Query many fields at once on this entity.
 
@@ -288,8 +280,7 @@ class SGEntity(object):
                     result[field_name] = convert_value_to_pysg(self.sg, value)
             return result
 
-    def delete(self):
-        # type: () -> bool
+    def delete(self) -> bool:
         """
         Delete this entity.
 
@@ -303,22 +294,19 @@ class SGEntity(object):
         return self._sg.delete(self._type, self._id)
 
     @property
-    def entity_display_name(self):
-        # type: () -> str
+    def entity_display_name(self) -> str:
         """
         :return: The display name of the current entity type.
         """
         return self.schema()["name"]["value"]
 
-    def schema(self):
-        # type: () -> Dict[str,Dict[str,Any]]
+    def schema(self) -> Dict[str, Dict[str, Any]]:
         """
         :return: The schema for the current entity.
         """
         return self.sg.schema_entity_read()[self._type]
 
-    def field_schemas(self):
-        # type: () -> Dict[str,FieldSchema]
+    def field_schemas(self) -> Dict[str, "FieldSchema"]:
         """
         :return: The schemas of all the entity fields.
         """
@@ -329,11 +317,10 @@ class SGEntity(object):
 
     def _publishes(
         self,
-        base_filter=None,  # type: Optional[List[Any]]
-        pub_types=None,  # type: Optional[Union[str,List[str]]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) ->  List[SGEntity]
+        base_filter: Optional[List[Any]] = None,
+        pub_types: Optional[Union[str, List[str]]] = None,
+        latest: bool = False,
+    ) -> List["SGEntity"]:
         """
         This function is meant as a base for a "publishes" function on a sub class. Publishes
         are stored in different fields for each entity and not every entity has a published file.
@@ -396,12 +383,11 @@ class SGEntity(object):
 
     def _tasks(
         self,
-        names=None,  # type: Optional[List[str]]
-        entity=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        assignee=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
-    ):
-        # type: (...) -> List[SGEntity]
+        names: Optional[List[str]] = None,
+        entity: Optional[Union[Dict[str, Any], "SGEntity"]] = None,
+        assignee: Optional[Union[Dict[str, Any], "SGEntity"]] = None,
+        pipeline_step: Optional[Union[str, Dict[str, Any], "SGEntity"]] = None,
+    ) -> List["SGEntity"]:
         """
         This function is meant as a base for a "tasks" function on a sub class.
         Not every entity has tasks. This is why this function is hidden by default.
@@ -412,7 +398,7 @@ class SGEntity(object):
         :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
         :returns: A list of Tasks
         """
-        sg_filter = []  # type: List[Union[List[Any],Dict[str,Any]]]
+        sg_filter: List[Union[List[Any], Dict[str, Any]]] = []
 
         if assignee is not None:
             if isinstance(assignee, SGEntity):
@@ -429,11 +415,11 @@ class SGEntity(object):
 
         if names is not None:
             if len(names) == 1:
-                names_filter = [
+                names_filter: Union[List[Any], Dict[str, Any]] = [
                     "content",
                     "is",
                     names[0],
-                ]  # type: Union[List[Any],Dict[str,Any]]
+                ]
             else:
                 names_filter = {"filter_operator": "any", "filters": []}
                 for name in names:
@@ -480,12 +466,11 @@ class SGEntity(object):
 
     def _versions(
         self,
-        entity=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        user=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-        pipeline_step=None,  # type: Optional[Union[str,Dict[str,Any],SGEntity]]
-        latest=False,  # type: bool
-    ):
-        # type: (...) -> List[SGEntity]
+        entity: Optional[Union[Dict[str, Any], "SGEntity"]] = None,
+        user: Optional[Union[Dict[str, Any], "SGEntity"]] = None,
+        pipeline_step: Optional[Union[str, Dict[str, Any], "SGEntity"]] = None,
+        latest: bool = False,
+    ) -> List["SGEntity"]:
         """
         This function is meant as a base for a "versions" function on a sub class.
         Not every entity has tasks. This is why this function is hidden by default.
@@ -496,7 +481,7 @@ class SGEntity(object):
         :param latest: Whether to return only the latest Version per link/entity.
         :returns: A list of Versions
         """
-        sg_filter = []  # type: List[Union[List[Any],Dict[str,Any]]]
+        sg_filter: List[Union[List[Any], Dict[str, Any]]] = []
 
         if user is not None:
             if isinstance(user, SGEntity):
@@ -555,7 +540,7 @@ class SGEntity(object):
 
         if latest:
             tmp_list = []
-            last_entity = {}  # type: Dict[str,Any]
+            last_entity: Dict[str, Any] = {}
             for sg_version in sg_versions:
                 if sg_version["entity"] == last_entity:
                     continue
@@ -567,7 +552,7 @@ class SGEntity(object):
         return [new_entity(self._sg, sg_version) for sg_version in sg_versions]
 
 
-class SGSite(object):
+class SGSite:
     """
     An instance of this class represents a ShotGrid site as a whole.
 
@@ -579,23 +564,20 @@ class SGSite(object):
         and ensures that the plugin system is correctly used.
     """
 
-    def __init__(self, sg):
-        # type: (shotgun_api3.shotgun.Shotgun) -> None
+    def __init__(self, sg: shotgun_api3.shotgun.Shotgun) -> None:
         """
         :param sg: A fully initialized instance of shotgun_api3.Shotgun.
         """
         self._sg = sg
 
     @property
-    def sg(self):
-        # type: () -> shotgun_api3.shotgun.Shotgun
+    def sg(self) -> shotgun_api3.shotgun.Shotgun:
         """
         :return: The Shotgun instance that the entity belongs to.
         """
         return self._sg
 
-    def __eq__(self, other):
-        # type: (Any) -> bool
+    def __eq__(self, other: Any) -> bool:
         """
         Compare SGSites against each other.
         We consider the Site equal if all these are true:
@@ -607,8 +589,7 @@ class SGSite(object):
         """
         return isinstance(other, SGSite) and self._sg.base_url == other.sg.base_url
 
-    def create(self, entity_type, data):
-        # type: (str,Dict[str,Any]) -> SGEntity
+    def create(self, entity_type: str, data: Dict[str, Any]) -> SGEntity:
         """
         The same function as
         :py:meth:`Shotgun.create <shotgun_api3:shotgun_api3.shotgun.Shotgun.create>`,
@@ -631,17 +612,16 @@ class SGSite(object):
 
     def find(
         self,
-        entity_type,  # type: str
-        filters,  # type: List[List[Any]]
-        order=None,  # type: Optional[Dict[str,str]]
-        filter_operator=None,  # type: Optional[str]
-        limit=0,  # type: int
-        retired_only=False,  # type: bool
-        page=0,  # type: int
-        include_archived_projects=True,  # type: bool
-        additional_filter_presets=None,  # type: Optional[str]
-    ):
-        # type: (...) -> List[SGEntity]
+        entity_type: str,
+        filters: List[List[Any]],
+        order: Optional[Dict[str, str]] = None,
+        filter_operator: Optional[str] = None,
+        limit: int = 0,
+        retired_only: bool = False,
+        page: int = 0,
+        include_archived_projects: bool = True,
+        additional_filter_presets: Optional[str] = None,
+    ) -> List[SGEntity]:
         """
         The same function as
         :py:meth:`Shotgun.find <shotgun_api3:shotgun_api3.shotgun.Shotgun.find>`, but it
@@ -677,17 +657,16 @@ class SGSite(object):
 
     def find_one(
         self,
-        entity_type,  # type: str
-        filters,  # type: List[List[Any]]
-        order=None,  # type: Optional[Dict[str,str]]
-        filter_operator=None,  # type: Optional[str]
-        limit=0,  # type: int
-        retired_only=False,  # type: bool
-        page=0,  # type: int
-        include_archived_projects=True,  # type: bool
-        additional_filter_presets=None,  # type: Optional[str]
-    ):
-        # type: (...) -> Optional[SGEntity]
+        entity_type: str,
+        filters: List[List[Any]],
+        order: Optional[Dict[str, str]] = None,
+        filter_operator: Optional[str] = None,
+        limit: int = 0,
+        retired_only: bool = False,
+        page: int = 0,
+        include_archived_projects: bool = True,
+        additional_filter_presets: Optional[str] = None,
+    ) -> Optional[SGEntity]:
         """
         The same function as
         :py:meth:`Shotgun.find_one <shotgun_api3:shotgun_api3.shotgun.Shotgun.find_one>` ,
@@ -708,8 +687,7 @@ class SGSite(object):
             return result[0]
         return None
 
-    def entity_field_schemas(self):
-        # type: () -> Dict[str,Dict[str,FieldSchema]]
+    def entity_field_schemas(self) -> Dict[str, Dict[str, "FieldSchema"]]:
         """
         :return: The field schemas for all entities of the current ShotGrid Site.
         """
@@ -721,8 +699,7 @@ class SGSite(object):
             }
         return result
 
-    def project(self, name_or_id):
-        # type: (Union[str,int]) -> Optional[SGEntity]
+    def project(self, name_or_id: Union[str, int]) -> Optional[SGEntity]:
         """
         :param name_or_id: The name or id of the project to return.
                            The name can either match the "tank_name" (recommended)
@@ -734,8 +711,12 @@ class SGSite(object):
             return sg_projects[0]
         return None
 
-    def projects(self, names_or_ids=None, include_archived=False, template_projects=False):
-        # type: (Optional[List[Union[str,int]]],bool,bool) ->  List[SGEntity]
+    def projects(
+        self,
+        names_or_ids: Optional[List[Union[str, int]]] = None,
+        include_archived: bool = False,
+        template_projects: bool = False,
+    ) -> List[SGEntity]:
         """
         :param names_or_ids: List of names or ids of the projects to return. The
                              names can either match the "tank_name" (recommended)
@@ -770,16 +751,15 @@ class SGSite(object):
 
     def pipeline_configuration(
         self,
-        name_or_id=None,  # type: Optional[Union[str,int]]
-        project=None,  # type: Optional[Union[Dict[str,Any],SGEntity]]
-    ):
-        # type: (...) ->  Optional[SGEntity]
+        name_or_id: Optional[Union[str, int]] = None,
+        project: Optional[Union[Dict[str, Any], SGEntity]] = None,
+    ) -> Optional[SGEntity]:
         """
         :param name_or_id: Name or ID of the PipelineConfiguration.
         :param project: The project that the PipelineConfiguration is attached to.
         :return: A PipelineConfiguration or None.
         """
-        base_filter = []  # type: List[List[Any]]
+        base_filter: List[List[Any]] = []
         if name_or_id is not None:
             if isinstance(name_or_id, int):
                 sg_pipe_config = self._sg.find_one(
@@ -807,8 +787,7 @@ class SGSite(object):
             return new_entity(self._sg, sg_pipe_config)
         return None
 
-    def people(self, only_active=True):
-        # type: (bool) ->  List[SGEntity]
+    def people(self, only_active: bool = True) -> List[SGEntity]:
         """
         :param only_active: Whether to list only active people or all the people.
         :return: All HumanUsers of this ShotGrid site.
@@ -820,13 +799,12 @@ class SGSite(object):
         return [new_entity(self._sg, sg_user) for sg_user in self._sg.find("HumanUser", sg_filter)]
 
 
-class FieldSchema(object):
+class FieldSchema:
     """
     This class represents the schema of a field.
     """
 
-    def __init__(self, sg, entity_type, name):
-        # type: (shotgun_api3.shotgun.Shotgun, str, str) -> None
+    def __init__(self, sg: shotgun_api3.shotgun.Shotgun, entity_type: str, name: str) -> None:
         """
         :param sg: The current Shotgun instance this instance uses.
         :param entity_type: The type of the SG entity.
@@ -836,36 +814,31 @@ class FieldSchema(object):
         self._entity_type = entity_type
         self._name = name
 
-    def __str__(self):
-        # type: () -> str
+    def __str__(self) -> str:
         return "{} - {} - Entity: {}".format(self.__class__.__name__, self._name, self._entity_type)
 
     @property
-    def sg(self):
-        # type: () -> shotgun_api3.shotgun.Shotgun
+    def sg(self) -> shotgun_api3.shotgun.Shotgun:
         """
         :return: The Shotgun instance that the field belongs to.
         """
         return self._sg
 
     @property
-    def name(self):
-        # type: () -> str
+    def name(self) -> str:
         """
         :return: The name of the field.
         """
         return self._name
 
     @property
-    def entity_type(self):
-        # type: () -> str
+    def entity_type(self) -> str:
         """
         :return: The type of the SG entity that this Field belongs to.
         """
         return self._entity_type
 
-    def _get_schema(self):
-        # type: () -> Dict[str,Dict[str,Any]]
+    def _get_schema(self) -> Dict[str, Dict[str, Any]]:
         """
         :return: The schema of this field.
                  For example::
@@ -898,8 +871,12 @@ class FieldSchema(object):
         """
         return self.sg.schema_field_read(self._entity_type, self._name)[self._name]
 
-    def _update_schema(self, prop, value, project_entity=None):
-        # type: (str, Any, Optional[Union[Dict[str,Any],SGEntity]]) -> bool
+    def _update_schema(
+        self,
+        prop: str,
+        value: Any,
+        project_entity: Optional[Union[Dict[str, Any], SGEntity]] = None,
+    ) -> bool:
         """
         Update a property of the field.
 
@@ -913,16 +890,14 @@ class FieldSchema(object):
         )
 
     @property
-    def data_type(self):
-        # type: () -> str
+    def data_type(self) -> str:
         """
         :return: The data type of the field.
         """
         return self._get_schema()["data_type"]["value"]
 
     @data_type.setter
-    def data_type(self, value):
-        # type: (str) -> None
+    def data_type(self, value: str) -> None:
         """
         Set the data type.
 
@@ -931,47 +906,40 @@ class FieldSchema(object):
         self._update_schema("data_type", value)
 
     @property
-    def description(self):
-        # type: () -> str
+    def description(self) -> str:
         """
         :return: The description of the field.
         """
         return self._get_schema()["description"]["value"]
 
     @description.setter
-    def description(self, value):
-        # type: (str) -> None
+    def description(self, value: str) -> None:
         self._update_schema("description", value)
 
     @property
-    def display_name(self):
-        # type: () -> str
+    def display_name(self) -> str:
         """
         :return: The display name of the field.
         """
         return self._get_schema()["name"]["value"]
 
     @display_name.setter
-    def display_name(self, value):
-        # type: (str) -> None
+    def display_name(self, value: str) -> None:
         self._update_schema("name", value)
 
     @property
-    def custom_metadata(self):
-        # type: () -> str
+    def custom_metadata(self) -> str:
         """
         :returns: Custom metadata attached to this field.
         """
         return self._get_schema()["custom_metadata"]["value"]
 
     @custom_metadata.setter
-    def custom_metadata(self, value):
-        # type: (str) -> None
+    def custom_metadata(self, value: str) -> None:
         self._update_schema("custom_metadata", value)
 
     @property
-    def properties(self):
-        # type: () -> Dict[str,Dict[str,Any]]
+    def properties(self) -> Dict[str, Dict[str, Any]]:
         """
         :return: The properties of the field. This strongly depends on the data type of the field.
                  This can for example give you all the possible values of a status field.
@@ -979,13 +947,11 @@ class FieldSchema(object):
         return self._get_schema()["properties"]
 
     @properties.setter
-    def properties(self, value):
-        # type: (Any) -> None
+    def properties(self, value: Any) -> None:
         self._update_schema("properties", value)
 
     @property
-    def valid_types(self):
-        # type: () -> List[str]
+    def valid_types(self) -> List[str]:
         """
         :return: The valid SG entity types for entity- and multi-entity-fields.
         """
@@ -1002,8 +968,7 @@ class Field(FieldSchema):
     # The naming convention of this class intentionally leaves out the "SG" in front,
     # since there is a ShotGrid entity that is called "Field".
 
-    def __init__(self, name, entity):
-        # type: (str, SGEntity) -> None
+    def __init__(self, name: str, entity: SGEntity) -> None:
         """
         :param name: The name of the field.
         :param entity: The entity that this field is attached to.
@@ -1011,22 +976,19 @@ class Field(FieldSchema):
         super().__init__(sg=entity.sg, entity_type=entity.type, name=name)
         self._entity = entity
 
-    def __str__(self):
-        # type: () -> str
+    def __str__(self) -> str:
         return "{} - {} - Entity: {} ID: {}".format(
             self.__class__.__name__, self._name, self._entity.type, self._entity.id
         )
 
     @property
-    def entity(self):
-        # type: () -> SGEntity
+    def entity(self) -> SGEntity:
         """
         :return: The entity that this field is attached to.
         """
         return self._entity
 
-    def get(self, raw_values=False):
-        # type: (bool) -> Any
+    def get(self, raw_values: bool = False) -> Any:
         """
         :param raw_values: Whether to return the raw dict values or the values converted to
                            pyshotgrid objects.
@@ -1062,8 +1024,7 @@ class Field(FieldSchema):
         else:
             return convert_value_to_pysg(self.sg, value)
 
-    def set(self, value):
-        # type: (Any) -> None
+    def set(self, value: Any) -> None:
         """
         Set the field to the given value in ShotGrid.
 
@@ -1075,8 +1036,7 @@ class Field(FieldSchema):
             data={self._name: convert_value_to_dict(value)},
         )
 
-    def add(self, values):
-        # type: (List[Any]) -> None
+    def add(self, values: List[Any]) -> None:
         """
         Add some values to this field
 
@@ -1089,8 +1049,7 @@ class Field(FieldSchema):
             multi_entity_update_modes={self._name: "add"},
         )
 
-    def remove(self, values):
-        # type: (List[Any]) -> None
+    def remove(self, values: List[Any]) -> None:
         """
         Remove some values from this field.
 
@@ -1105,8 +1064,9 @@ class Field(FieldSchema):
 
     # This function was shamelessly stolen from sgtk.util.download_url
     # This also the reason why we exclude it from test coverage.
-    def _download_url(self, url, location, use_url_extension=False):  # pragma: no cover
-        # type: (str, str, bool) -> str
+    def _download_url(
+        self, url: str, location: str, use_url_extension: bool = False
+    ) -> str:  # pragma: no cover
         """
         Convenience method that downloads a file from a given url.
         This method will take into account any proxy settings which have
@@ -1226,8 +1186,7 @@ class Field(FieldSchema):
             opener = urllib.request.build_opener(cookie_handler)
         urllib.request.install_opener(opener)
 
-    def upload(self, path, display_name=None):
-        # type: (str, Optional[str]) -> SGEntity
+    def upload(self, path: str, display_name: Optional[str] = None) -> SGEntity:
         """
         Upload a file to this field.
 
@@ -1244,8 +1203,7 @@ class Field(FieldSchema):
         )
         return new_entity(self.sg, sg_attachment_id, "Attachment")
 
-    def download(self, path, create_folders=True):
-        # type: (str, bool) -> str
+    def download(self, path: str, create_folders: bool = True) -> str:
         """
         Download a file from a field.
 
@@ -1313,15 +1271,13 @@ class Field(FieldSchema):
         return downloaded_file_path
 
     @property
-    def schema(self):
-        # type: () -> FieldSchema
+    def schema(self) -> FieldSchema:
         """
         :return: The schema of this field.
         """
         return FieldSchema(sg=self._entity.sg, entity_type=self._entity.type, name=self._name)
 
-    def batch_update_dict(self, value):
-        # type: (Any) -> Dict[str,Any]
+    def batch_update_dict(self, value: Any) -> Dict[str, Any]:
         """
         :param value: The value to set.
         :returns: A dict that can be used in a shotgun.batch() call to update this field.
@@ -1337,13 +1293,12 @@ class Field(FieldSchema):
 
 
 #: Entity plugins that are registered to pyshotgrid.
-__ENTITY_PLUGINS = {}  # type: Dict[str,Type[SGEntity]]
+__ENTITY_PLUGINS: Dict[str, Type[SGEntity]] = {}
 #: The class that represents the ShotGrid site.
-__SG_SITE_CLASS = SGSite  # type: Type[SGSite]
+__SG_SITE_CLASS: Type[SGSite] = SGSite
 
 
-def new_entity(sg, *args, **kwargs):
-    # type: (shotgun_api3.shotgun.Shotgun, Any, Any) -> SGEntity
+def new_entity(sg: shotgun_api3.shotgun.Shotgun, *args: Any, **kwargs: Any) -> SGEntity:
     """
     Create a new instance of a pyshotgrid class that represents a ShotGrid entity.
     This function is meant to be used as the main way to create new pyshotgrid instances
@@ -1391,8 +1346,7 @@ def new_entity(sg, *args, **kwargs):
     raise ValueError("Entity type and ID could not be extracted from the given values.")
 
 
-def new_site(*args, **kwargs):
-    # type: (Any, Any) -> SGSite
+def new_site(*args: Any, **kwargs: Any) -> SGSite:
     """
     This function will create a new :py:class:`pyshotgrid.SGSite <pyshotgrid.sg_site.SGSite>`
     instance that represents a ShotGrid site.
@@ -1432,8 +1386,7 @@ def new_site(*args, **kwargs):
     return __SG_SITE_CLASS(sg)
 
 
-def register_pysg_class(pysg_class, shotgrid_type=None):
-    # type: (Type[SGEntity], Optional[str]) -> None
+def register_pysg_class(pysg_class: Type[SGEntity], shotgrid_type: Optional[str] = None) -> None:
     """
     Register a class for a ShotGrid type to pyshotgrid.
     This is best illustrated as by an example: Suppose you have a custom entity setup where you
@@ -1480,8 +1433,7 @@ def register_pysg_class(pysg_class, shotgrid_type=None):
     __ENTITY_PLUGINS[shotgrid_type] = pysg_class
 
 
-def register_sg_site_class(sg_site_class):
-    # type: (Type[SGSite]) -> None
+def register_sg_site_class(sg_site_class: Type[SGSite]) -> None:
     """
     Register a class that represents the ShotGrid site.
 
@@ -1503,8 +1455,7 @@ def register_sg_site_class(sg_site_class):
     __SG_SITE_CLASS = sg_site_class
 
 
-def convert_fields_to_pysg(sg, fields):
-    # type: (shotgun_api3.Shotgun, Dict[str,Any]) -> Dict[str,Any]
+def convert_fields_to_pysg(sg: shotgun_api3.Shotgun, fields: Dict[str, Any]) -> Dict[str, Any]:
     """
     Convert all the values from a fields dict to pysg objects where possible.
 
@@ -1516,8 +1467,7 @@ def convert_fields_to_pysg(sg, fields):
     return {field: convert_value_to_pysg(sg, value) for field, value in fields.items()}
 
 
-def convert_fields_to_dicts(fields):
-    # type: (Dict[str,Any]) -> Dict[str,Any]
+def convert_fields_to_dicts(fields: Dict[str, Any]) -> Dict[str, Any]:
     """
     Convert all the values from a fields dict to simple dictionaries. The counterpart function
     to `func:_convert_fields_to_pysg`.
@@ -1529,8 +1479,7 @@ def convert_fields_to_dicts(fields):
     return {field: convert_value_to_dict(value) for field, value in fields.items()}
 
 
-def convert_value_to_dict(value):
-    # type: (Any) -> Union[Dict[str,Any],List[Dict[str,Any]]]
+def convert_value_to_dict(value: Any) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
     """
     Convert any pysg objects form the given value to simple dictionaries.
 
@@ -1551,8 +1500,7 @@ def convert_value_to_dict(value):
         return value
 
 
-def convert_filters_to_dict(filters):
-    # type: (List[List[Any]]) -> List[List[Any]]
+def convert_filters_to_dict(filters: List[List[Any]]) -> List[List[Any]]:
     """
     Convert any pysg objects form the given shotgun_api3 filter to simple dictionaries.
 
@@ -1580,8 +1528,7 @@ def convert_filters_to_dict(filters):
     return filters
 
 
-def convert_value_to_pysg(sg, value):
-    # type: (shotgun_api3.Shotgun,Any) -> Any
+def convert_value_to_pysg(sg: shotgun_api3.Shotgun, value: Any) -> Any:
     """
     Convert the value from a field to pysg object(s) where possible.
 
