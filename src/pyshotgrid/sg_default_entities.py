@@ -477,13 +477,14 @@ class SGPlaylist(SGEntity):
         sg_project = self["project"].get()
         if sg_project is None:
             raise RuntimeError(
-                'Cannot get media URL for playlist "{}"'
-                ", because it is not attached to a project.".format(self.id)
+                f'Cannot get media URL for playlist "{self.id}", '
+                f"because it is not attached to a project."
             )
         # Example URL:
         # https://example.shotgunstudio.com/page/media_center?type=Playlist&id=123&project_id=456
-        return "{}/page/media_center?type={}&id={}&project_id={}".format(
-            self.sg.base_url, self._type, self._id, sg_project["id"].get()
+        return (
+            f"{self.sg.base_url}/page/media_center?type={self._type}&id={self._id}"
+            f"&project_id={sg_project['id'].get()}"
         )
 
 
