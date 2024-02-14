@@ -360,7 +360,7 @@ def add_default_entities(sg):
         sg.create(
             "PublishedFile",
             {
-                "code": "sh1111_city_v{:03d}.%04d.exr".format(i),
+                "code": f"sh1111_city_v{i:03d}.%04d.exr",
                 "name": "sh1111_city",
                 "version_number": i,
                 "published_file_type": pub_type_render,
@@ -370,22 +370,20 @@ def add_default_entities(sg):
                 "path": {
                     "content_type": "image/exr",
                     "link_type": "local",
-                    "name": "sh1111_city_v{:03d}.%04d.exr".format(i),
+                    "name": f"sh1111_city_v{i:03d}.%04d.exr",
                     "local_storage": local_storage,
-                    "local_path_mac": "/Volumes/projects/tp/sequences/sq111/"
-                    "sh1111_city_v{:03d}.%04d.exr".format(i),
-                    "local_path_linux": "/mnt/projects/tp/sequences/sq111/"
-                    "sh1111_city_v{:03d}.%04d.exr".format(i),
-                    "local_path_windows": "P:\\tp\\sequences\\sq111\\"
-                    "sh1111_city_v{:03d}.%04d.exr".format(i),
+                    "local_path_mac": f"/Volumes/projects/tp/sequences/sq111/"
+                    f"sh1111_city_v{i:03d}.%04d.exr",
+                    "local_path_linux": f"/mnt/projects/tp/sequences/sq111/"
+                    f"sh1111_city_v{i:03d}.%04d.exr",
+                    "local_path_windows": f"P:\\tp\\sequences\\sq111\\"
+                    f"sh1111_city_v{i:03d}.%04d.exr",
                     "type": "Attachment",
                     "id": random.randint(1, 1000),
-                    "local_path": "/mnt/projects/tp/sequences/sq111/"
-                    "sh1111_city_v{:03d}.%04d.exr".format(i),
-                    "url": "file:///mnt/projects/tp/sequences/sq111/"
-                    "sh1111_city_v{:03d}.%04d.exr".format(i),
+                    "local_path": f"/mnt/projects/tp/sequences/sq111/sh1111_city_v{i:03d}.%04d.exr",
+                    "url": f"file:///mnt/projects/tp/sequences/sq111/sh1111_city_v{i:03d}.%04d.exr",
                 },
-                "path_cache": "tp/sequences/sq111/" "sh1111_city_v{:03d}.%04d.exr".format(i),
+                "path_cache": f"tp/sequences/sq111/sh1111_city_v{i:03d}.%04d.exr",
                 "path_cache_storage": local_storage,
                 "created_by": person_a,
             },
@@ -394,7 +392,7 @@ def add_default_entities(sg):
         sg.create(
             "PublishedFile",
             {
-                "code": "sh1111_city_v{:03d}.abc".format(i),
+                "code": f"sh1111_city_v{i:03d}.abc",
                 "name": "sh1111_city",
                 "version_number": i,
                 "published_file_type": pub_type_alembic,
@@ -404,22 +402,20 @@ def add_default_entities(sg):
                 "path": {
                     "content_type": "image/exr",
                     "link_type": "local",
-                    "name": "sh1111_city_v{:03d}.%04d.abc".format(i),
+                    "name": f"sh1111_city_v{i:03d}.%04d.abc",
                     "local_storage": local_storage,
-                    "local_path_mac": "/Volumes/projects/tp/sequences/sq111/"
-                    "sh1111_city_v{:03d}.%04d.abc".format(i),
-                    "local_path_linux": "/mnt/projects/tp/sequences/sq111/"
-                    "sh1111_city_v{:03d}.%04d.abc".format(i),
-                    "local_path_windows": "P:\\tp\\sequences\\sq111\\"
-                    "sh1111_city_v{:03d}.%04d.abc".format(i),
+                    "local_path_mac": f"/Volumes/projects/tp/sequences/sq111/"
+                    f"sh1111_city_v{i:03d}.%04d.abc",
+                    "local_path_linux": f"/mnt/projects/tp/sequences/sq111/"
+                    f"sh1111_city_v{i:03d}.%04d.abc",
+                    "local_path_windows": f"P:\\tp\\sequences\\sq111\\"
+                    f"sh1111_city_v{i:03d}.%04d.abc",
                     "type": "Attachment",
                     "id": random.randint(1, 1000),
-                    "local_path": "/mnt/projects/tp/sequences/sq111/"
-                    "sh1111_city_v{:03d}.%04d.abc".format(i),
-                    "url": "file:///mnt/projects/tp/sequences/sq111/"
-                    "sh1111_city_v{:03d}.%04d.abc".format(i),
+                    "local_path": f"/mnt/projects/tp/sequences/sq111/sh1111_city_v{i:03d}.%04d.abc",
+                    "url": f"file:///mnt/projects/tp/sequences/sq111/sh1111_city_v{i:03d}.%04d.abc",
                 },
-                "path_cache": "tp/sequences/sq111/sh1111_city_v{:03d}.abc".format(i),
+                "path_cache": f"tp/sequences/sq111/sh1111_city_v{i:03d}.abc",
                 "path_cache_storage": local_storage,
                 "created_by": person_b,
             },

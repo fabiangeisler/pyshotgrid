@@ -42,19 +42,16 @@ class SGEntity:
         if entity_type is None:
             if self.DEFAULT_SG_ENTITY_TYPE is None:
                 raise ValueError(
-                    "Cannot construct an instance of {}. "
+                    f"Cannot construct an instance of {self.__class__.__name__}. "
                     "DEFAULT_SG_ENTITY_TYPE of the class is None and"
                     "no entity_type argument was given."
-                    "".format(self.__class__.__name__)
                 )
             else:
                 entity_type = self.DEFAULT_SG_ENTITY_TYPE
         self._type = entity_type
 
     def __str__(self) -> str:
-        return "{} - Type: {} - ID: {} - URL: {}".format(
-            self.__class__.__name__, self._type, self._id, self.url
-        )
+        return f"{self.__class__.__name__} - Type: {self._type} - ID: {self._id} - URL: {self.url}"
 
     @property
     def id(self) -> int:
@@ -94,7 +91,7 @@ class SGEntity:
                This will only work on entities that have a detail view enabled
                in the system settings.
         """
-        return "{}/detail/{}/{}".format(self.sg.base_url, self._type, self._id)
+        return f"{self.sg.base_url}/detail/{self._type}/{self._id}"
 
     @property
     def name(self) -> "Field":
@@ -111,9 +108,8 @@ class SGEntity:
             return self["code"]
         else:
             raise RuntimeError(
-                "Cannot find a field for the name. "
-                '"{}" entities have neither a "name" nor a "code" field.'
-                "".format(self._type)
+                f"Cannot find a field for the name. "
+                f'"{self._type}" entities have neither a "name" nor a "code" field.'
             )
 
     @property
@@ -815,7 +811,7 @@ class FieldSchema:
         self._name = name
 
     def __str__(self) -> str:
-        return "{} - {} - Entity: {}".format(self.__class__.__name__, self._name, self._entity_type)
+        return f"{self.__class__.__name__} - {self._name} - Entity: {self._entity_type}"
 
     @property
     def sg(self) -> shotgun_api3.shotgun.Shotgun:
@@ -977,8 +973,9 @@ class Field(FieldSchema):
         self._entity = entity
 
     def __str__(self) -> str:
-        return "{} - {} - Entity: {} ID: {}".format(
-            self.__class__.__name__, self._name, self._entity.type, self._entity.id
+        return (
+            f"{self.__class__.__name__} - {self._name} - "
+            f"Entity: {self._entity.type} ID: {self._entity.id}"
         )
 
     @property
@@ -1132,7 +1129,7 @@ class Field(FieldSchema):
                 # API and removed from here.
                 url_ext = os.path.splitext(urllib.parse.urlparse(response.geturl()).path)[-1]
                 if url_ext:
-                    location = "{}{}".format(location, url_ext)
+                    location = f"{location}{url_ext}"
 
             f = open(location, "wb")
             try:
@@ -1141,7 +1138,7 @@ class Field(FieldSchema):
                 f.close()
         except Exception as e:
             raise RuntimeError(
-                "Could not download contents of url '{}'. Error reported: {}".format(url, e)
+                f"Could not download contents of url '{url}'. Error reported: {e}"
             ) from e
 
         return location
@@ -1219,8 +1216,8 @@ class Field(FieldSchema):
 
         if field_type not in ["url", "image"]:
             raise RuntimeError(
-                'The "{}" field is neither a "url" nor an "image" field. '
-                "Nothing can be downloaded from it.".format(self._name)
+                f'The "{self.name}" field is neither a "url" nor an "image" field. '
+                f"Nothing can be downloaded from it."
             )
 
         pay_load = self.sg.find_one(
@@ -1229,8 +1226,8 @@ class Field(FieldSchema):
 
         if pay_load is None:
             raise RuntimeError(
-                'Cannot download file from field "{}" on entity "{}", because there '
-                "is nothing uploaded.".format(self._name, self._entity.to_dict())
+                f'Cannot download file from field "{self._name}" '
+                f'on entity "{self._entity.to_dict()}", because there is nothing uploaded.'
             )
 
         if field_type == "url":
@@ -1421,7 +1418,7 @@ def register_pysg_class(pysg_class: Type[SGEntity], shotgrid_type: Optional[str]
 
     if not issubclass(pysg_class, SGEntity):
         raise TypeError(
-            'The given class "{}" needs to inherit from pyshotgrid.SGEntity.'.format(pysg_class)
+            f'The given class "{pysg_class}" needs to inherit from pyshotgrid.SGEntity.'
         )
 
     if shotgrid_type is None:
