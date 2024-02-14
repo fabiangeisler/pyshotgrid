@@ -3,7 +3,7 @@ import os
 import sys
 import urllib.parse
 import urllib.request
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Optional, Type, Union
 
 try:
     import shotgun_api3
@@ -161,8 +161,8 @@ class SGEntity:
         return Field(name=field, entity=self)
 
     def fields(
-        self, project_entity: Union[Dict[str, Any], "SGEntity", None] = None
-    ) -> List["Field"]:
+        self, project_entity: Union[dict[str, Any], "SGEntity", None] = None
+    ) -> list["Field"]:
         """
         :param project_entity: A project entity to filter by.
         :return: All fields from this entity. If a project entity is given
@@ -178,9 +178,9 @@ class SGEntity:
 
     def all_field_values(
         self,
-        project_entity: Optional[Union[Dict[str, Any], "SGEntity"]] = None,
+        project_entity: Optional[Union[dict[str, Any], "SGEntity"]] = None,
         raw_values: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         :param project_entity: A project entity to filter by.
         :param raw_values: Whether to convert entities to pysg objects or not.
@@ -199,7 +199,7 @@ class SGEntity:
         else:
             return convert_fields_to_pysg(self._sg, all_fields)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         # noinspection PyUnresolvedReferences
         """
         Creates a dict with just "type" and "id" (and does not call SG).
@@ -213,7 +213,7 @@ class SGEntity:
         """
         return {"id": self._id, "type": self._type}
 
-    def batch_update_dict(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def batch_update_dict(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         :param data: A dict with the fields and values to set.
         :returns: A dict that can be used in a shotgun.batch() call to update some fields.
@@ -227,7 +227,7 @@ class SGEntity:
         }
 
     def set(
-        self, data: Dict[str, Any], multi_entity_update_modes: Optional[Dict[str, Any]] = None
+        self, data: dict[str, Any], multi_entity_update_modes: Optional[dict[str, Any]] = None
     ) -> None:
         """
         Set many fields at once on this entity.
@@ -248,7 +248,7 @@ class SGEntity:
             multi_entity_update_modes=multi_entity_update_modes,
         )
 
-    def get(self, fields: List[str], raw_values: bool = False) -> Dict[str, Any]:
+    def get(self, fields: list[str], raw_values: bool = False) -> dict[str, Any]:
         """
         Query many fields at once on this entity.
 
@@ -300,13 +300,13 @@ class SGEntity:
         """
         return self.schema()["name"]["value"]
 
-    def schema(self) -> Dict[str, Dict[str, Any]]:
+    def schema(self) -> dict[str, dict[str, Any]]:
         """
         :return: The schema for the current entity.
         """
         return self.sg.schema_entity_read()[self._type]
 
-    def field_schemas(self) -> Dict[str, "FieldSchema"]:
+    def field_schemas(self) -> dict[str, "FieldSchema"]:
         """
         :return: The schemas of all the entity fields.
         """
@@ -317,10 +317,10 @@ class SGEntity:
 
     def _publishes(
         self,
-        base_filter: Optional[List[Any]] = None,
-        pub_types: Optional[Union[str, List[str]]] = None,
+        base_filter: Optional[list[Any]] = None,
+        pub_types: Optional[Union[str, list[str]]] = None,
         latest: bool = False,
-    ) -> List["SGEntity"]:
+    ) -> list["SGEntity"]:
         """
         This function is meant as a base for a "publishes" function on a sub class. Publishes
         are stored in different fields for each entity and not every entity has a published file.
@@ -346,7 +346,7 @@ class SGEntity:
                         ["published_file_type.PublishedFileType.code", "is", pub_type]
                         for pub_type in pub_types
                     ],
-                }  # type: Union[Dict[str,Any],List[Any]]
+                }  # type: Union[dict[str,Any],list[Any]]
             else:
                 pub_types_filter = [
                     "published_file_type.PublishedFileType.code",
@@ -360,7 +360,7 @@ class SGEntity:
         )
         if latest:
             # group publishes by "name"
-            tmp = {}  # type: Dict[str,List[Dict[str,Any]]]
+            tmp = {}  # type: dict[str,list[dict[str,Any]]]
             for sg_publish in sg_publishes:
                 if sg_publish["name"] in tmp:
                     tmp[sg_publish["name"]].append(sg_publish)
@@ -383,11 +383,11 @@ class SGEntity:
 
     def _tasks(
         self,
-        names: Optional[List[str]] = None,
-        entity: Optional[Union[Dict[str, Any], "SGEntity"]] = None,
-        assignee: Optional[Union[Dict[str, Any], "SGEntity"]] = None,
-        pipeline_step: Optional[Union[str, Dict[str, Any], "SGEntity"]] = None,
-    ) -> List["SGEntity"]:
+        names: Optional[list[str]] = None,
+        entity: Optional[Union[dict[str, Any], "SGEntity"]] = None,
+        assignee: Optional[Union[dict[str, Any], "SGEntity"]] = None,
+        pipeline_step: Optional[Union[str, dict[str, Any], "SGEntity"]] = None,
+    ) -> list["SGEntity"]:
         """
         This function is meant as a base for a "tasks" function on a sub class.
         Not every entity has tasks. This is why this function is hidden by default.
@@ -398,7 +398,7 @@ class SGEntity:
         :param pipeline_step: Name, short name or entity object or the Pipeline Step to filter by.
         :returns: A list of Tasks
         """
-        sg_filter: List[Union[List[Any], Dict[str, Any]]] = []
+        sg_filter: list[Union[list[Any], dict[str, Any]]] = []
 
         if assignee is not None:
             if isinstance(assignee, SGEntity):
@@ -415,7 +415,7 @@ class SGEntity:
 
         if names is not None:
             if len(names) == 1:
-                names_filter: Union[List[Any], Dict[str, Any]] = [
+                names_filter: Union[list[Any], dict[str, Any]] = [
                     "content",
                     "is",
                     names[0],
@@ -466,11 +466,11 @@ class SGEntity:
 
     def _versions(
         self,
-        entity: Optional[Union[Dict[str, Any], "SGEntity"]] = None,
-        user: Optional[Union[Dict[str, Any], "SGEntity"]] = None,
-        pipeline_step: Optional[Union[str, Dict[str, Any], "SGEntity"]] = None,
+        entity: Optional[Union[dict[str, Any], "SGEntity"]] = None,
+        user: Optional[Union[dict[str, Any], "SGEntity"]] = None,
+        pipeline_step: Optional[Union[str, dict[str, Any], "SGEntity"]] = None,
         latest: bool = False,
-    ) -> List["SGEntity"]:
+    ) -> list["SGEntity"]:
         """
         This function is meant as a base for a "versions" function on a sub class.
         Not every entity has tasks. This is why this function is hidden by default.
@@ -481,7 +481,7 @@ class SGEntity:
         :param latest: Whether to return only the latest Version per link/entity.
         :returns: A list of Versions
         """
-        sg_filter: List[Union[List[Any], Dict[str, Any]]] = []
+        sg_filter: list[Union[list[Any], dict[str, Any]]] = []
 
         if user is not None:
             if isinstance(user, SGEntity):
@@ -540,7 +540,7 @@ class SGEntity:
 
         if latest:
             tmp_list = []
-            last_entity: Dict[str, Any] = {}
+            last_entity: dict[str, Any] = {}
             for sg_version in sg_versions:
                 if sg_version["entity"] == last_entity:
                     continue
@@ -589,7 +589,7 @@ class SGSite:
         """
         return isinstance(other, SGSite) and self._sg.base_url == other.sg.base_url
 
-    def create(self, entity_type: str, data: Dict[str, Any]) -> SGEntity:
+    def create(self, entity_type: str, data: dict[str, Any]) -> SGEntity:
         """
         The same function as
         :py:meth:`Shotgun.create <shotgun_api3:shotgun_api3.shotgun.Shotgun.create>`,
@@ -613,15 +613,15 @@ class SGSite:
     def find(
         self,
         entity_type: str,
-        filters: List[List[Any]],
-        order: Optional[Dict[str, str]] = None,
+        filters: list[list[Any]],
+        order: Optional[dict[str, str]] = None,
         filter_operator: Optional[str] = None,
         limit: int = 0,
         retired_only: bool = False,
         page: int = 0,
         include_archived_projects: bool = True,
         additional_filter_presets: Optional[str] = None,
-    ) -> List[SGEntity]:
+    ) -> list[SGEntity]:
         """
         The same function as
         :py:meth:`Shotgun.find <shotgun_api3:shotgun_api3.shotgun.Shotgun.find>`, but it
@@ -658,8 +658,8 @@ class SGSite:
     def find_one(
         self,
         entity_type: str,
-        filters: List[List[Any]],
-        order: Optional[Dict[str, str]] = None,
+        filters: list[list[Any]],
+        order: Optional[dict[str, str]] = None,
         filter_operator: Optional[str] = None,
         limit: int = 0,
         retired_only: bool = False,
@@ -687,7 +687,7 @@ class SGSite:
             return result[0]
         return None
 
-    def entity_field_schemas(self) -> Dict[str, Dict[str, "FieldSchema"]]:
+    def entity_field_schemas(self) -> dict[str, dict[str, "FieldSchema"]]:
         """
         :return: The field schemas for all entities of the current ShotGrid Site.
         """
@@ -713,12 +713,12 @@ class SGSite:
 
     def projects(
         self,
-        names_or_ids: Optional[List[Union[str, int]]] = None,
+        names_or_ids: Optional[list[Union[str, int]]] = None,
         include_archived: bool = False,
         template_projects: bool = False,
-    ) -> List[SGEntity]:
+    ) -> list[SGEntity]:
         """
-        :param names_or_ids: List of names or ids of the projects to return. The
+        :param names_or_ids: list of names or ids of the projects to return. The
                              names can either match the "tank_name" (recommended)
                              or the "name" field.
         :param include_archived: Whether to include archived projects or not.
@@ -752,14 +752,14 @@ class SGSite:
     def pipeline_configuration(
         self,
         name_or_id: Optional[Union[str, int]] = None,
-        project: Optional[Union[Dict[str, Any], SGEntity]] = None,
+        project: Optional[Union[dict[str, Any], SGEntity]] = None,
     ) -> Optional[SGEntity]:
         """
         :param name_or_id: Name or ID of the PipelineConfiguration.
         :param project: The project that the PipelineConfiguration is attached to.
         :return: A PipelineConfiguration or None.
         """
-        base_filter: List[List[Any]] = []
+        base_filter: list[list[Any]] = []
         if name_or_id is not None:
             if isinstance(name_or_id, int):
                 sg_pipe_config = self._sg.find_one(
@@ -787,7 +787,7 @@ class SGSite:
             return new_entity(self._sg, sg_pipe_config)
         return None
 
-    def people(self, only_active: bool = True) -> List[SGEntity]:
+    def people(self, only_active: bool = True) -> list[SGEntity]:
         """
         :param only_active: Whether to list only active people or all the people.
         :return: All HumanUsers of this ShotGrid site.
@@ -838,7 +838,7 @@ class FieldSchema:
         """
         return self._entity_type
 
-    def _get_schema(self) -> Dict[str, Dict[str, Any]]:
+    def _get_schema(self) -> dict[str, dict[str, Any]]:
         """
         :return: The schema of this field.
                  For example::
@@ -875,7 +875,7 @@ class FieldSchema:
         self,
         prop: str,
         value: Any,
-        project_entity: Optional[Union[Dict[str, Any], SGEntity]] = None,
+        project_entity: Optional[Union[dict[str, Any], SGEntity]] = None,
     ) -> bool:
         """
         Update a property of the field.
@@ -939,7 +939,7 @@ class FieldSchema:
         self._update_schema("custom_metadata", value)
 
     @property
-    def properties(self) -> Dict[str, Dict[str, Any]]:
+    def properties(self) -> dict[str, dict[str, Any]]:
         """
         :return: The properties of the field. This strongly depends on the data type of the field.
                  This can for example give you all the possible values of a status field.
@@ -951,7 +951,7 @@ class FieldSchema:
         self._update_schema("properties", value)
 
     @property
-    def valid_types(self) -> List[str]:
+    def valid_types(self) -> list[str]:
         """
         :return: The valid SG entity types for entity- and multi-entity-fields.
         """
@@ -1036,7 +1036,7 @@ class Field(FieldSchema):
             data={self._name: convert_value_to_dict(value)},
         )
 
-    def add(self, values: List[Any]) -> None:
+    def add(self, values: list[Any]) -> None:
         """
         Add some values to this field
 
@@ -1049,7 +1049,7 @@ class Field(FieldSchema):
             multi_entity_update_modes={self._name: "add"},
         )
 
-    def remove(self, values: List[Any]) -> None:
+    def remove(self, values: list[Any]) -> None:
         """
         Remove some values from this field.
 
@@ -1277,7 +1277,7 @@ class Field(FieldSchema):
         """
         return FieldSchema(sg=self._entity.sg, entity_type=self._entity.type, name=self._name)
 
-    def batch_update_dict(self, value: Any) -> Dict[str, Any]:
+    def batch_update_dict(self, value: Any) -> dict[str, Any]:
         """
         :param value: The value to set.
         :returns: A dict that can be used in a shotgun.batch() call to update this field.
@@ -1293,7 +1293,7 @@ class Field(FieldSchema):
 
 
 #: Entity plugins that are registered to pyshotgrid.
-__ENTITY_PLUGINS: Dict[str, Type[SGEntity]] = {}
+__ENTITY_PLUGINS: dict[str, Type[SGEntity]] = {}
 #: The class that represents the ShotGrid site.
 __SG_SITE_CLASS: Type[SGSite] = SGSite
 
@@ -1448,14 +1448,12 @@ def register_sg_site_class(sg_site_class: Type[SGSite]) -> None:
 
     if not issubclass(sg_site_class, SGSite):
         raise TypeError(
-            'The given class "{}" needs to inherit from pyshotgrid.SGEntity.' "".format(
-                sg_site_class
-            )
+            f'The given class "{sg_site_class}" needs to inherit from pyshotgrid.SGEntity.'
         )
     __SG_SITE_CLASS = sg_site_class
 
 
-def convert_fields_to_pysg(sg: shotgun_api3.Shotgun, fields: Dict[str, Any]) -> Dict[str, Any]:
+def convert_fields_to_pysg(sg: shotgun_api3.Shotgun, fields: dict[str, Any]) -> dict[str, Any]:
     """
     Convert all the values from a fields dict to pysg objects where possible.
 
@@ -1467,7 +1465,7 @@ def convert_fields_to_pysg(sg: shotgun_api3.Shotgun, fields: Dict[str, Any]) -> 
     return {field: convert_value_to_pysg(sg, value) for field, value in fields.items()}
 
 
-def convert_fields_to_dicts(fields: Dict[str, Any]) -> Dict[str, Any]:
+def convert_fields_to_dicts(fields: dict[str, Any]) -> dict[str, Any]:
     """
     Convert all the values from a fields dict to simple dictionaries. The counterpart function
     to `func:_convert_fields_to_pysg`.
@@ -1479,7 +1477,7 @@ def convert_fields_to_dicts(fields: Dict[str, Any]) -> Dict[str, Any]:
     return {field: convert_value_to_dict(value) for field, value in fields.items()}
 
 
-def convert_value_to_dict(value: Any) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+def convert_value_to_dict(value: Any) -> Union[dict[str, Any], list[dict[str, Any]]]:
     """
     Convert any pysg objects form the given value to simple dictionaries.
 
@@ -1500,7 +1498,7 @@ def convert_value_to_dict(value: Any) -> Union[Dict[str, Any], List[Dict[str, An
         return value
 
 
-def convert_filters_to_dict(filters: List[List[Any]]) -> List[List[Any]]:
+def convert_filters_to_dict(filters: list[list[Any]]) -> list[list[Any]]:
     """
     Convert any pysg objects form the given shotgun_api3 filter to simple dictionaries.
 
