@@ -1,4 +1,4 @@
-shotgun-api3==v3.4.0
+shotgun-api3==v3.4.2
 wheel
 build
 Sphinx

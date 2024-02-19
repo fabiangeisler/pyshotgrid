@@ -1,5 +1,5 @@
 -e git+ssh://git@github.com/shotgunsoftware/tk-core.git@v0.20.4#egg=sgtk
-shotgun-api3==v3.4.0
+shotgun-api3==v3.4.2
 commitizen==3.14.1
 wheel==0.42.0
 build==1.0.3
