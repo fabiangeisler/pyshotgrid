@@ -141,16 +141,16 @@ def ruff_format(c, check=False):
 
 
 @task(
-    name="ruff-lint",
+    name="ruff-check",
     aliases=("ruff",),
     help={
         "fix": "Attempt to fix found code issues.",
     },
 )
-def ruff_lint(c, fix=False):
+def ruff_check(c, fix=False):
     """Run ruff against selected files."""
     print("Run 'ruff'")
-    c.run(f"ruff {SRC_DIR} {TEST_DIR} {'--fix' if fix else ''}")
+    c.run(f"ruff check {SRC_DIR} {TEST_DIR} {'--fix' if fix else ''}")
 
 
 @task()
@@ -164,7 +164,7 @@ def mypy(c):
         c.run(f"mypy {SRC_DIR}")
 
 
-@task(pre=[ruff_format, ruff_lint, mypy])
+@task(pre=[ruff_format, ruff_check, mypy])
 def lint(c):
     """Run all lint tasks."""
 

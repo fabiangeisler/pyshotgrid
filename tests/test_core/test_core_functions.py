@@ -1,4 +1,5 @@
 """Tests for `pyshotgrid.core` module."""
+
 import unittest.mock
 
 import pytest

@@ -1,4 +1,5 @@
 """Tests for `pyshotgrid` default entities."""
+
 import pyshotgrid.sg_default_entities as sde
 
 
