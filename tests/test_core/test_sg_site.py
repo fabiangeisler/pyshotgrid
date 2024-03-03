@@ -1,4 +1,5 @@
 """Tests for `pyshotgrid` SGSite class."""
+
 from unittest import mock
 
 import pytest

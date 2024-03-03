@@ -1,6 +1,7 @@
 """
 This module collects all default pyshotgrid custom entities.
 """
+
 import fnmatch
 from typing import Any, Optional, Union
 
