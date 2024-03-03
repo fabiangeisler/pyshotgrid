@@ -1,3 +1,9 @@
+## v2.0.0 (2024-03-03)
+
+### BREAKING CHANGE
+
+- This results in the drop of Python 3.8 as it is not supported by the shotgun-api3.
+
 ## v1.1.0 (2023-11-04)
 
 ### Feat
