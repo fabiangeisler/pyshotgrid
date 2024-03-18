@@ -1,5 +1,5 @@
 shotgun-api3==3.4.2
-wheel==0.42.0
+wheel==0.43.0
 build==1.1.1
 Sphinx==7.2.6
 furo==2024.1.29
