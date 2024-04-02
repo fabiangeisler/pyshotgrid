@@ -188,7 +188,10 @@ texinfo_documents = [
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "shotgun_api3": ("https://developer.shotgridsoftware.com/python-api/", None),
+    # For some odd reason we need to use "http" and not "https"
+    # for the intersphinx setup of the shotgun_api3. With "https" we run into an SSL
+    # certificate error.
+    "shotgun_api3": ("http://developer.shotgridsoftware.com/python-api/", None),
 }
 
 
