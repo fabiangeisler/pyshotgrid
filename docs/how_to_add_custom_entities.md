@@ -31,7 +31,7 @@ import pyshotgrid as pysg
 # In this example we only add a function to get shots from the episode.
 class SGEpisode(pysg.SGEntity):
     """
-    An instance of this class represents a single Episode entity in ShotGrid.
+    An instance of this class represents a single Episode entity in Flow Production Tracking.
     """
 
     DEFAULT_SG_ENTITY_TYPE = 'CustomProjectEntity01'
@@ -88,7 +88,7 @@ pysg.register_pysg_class(CustomSGProject)
 # Here is a small example of the above implementations.
 if __name__ == '__main__':
 
-    # connect to a ShotGrid site
+    # connect to a Flow Production Tracking site
     site = pysg.new_site(base_url='https://example.shotgunstudio.com',
                          script_name='Some User',
                          api_key='$ome_password')

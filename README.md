@@ -13,7 +13,8 @@
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 `pyshotgrid` is a python package that gives you a pythonic and
-object oriented way to talk to [Autodesk ShotGrid](https://www.autodesk.com/products/shotgrid/overview).
+object oriented way to talk to [Autodesk Flow Production Tracking](https://www.autodesk.com/products/flow-production-tracking/overview)
+(formally known as ShotGrid).
 
 # Quickstart
 
@@ -135,7 +136,7 @@ that inherits from [SGEntity][SGEntity] and register that to `pyshotgrid`. After
 `pyshotgrid` will use your custom entity whenever you ask for it. With this method
 you can even overwrite default classes that ship with `pyshotgrid`.
 
-## Why is does `pyshotgrid` not support Python 3.7? [shotgun_api3][shotgun_api3] has support for it.
+## Why does `pyshotgrid` not support Python 3.7? [shotgun_api3][shotgun_api3] has support for it.
 A couple of reasons:
 - [Python 3.7 reached EOL](https://devguide.python.org/versions/) and is no longer maintained.
 - Python 3.7 is soon off the [VFX Reference Platform](https://vfxplatform.com/).
@@ -159,6 +160,10 @@ A couple of reasons:
 No, just a brainchild from me, [Fabian Geisler](https://github.com/fabiangeisler).
 I am a Pipeline Developer based in Berlin.
 Feel free to follow me on GitHub. :)
+
+## How will the rebranding from "ShotGrid" to "Flow Production Tracking" affect this project?
+There will be no code-breaking name changes and `pyshotgrid` will not be rebranded.
+Only docs and docstrings will use the new name.
 
 # Credits
 

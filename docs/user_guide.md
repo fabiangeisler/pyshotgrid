@@ -29,7 +29,7 @@ sg_project = pysg.new_entity(sg, entity_id=1, entity_type='Project')
 
 Once you installed `pyshotgrid` you can start using it throughout your project.
 The best entry point usually creating a new instance of the SGSite class. This class
-represents your ShotGrid site as a whole and has various functions to start navigating
+represents your Flow Production Tracking site as a whole and has various functions to start navigating
 through it.
 
 :::{note}
