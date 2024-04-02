@@ -5,9 +5,10 @@
     :members:
 ```
 
+
 ```{toctree}
+:caption: Modules
 :maxdepth: 2
-:caption: Modules:
 
 modules/core
 modules/sg_default_entities
