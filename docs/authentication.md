@@ -26,7 +26,7 @@ assert sg_site_a == sg_site_b
 
 You can piggy back [SGTK's authentication](https://developers.shotgridsoftware.com/tk-core/authentication.html#authentication)
 procedures to make your live a bit easier to start out with `pyshotgrid`. The basic idea is to reuse
-the session token from either SG Desktop or SG Create, so you do not need to use another ShotGrid API key.
+the session token from either SG Desktop or SG Create, so you do not need to use another FPTR API key.
 
 ```python
 from tank.authentication import ShotgunAuthenticator
@@ -57,5 +57,5 @@ Be aware of the following caveats:
 :::
 
 Due to this I recommend to use this approach mainly for Developers. It is great for starting out
-with the library or quickly running a simple scripts to fix up some things in ShotGrid. Depending
+with the library or quickly running a simple scripts to fix up some things in Flow Production Tracking. Depending
 on your goal it can also be used in production environments, but can be limiting.

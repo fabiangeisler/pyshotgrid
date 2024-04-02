@@ -13,7 +13,8 @@
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 `pyshotgrid` is a python package that gives you a pythonic and
-object oriented way to talk to [Autodesk Flow Production Tracking](https://www.autodesk.com/products/shotgrid/overview) (formally known as ShotGrid).
+object oriented way to talk to [Autodesk Flow Production Tracking](https://www.autodesk.com/products/flow-production-tracking/overview)
+(formally known as ShotGrid).
 
 # Quickstart
 
@@ -161,7 +162,8 @@ I am a Pipeline Developer based in Berlin.
 Feel free to follow me on GitHub. :)
 
 ## How will the rebranding from "ShotGrid" to "Flow Production Tracking" affect this project?
-There will be no code-breaking name changes and `pyshotgrid` will not be rebranded. Only docs and docstrings will use the new name.
+There will be no code-breaking name changes and `pyshotgrid` will not be rebranded.
+Only docs and docstrings will use the new name.
 
 # Credits
 
