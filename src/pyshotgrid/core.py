@@ -5,10 +5,23 @@ import urllib.parse
 import urllib.request
 from typing import Any, Optional, Type, Union
 
+__SG_CLASSES = []
+try:
+    import tank_vendor
+    import tank_vendor.shotgun_api3 as shotgun_api3
+    import tank_vendor.shotgun_api3.lib.mockgun
+
+    __SG_CLASSES += [tank_vendor.shotgun_api3.Shotgun, tank_vendor.shotgun_api3.lib.mockgun.Shotgun]
+except ImportError:
+    pass
+
 try:
     import shotgun_api3
+    import shotgun_api3.lib.mockgun
+
+    __SG_CLASSES += [shotgun_api3.Shotgun, shotgun_api3.lib.mockgun.Shotgun]
 except ImportError:
-    import tank_vendor.shotgun_api3 as shotgun_api3
+    pass
 
 
 class SGEntity:
@@ -529,7 +542,7 @@ class SGEntity:
         )
 
         # Sort one more time by name.
-        sg_versions.sort(key=lambda pub: pub["entity"]["id"])
+        sg_versions.sort(key=lambda pub: (pub["entity"] or {}).get("id", 10000000000))
         # sort them by date and than by version_number which sorts the latest publish to the
         # last position.
         sg_versions.sort(key=lambda pub: pub["created_at"], reverse=True)
@@ -1370,12 +1383,11 @@ def new_site(*args: Any, **kwargs: Any) -> SGSite:
         #   - shotgun_api3.lib.mockgun.Shotgun
         #   - tank_vendor.shotgun_api3.Shotgun
         #   - tank_vendor.shotgun_api3.lib.mockgun.Shotgun
-        # pyshotgrid will load either shotgun_api3 or tk-core (tank_vendor.shotgun_api3)
-        # and therefore we cannot use "isinstance" here ,since the user might
-        # pass in a Shotgun class from the other library. We just check
-        # if the passed in object is a instance of a class named "Shotgun".
-        if args[0].__class__.__name__ == "Shotgun":
-            sg = args[0]
+        # These are collected during import on top of the file and are now compared against.
+        for sg_class in __SG_CLASSES:
+            if isinstance(args[0], sg_class):
+                sg = args[0]
+                break
         else:
             sg = shotgun_api3.Shotgun(*args)
     else:
