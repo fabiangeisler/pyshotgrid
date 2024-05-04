@@ -86,7 +86,7 @@ ignore_missing_imports = true
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "2.0.1"
+version = "2.0.2"
 tag_format = "v$version"
 update_changelog_on_bump = true
 annotated_tag = true

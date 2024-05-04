@@ -1,3 +1,10 @@
+## v2.0.2 (2024-05-04)
+
+### Fix
+
+- **new_site**: allow subclasses of shotgun_api3.Shotgun as first parameter
+- **SGEntity._version**: do not error on SG Versions with empty "entity" field
+
 ## v2.0.1 (2024-05-04)
 
 ### BREAKING CHANGE
