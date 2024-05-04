@@ -733,6 +733,22 @@ def test_versions__latest(sg):
     assert sg_shot == version["entity"].get()
 
 
+def test_versions__sg_versions_with_empty_entity_field_can_be_returned(sg):
+    sg_project = pysg.SGEntity(sg, 1, "Project")
+
+    # The "entity" parameter is misleading here. The "_version" function will
+    # actually filter against the "projects" field if you pass in a Project entity.
+    result = sg_project._versions(entity={"id": 1, "type": "Project"})
+
+    sg_versions_with_empty_entity_field = 0
+    for version in result:
+        assert "Version" == version.type
+        assert sg_project == version["project"].get()
+        if version["entity"].get() is None:
+            sg_versions_with_empty_entity_field += 1
+    assert sg_versions_with_empty_entity_field >= 1
+
+
 def test_versions__entity_errors_with_wrong_type(sg):
     sg_shot = pysg.SGEntity(sg, 1, "Shot")
 

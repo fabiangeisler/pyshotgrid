@@ -531,6 +531,19 @@ def add_default_entities(sg):
             "playlists": [playlist_b],
         },
     )
+    # slightly broken Version without entity and task
+    sg.create(
+        "Version",
+        {
+            "code": "Tree_mdl_v001",
+            "user": person_b,
+            "created_at": datetime.datetime(2000, 1, 1, 12, 0, 0),
+            "sg_task": None,
+            "entity": None,
+            "project": project_a,
+            "playlists": [playlist_b],
+        },
+    )
 
     # Notes
     sg_note_a = sg.create("Note", {"subject": "Test note", "note_links": [sg_version_a]})
