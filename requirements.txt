@@ -3,7 +3,7 @@ shotgun-api3==3.5.1
 commitizen==3.27.0
 wheel==0.43.0
 build==1.2.1
-twine==5.0.0
+twine==5.1.1
 ruff==0.5.1
 mypy==1.10.0
 invoke==2.2.0
