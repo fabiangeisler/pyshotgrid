@@ -4,7 +4,7 @@ commitizen==3.29.0
 wheel==0.44.0
 build==1.2.2
 twine==5.1.1
-ruff==0.6.5
+ruff==0.6.7
 mypy==1.11.2
 invoke==2.2.0
 pre-commit==3.8.0
