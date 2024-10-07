@@ -1,6 +1,6 @@
 shotgun-api3==3.5.1
 wheel==0.44.0
-build==1.2.2
+build==1.2.2.post1
 Sphinx==8.0.2
 furo==2024.8.6
 myst-parser==4.0.0
