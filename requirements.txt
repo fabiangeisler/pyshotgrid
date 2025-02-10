@@ -1,6 +1,6 @@
 git+https://github.com/shotgunsoftware/tk-core.git@v0.20.26#egg=sgtk
 shotgun-api3==3.5.1
-commitizen==3.29.1
+commitizen==4.2.1
 wheel==0.44.0
 build==1.2.2.post1
 twine==6.0.1
