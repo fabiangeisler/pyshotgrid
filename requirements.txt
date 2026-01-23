@@ -1,11 +1,11 @@
 git+https://github.com/shotgunsoftware/tk-core.git@v0.20.26#egg=sgtk
 shotgun-api3==3.5.1
 commitizen==4.9.1
-wheel==0.44.0
+wheel==0.46.2
 build==1.2.2.post1
 twine==6.1.0
 ruff==0.11.0
-mypy==1.14.1
+mypy==1.18.2
 invoke==2.2.0
 pre-commit==4.1.0
 pytest-cov==6.0.0
