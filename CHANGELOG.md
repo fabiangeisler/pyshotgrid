@@ -1,3 +1,13 @@
+## v2.1.0 (2026-01-25)
+
+### Feat
+
+- **Dep**: Update main dependency shotgun-api3 to 3.9.2
+
+### Fix
+
+- **Docs**: Fix and update requirements for documentation generation
+
 ## v2.0.2 (2024-05-04)
 
 ### Fix
