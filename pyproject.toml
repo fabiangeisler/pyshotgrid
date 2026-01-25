@@ -57,8 +57,9 @@ python =
     3.10: py310
     3.11: py311
 
-[testenv:py310_docs]
+[testenv:py311_docs]
 description=Documentation generation
+basepython=3.11
 changedir=docs
 deps=
     -rrequirements_docs.txt

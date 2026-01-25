@@ -205,7 +205,7 @@ def coverage(c, open_browser=False):
 def docs(c, open_browser=False):
     """Build documentation."""
     _clean_docs()
-    c.run("tox -e py310_docs")
+    c.run("tox -e py311_docs")
     if open_browser:
         webbrowser.open(str(DOCS_INDEX))
 
