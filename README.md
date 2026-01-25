@@ -2,7 +2,7 @@
   <img src="https://github.com/fabiangeisler/pyshotgrid/blob/main/icons/pysg_logo.png?raw=true" />
 </p>
 
-[![VFX Platform](https://img.shields.io/badge/vfxplatform-2024%20%7C%202023%20%7C%202022-white.svg)](http://www.vfxplatform.com/)
+[![VFX Platform](https://img.shields.io/badge/vfxplatform-2025%20%7C%202024%20%7C%202023%20%7C%202022-white.svg)](http://www.vfxplatform.com/)
 [![pypi](https://img.shields.io/pypi/v/pyshotgrid.svg)](https://pypi.python.org/pypi/pyshotgrid)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/pyshotgrid.svg)](https://pypi.python.org/pypi/pyshotgrid/)
 [![Tests](https://github.com/fabiangeisler/pyshotgrid/actions/workflows/Tests.yml/badge.svg)](https://github.com/fabiangeisler/pyshotgrid/actions/workflows/Tests.yml)
@@ -13,8 +13,8 @@
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 `pyshotgrid` is a python package that gives you a pythonic and
-object oriented way to talk to [Autodesk Flow Production Tracking](https://www.autodesk.com/products/flow-production-tracking/overview)
-(formally known as ShotGrid).
+object-oriented way to talk to [Autodesk Flow Production Tracking](https://www.autodesk.com/products/flow-production-tracking/overview)
+(formerly known as ShotGrid or Shotgun).
 
 # Quickstart
 
@@ -131,30 +131,10 @@ it is totally possible to write `pyshotgrid` code without using [shotgun_api3][s
 
 ## I have some custom entity setup in ShotGrid. Can this be reflected in `pyshotgrid`?
 Yes, it can! By default `pyshotgrid` returns any entity as [SGEntity][SGEntity] to provide
-a minimum of functionality in all cases. However you can write your own class
+a minimum of functionality in all cases. However, you can write your own class
 that inherits from [SGEntity][SGEntity] and register that to `pyshotgrid`. After that,
 `pyshotgrid` will use your custom entity whenever you ask for it. With this method
 you can even overwrite default classes that ship with `pyshotgrid`.
-
-## Why does `pyshotgrid` not support Python 3.7? [shotgun_api3][shotgun_api3] has support for it.
-A couple of reasons:
-- [Python 3.7 reached EOL](https://devguide.python.org/versions/) and is no longer maintained.
-- Python 3.7 is soon off the [VFX Reference Platform](https://vfxplatform.com/).
-- The hidden goal of this project is to create a python library that uses the latest
-  innovations in the Python world.
-  In a nutshell I want to create the simplest setup that gives you:
-  - automatic publishing to PyPI
-  - automatic testing with tox, pytest and coverage
-  - automatic [Sphinx](https://www.sphinx-doc.org/en/master/) documentation
-  - [mypy](https://mypy-lang.org/) type hints
-  - [ruff](https://github.com/astral-sh/ruff) linting
-  - [black](https://github.com/psf/black) code formatting (actually done by `ruff format`)
-  - [pre-commit](https://github.com/pre-commit/pre-commit) checks
-  - [invoke](https://www.pyinvoke.org/) setup for common tasks in the repository
-  - streamlined commit messages and changelog with [commitizen](https://github.com/commitizen-tools/commitizen)
-
-  A good chunk of these tools do not support Python 3.7 anymore and I do not have the time to
-  keep up the compatibility.
 
 ## Is this an official project from Autodesk?
 No, just a brainchild from me, [Fabian Geisler](https://github.com/fabiangeisler).
