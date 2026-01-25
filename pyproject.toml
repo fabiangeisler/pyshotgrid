@@ -10,7 +10,7 @@ authors = [
   { name="Fabian Geisler", email="info@fasbue.com" },
 ]
 description = "A pythonic and object oriented way to talk to Autodesk ShotGrid."
-dependencies = ["shotgun-api3>=3.4.0"]
+dependencies = ["shotgun-api3>=3.9.2"]
 readme.file = "README.md"
 readme.content-type = "text/markdown"
 license.text="MIT"
@@ -25,6 +25,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
 ]
 dynamic = ["version"]
@@ -49,13 +50,14 @@ addopts = "--cov=pyshotgrid"
 legacy_tox_ini = """
 [tox]
 skip_missing_interpreters = true
-envlist = py39, py310, py311
+envlist = py39, py310, py311, py312
 
 [gh-actions]
 python =
     3.9: py39
     3.10: py310
     3.11: py311
+    3.12: py312
 
 [testenv:py311_docs]
 description=Documentation generation
