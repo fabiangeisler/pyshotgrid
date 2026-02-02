@@ -1,5 +1,5 @@
 shotgun-api3==3.9.2
-wheel==0.46.2
+wheel==0.46.3
 build==1.4.0
 Sphinx==8.3.0
 furo==2025.12.19
