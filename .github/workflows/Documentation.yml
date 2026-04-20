@@ -38,7 +38,7 @@ jobs:
         run: |
           tox -e py311_docs
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           # Upload build dir
           path: './docs/_builds'
