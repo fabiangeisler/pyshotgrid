@@ -1181,7 +1181,7 @@ class Field(FieldSchema):
             False,
             "/",
             True,
-            False,
+            True,
             None,
             True,
             None,
