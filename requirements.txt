@@ -10,4 +10,4 @@ invoke==2.2.1
 pre-commit==4.3.0
 pytest-cov==7.1.0
 pytest==9.0.3
-tox==4.30.3
+tox==4.65.0
