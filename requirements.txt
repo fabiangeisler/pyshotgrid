@@ -7,7 +7,7 @@ twine==6.2.0
 ruff==0.15.7
 mypy==1.19.1
 invoke==2.2.1
-pre-commit==4.3.0
+pre-commit==4.6.2
 pytest-cov==7.1.0
 pytest==9.0.3
 tox==4.65.0
